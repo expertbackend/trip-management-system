@@ -109,25 +109,25 @@ function App() {
   };
 
   // Handle incoming location updates
-  useEffect(() => {
-    const handleLocationUpdate = (data) => {
-      console.log('Location update:', data);
-      setLocations((prev) => ({
-        ...prev,
-        [data.userId]: { latitude: data.latitude, longitude: data.longitude },
-      }));
-    };
+  // useEffect(() => {
+  //   const handleLocationUpdate = (data) => {
+  //     console.log('Location update:', data);
+  //     setLocations((prev) => ({
+  //       ...prev,
+  //       [data.userId]: { latitude: data.latitude, longitude: data.longitude },
+  //     }));
+  //   };
 
-    socket.on('changeLocation', handleLocationUpdate);
+  //   socket.on('changeLocation', handleLocationUpdate);
 
-    // Start location tracking when the component mounts
-    startTracking();
+  //   // Start location tracking when the component mounts
+  //   startTracking();
 
-    return () => {
-      socket.off('changeLocation', handleLocationUpdate);
-      socket.disconnect();
-    };
-  }, [socket]);
+  //   return () => {
+  //     socket.off('changeLocation', handleLocationUpdate);
+  //     socket.disconnect();
+  //   };
+  // }, [socket]);
 
   // Clear notifications
   const clearNotifications = () => setNotifications([]);
