@@ -107,6 +107,9 @@ io.on('connection', (socket) => {
 const userRoute = require('./routes/authroute');
 app.use('/api/users',userRoute);
 app.use('/api/booking',bookingRoute)
+app.get('/',async(req,res)=>{
+  res.send('API Server is working fine............ ')
+})
 // API routes
 app.get('/api/locations', async (req, res) => {
   try {
