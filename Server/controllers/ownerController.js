@@ -316,9 +316,10 @@ exports.driversloc = async(req,res)=>{
           location: {
             latitude: latestLocation.location.coordinates[1],
             longitude: latestLocation.location.coordinates[0],
-          },
-          status: status,
+            status: status,
           drivername:driverData.name
+          },
+          
         });
       } catch (error) {
         console.error(error);
