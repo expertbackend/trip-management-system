@@ -193,6 +193,7 @@ console.log('currentlocation',currentLocation)
               url: 'https://developers.google.com/maps/documentation/javascript/examples/full/images/beachflag.png', // Custom Location Pin icon
               scaledSize: new window.google.maps.Size(50, 50), // Make it a little larger
             }}
+            // label={`${driverDetails.name} (${driverDetails.plateNumber}) - ${driverDetails.status}`}
           />
         )}
 

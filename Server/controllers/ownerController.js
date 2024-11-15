@@ -278,7 +278,9 @@ function getDistance(lat1, lon1, lat2, lon2) {
 exports.driversloc = async(req,res)=>{
     try {
         const driverId = req.params.driverId;
-    
+    const driverData = await User.findById({
+        _id:driverId
+    })
         // Fetch the latest location
         const latestLocation = await Location.findOne({ userId: driverId })
           .sort({ timestamp: -1 })
@@ -316,6 +318,7 @@ exports.driversloc = async(req,res)=>{
             longitude: latestLocation.location.coordinates[0],
           },
           status: status,
+          drivername:driverData.name
         });
       } catch (error) {
         console.error(error);
