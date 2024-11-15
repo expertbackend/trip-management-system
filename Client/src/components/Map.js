@@ -52,12 +52,13 @@ const OwnerDashboardMap = () => {
   // Fetch current location of the selected driver
   const fetchDriverLocation = async (driverId) => {
     try {
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/drivers/${driverId}/getDrivers`, {
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/owner/drivers/${driverId}/location`, {
         headers: {
           Authorization: `Bearer ${token}`, // Include the token in the Authorization header
         },
       });
       const data = await response.json();
+      console.log('datatatatatatatatataat',data)
       const { latitude, longitude } = data.location;
       setCurrentLocation({
         lat: latitude,

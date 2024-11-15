@@ -52,7 +52,7 @@ const OwnerDashboardMap = () => {
   // Fetch current location of the selected driver
   const fetchDriverLocation = async (driverId) => {
     try {
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/drivers/${driverId}/getDrivers`, {
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/drivers/${driverId}/location`, {
         headers: {
           Authorization: `Bearer ${token}`, // Include the token in the Authorization header
         },
@@ -141,7 +141,7 @@ const OwnerDashboardMap = () => {
 
   if (loadError) return <div>Error loading maps</div>;
   if (!isLoaded) return <div>Loading maps...</div>;
-
+console.log('currentlocation',currentLocation)
   return (
     <div className="p-4">
       <h2 className="text-xl font-bold mb-4">Owner Dashboard</h2>

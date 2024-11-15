@@ -262,3 +262,29 @@ exports.getDrivers = async(req,res)=>{
         })
     }
 }
+
+exports.driversloc = async(req,res)=>{
+    try {
+        const driverId = req.params.driverId;
+    
+        // Query to get the latest location by sorting by timestamp in descending order
+        const latestLocation = await Location.findOne({ userId: driverId })
+          .sort({ timestamp: -1 })  // Sort by timestamp, descending
+          .exec(); // Ensure it's executed
+    
+        if (!latestLocation) {
+          return res.status(404).json({ message: 'Location not found for this driver.' });
+        }
+    
+        // Return the latest location
+        res.json({
+          location: {
+            latitude: latestLocation.location.coordinates[1],  // Latitude is at index 1
+            longitude: latestLocation.location.coordinates[0], // Longitude is at index 0
+          },
+        });
+      } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Server error' });
+      }
+}
