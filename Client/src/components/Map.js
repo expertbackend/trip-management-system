@@ -58,11 +58,12 @@ const OwnerDashboardMap = () => {
         },
       });
       const data = await response.json();
-      console.log('datatatatatatataatt',data)
-      const { latitude, longitude } = data.location;
+      const { latitude, longitude, status, drivername } = data.location;
       setCurrentLocation({
         lat: latitude,
         lng: longitude,
+        status,
+        drivername,
       });
     } catch (error) {
       console.error('Error fetching driver location:', error);
@@ -87,6 +88,7 @@ const OwnerDashboardMap = () => {
       console.error('Error fetching driver history:', error);
     }
   };
+
   const MOVEMENT_THRESHOLD = 50; // Threshold in meters (adjust as needed)
 
   function getDistance(lat1, lon1, lat2, lon2) {
@@ -100,6 +102,7 @@ const OwnerDashboardMap = () => {
     const distance = R * c * 1000; // Distance in meters
     return distance;
   }
+
   // Handle real-time driver updates
   useEffect(() => {
     socket.on('changeLocation', (data) => {
@@ -126,7 +129,6 @@ const OwnerDashboardMap = () => {
         return updatedLocations;
       });
     });
-    
 
     return () => {
       socket.disconnect();
@@ -146,7 +148,7 @@ const OwnerDashboardMap = () => {
 
   if (loadError) return <div>Error loading maps</div>;
   if (!isLoaded) return <div>Loading maps...</div>;
-console.log('currentlocation',currentLocation)
+
   return (
     <div className="p-4">
       <h2 className="text-xl font-bold mb-4">Owner Dashboard</h2>
@@ -193,8 +195,7 @@ console.log('currentlocation',currentLocation)
               url: 'https://developers.google.com/maps/documentation/javascript/examples/full/images/beachflag.png', // Custom Location Pin icon
               scaledSize: new window.google.maps.Size(50, 50), // Make it a little larger
             }}
-            label={currentLocation?.status}
-            // label={`${driverDetails.name} (${driverDetails.plateNumber}) - ${driverDetails.status}`}
+            label={`${currentLocation.drivername} - ${currentLocation.status}`}
           />
         )}
 
