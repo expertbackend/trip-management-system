@@ -7,7 +7,7 @@ const initializeIo = (serverInstance) => {
   const { Server } = require('socket.io');
   io = new Server(serverInstance, {
     cors: {
-      origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+      origin: process.env.FRONTEND_URL || 'https://trip-management-system-1.onrender.com',
       methods: ['GET', 'POST'],
     },
   });
