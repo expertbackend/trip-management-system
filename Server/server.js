@@ -76,7 +76,7 @@ io.on('connection', (socket) => {
 
   socket.on('sendLocation', async (data) => {
     const userId = socket.userId;
-  
+    socket.broadcast.emit('changeLocation', { userId, latitude: data.latitude, longitude: data.longitude });
     const location = new Location({
       userId,
       location: {
@@ -87,7 +87,6 @@ io.on('connection', (socket) => {
   
     try {
       await location.save();
-      socket.broadcast.emit('changeLocation', data); // Broadcast the location to all clients
     } catch (error) {
       console.error('Error saving location:', error);
     }
@@ -111,15 +110,15 @@ app.get('/',async(req,res)=>{
   res.send('API Server is working fine............ ')
 })
 // API routes
-app.get('/api/locations', async (req, res) => {
+app.get('/api/drivers/:userId/history', async (req, res) => {
+  const { userId } = req.params;
+
   try {
-    const locations = await Location.find({})
-      .populate('userId', 'name');
-      
+    const locations = await Location.find({ userId }).sort({ createdAt: 1 }); // Sort by time
     res.json(locations);
   } catch (error) {
-    console.error('Error retrieving locations:', error);
-    res.status(500).json({ message: 'Error retrieving locations' });
+    console.error('Error retrieving location history:', error);
+    res.status(500).json({ message: 'Error retrieving location history' });
   }
 });
 

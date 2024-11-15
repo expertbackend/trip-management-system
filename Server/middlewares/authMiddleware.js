@@ -8,7 +8,6 @@ const authMiddleware = async (req, res, next) => {
   try {
     const decoded = jwt.verify(token, "hahahahahahahyoudontknowre");
     req.user = await User.findById(decoded.id).populate('role');
-    console.log('hahhadfbfbfb',req.user)
     next();
   } catch (err) {
     res.status(400).send('Invalid Token');

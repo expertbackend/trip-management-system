@@ -241,3 +241,24 @@ exports.findDrivers = async (req, res) => {
         return res.status(500).json({ message: 'Server error.' });
     }
 };
+
+exports.getDrivers = async(req,res)=>{
+    try {
+        const ownerId = req.user._id
+        const getDrivers = await User.find({ownerId});
+        if(!getDrivers){
+            return res.status(404).json({
+                message:"No Driver Found"
+            })
+        }
+        return res.status(200).json({
+            message:"Drivers Found",
+            drivers: getDrivers
+        })
+    } catch (error) {
+        console.log(error.message)
+        return res.status(500).json({
+            message:"Internal Server Error"
+        })
+    }
+}
