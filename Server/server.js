@@ -1,152 +1,203 @@
-// server.js
-require('dotenv').config(); // Load environment variables
-const express = require('express');
-const http = require('http');
-const { Server } = require('socket.io');
-const cors = require('cors');
-const mongoose = require('mongoose');
-const jwt = require('jsonwebtoken');
-const Location = require('./models/Location');
-const User = require('./models/User');
-const ownerRoutes = require('./routes/ownerRoutes');
-const bookingRoute = require('./routes/bookingRoutes');
-const app = express();
-const { initializeIo } = require('./socket'); 
-const server = http.createServer(app);
-const activeSockets = require('./socketStorage');
-const io = initializeIo(server);
-// const io = new Server(server, {
-//   cors: {
-//     origin: process.env.FRONTEND_URL || 'http://localhost:3000',
-//     methods: ['GET', 'POST'],
-//   },
-// });
-// const socketHandlers = socketServer(server);
+import React, { useEffect, useState } from 'react';
+import { GoogleMap, Marker, Polyline, useLoadScript } from '@react-google-maps/api';
+import io from 'socket.io-client';
 
-
-app.use(cors());
-app.use(express.json()); // Middleware to parse JSON bodies
-
-// MongoDB connection
-const connectDB = async () => {
-  try {
-    await mongoose.connect("mongodb+srv://kuleswariexpertsolutions:w5F2FkJHr8TKnOyU@cluster0.unm3o.mongodb.net/taxi-service", {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-    });
-    console.log('Connected to MongoDB');
-  } catch (error) {
-    console.error('MongoDB connection error:', error);
-    process.exit(1); // Exit the process if the connection fails
-  }
+const mapContainerStyle = {
+  width: '100%',
+  height: '600px',
 };
 
-connectDB();
-app.use('/api/owner', ownerRoutes);
-// Middleware to authenticate Socket.IO connections
-io.use(async (socket, next) => {
-  const token = socket.handshake.auth.token;
+const center = {
+  lat: 28.6139, // Default to New Delhi (can be any other central location)
+  lng: 77.209,
+};
 
-  if (!token) {
-    return next(new Error('Unauthorized: No token provided'));
-  }
+const polylineOptions = {
+  strokeColor: '#FF0000',
+  strokeOpacity: 0.8,
+  strokeWeight: 3,
+};
 
-  try {
-    const verified = jwt.verify(token,"hahahahahahahyoudontknowre"); // Use environment variable for the secret
-    const user = await User.findById(verified.id).populate('role');
+const OwnerDashboardMap = () => {
+  const { isLoaded, loadError } = useLoadScript({
+    googleMapsApiKey: process.env.REACT_APP_GOOGLE_MAPS_API_KEY || '', // Your Google Maps API Key
+  });
 
-    if (!user) {
-      return next(new Error('Unauthorized: User not found'));
-    }
+  const [locations, setLocations] = useState([]); // Stores live driver locations
+  const [driverHistory, setDriverHistory] = useState([]); // Stores history for selected driver
+  const [selectedDriver, setSelectedDriver] = useState(null); // Tracks selected driver
+  const [drivers, setDrivers] = useState([]); // List of all drivers for dropdown
+  const [currentLocation, setCurrentLocation] = useState(null); // Stores current location of selected driver
 
-    socket.userId = user._id.toString();
-    next();
-  } catch (error) {
-    console.error('JWT verification error:', error);
-    return next(new Error('Unauthorized: Invalid token'));
-  }
-});
+  // Initialize Socket.IO
+  const socket = io(process.env.REACT_APP_API_URL); // Replace with your backend's Socket.IO endpoint
+  const token = localStorage.getItem('token');
 
-io.on('connection', (socket) => {
-  const userId = socket.userId;
-
-  activeSockets.set(userId, socket.id);
-
-
-
-  socket.on('sendLocation', async (data) => {
-    const userId = socket.userId;
-    socket.broadcast.emit('changeLocation', { userId, latitude: data.latitude, longitude: data.longitude });
-    const location = new Location({
-      userId,
-      location: {
-        type: 'Point', // Specify the type as 'Point'
-        coordinates: [data.longitude, data.latitude], // Note: Coordinates should be [longitude, latitude]
-      },
-    });
-  
+  // Fetch list of drivers from the backend
+  const fetchDrivers = async () => {
     try {
-      await location.save();
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/owner/getDrivers`, {
+        headers: {
+          Authorization: `Bearer ${token}`, // Include the token in the Authorization header
+        },
+      });
+      const data1 = await response.json();
+      const data = data1.drivers;
+      setDrivers(data); // Update state with the list of drivers
     } catch (error) {
-      console.error('Error saving location:', error);
+      console.error('Error fetching drivers:', error);
     }
-  });
-  // socket.emit('newNotification', {
-  //   title: 'Notification Title',
-  //   body: 'Notification Body',
-  //   timestamp: new Date().toISOString(),
-  // });
+  };
 
-  socket.on('disconnect', () => {
-    activeSockets.delete(userId);
-
-    console.log('User disconnected:', socket.id);
-  });
-});
-const userRoute = require('./routes/authroute');
-app.use('/api/users',userRoute);
-app.use('/api/booking',bookingRoute)
-app.get('/',async(req,res)=>{
-  res.send('API Server is working fine............ ')
-})
-// API routes
-app.get('/api/drivers/:userId/history', async (req, res) => {
-  const { userId } = req.params;
-
-  try {
-    const locations = await Location.find({ userId }).sort({ createdAt: 1 }); // Sort by time
-    res.json(locations);
-  } catch (error) {
-    console.error('Error retrieving location history:', error);
-    res.status(500).json({ message: 'Error retrieving location history' });
-  }
-});
-
-app.get('/api/users/:userId', async (req, res) => {
-  const { userId } = req.params;
-  try {
-    const user = await User.findById(userId).select('name');
-    if (user) {
-      res.json(user);
-    } else {
-      res.status(404).send('User not found');
+  // Fetch current location of the selected driver
+  const fetchDriverLocation = async (driverId) => {
+    try {
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/drivers/${driverId}/getDrivers`, {
+        headers: {
+          Authorization: `Bearer ${token}`, // Include the token in the Authorization header
+        },
+      });
+      const data = await response.json();
+      const { latitude, longitude } = data.location;
+      setCurrentLocation({
+        lat: latitude,
+        lng: longitude,
+      });
+    } catch (error) {
+      console.error('Error fetching driver location:', error);
     }
-  } catch (error) {
-    console.error('Error retrieving user:', error);
-    res.status(500).send('Server error');
-  }
-});
-const fireBaseRoutes = require('./routes/notificationRoutes');
-const Notification = require('./tEst/NotificationService');
-app.use('/api/firebase',fireBaseRoutes)
-// app.get('/',(req,res)=>{
-//     res.json({
-//         "message":"working fine"
-//     })
-// })
-// Start the server
-const PORT =  4001;
-server.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
-});
-module.exports = io;
+  };
+
+  // Fetch location history for the selected driver
+  const fetchDriverHistory = async (driverId) => {
+    try {
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/drivers/${driverId}/history`, {
+        headers: {
+          Authorization: `Bearer ${token}`, // Include the token in the Authorization header
+        },
+      });
+      const data = await response.json();
+      const historyPath = data.map((loc) => ({
+        lat: loc.location.coordinates[1],
+        lng: loc.location.coordinates[0],
+      }));
+      setDriverHistory(historyPath);
+    } catch (error) {
+      console.error('Error fetching driver history:', error);
+    }
+  };
+
+  // Handle real-time driver updates
+  useEffect(() => {
+    socket.on('changeLocation', (data) => {
+      console.log('changelocationData',data)
+      setLocations((prev) => {
+        const existingDriver = prev.find((loc) => loc.userId === data.userId);
+
+        if (existingDriver) {
+          // Update existing driver's location in the state
+          return prev.map((loc) =>
+            loc.userId === data.userId
+              ? { ...loc, location: { coordinates: [data.longitude, data.latitude] } }
+              : loc
+          );
+        }
+
+        // Add new driver if not already in the state
+        return [
+          ...prev,
+          {
+            userId: data.userId,
+            location: { coordinates: [data.longitude, data.latitude] },
+          },
+        ];
+      });
+
+      // Update current location when selected driver moves
+      if (selectedDriver === data.userId) {
+        setCurrentLocation({
+          lat: data.latitude,
+          lng: data.longitude,
+        });
+      }
+    
+    });
+
+    return () => {
+      socket.disconnect();
+    };
+  }, [socket, selectedDriver]);
+
+  useEffect(() => {
+    fetchDrivers(); // Fetch the list of drivers on component mount
+  }, []);
+
+  useEffect(() => {
+    if (selectedDriver) {
+      fetchDriverLocation(selectedDriver); // Fetch current location when a driver is selected
+      fetchDriverHistory(selectedDriver); // Fetch history when a driver is selected
+    }
+  }, [selectedDriver]);
+
+  if (loadError) return <div>Error loading maps</div>;
+  if (!isLoaded) return <div>Loading maps...</div>;
+
+  return (
+    <div className="p-4">
+      <h2 className="text-xl font-bold mb-4">Owner Dashboard</h2>
+
+      {/* Dropdown to Select Driver */}
+      <div className="mb-4">
+        <label htmlFor="driver-select" className="block mb-2 font-semibold">
+          Select a Driver:
+        </label>
+        <select
+          id="driver-select"
+          value={selectedDriver || ''}
+          onChange={(e) => setSelectedDriver(e.target.value)}
+          className="p-2 border rounded w-full"
+        >
+          <option value="">-- Select a Driver --</option>
+          {drivers.map((driver) => (
+            <option key={driver.userId} value={driver._id}>
+              Driver {driver.name} {/* Replace with driver's name or other details */}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      {/* Google Map */}
+      <GoogleMap mapContainerStyle={mapContainerStyle} center={center} zoom={12}>
+        {/* Live Driver Markers */}
+        {locations.map((loc) => (
+          <Marker
+            key={loc.userId}
+            position={{
+              lat: loc.location.coordinates[1],
+              lng: loc.location.coordinates[0],
+            }}
+            label={`Driver ${loc.userId}`}
+          />
+        ))}
+
+        {/* Current Location Marker */}
+        {currentLocation && (
+          <Marker
+            position={currentLocation}
+            icon={{
+              url: 'https://developers.google.com/maps/documentation/javascript/examples/full/images/beachflag.png', // Custom Location Pin icon
+              scaledSize: new window.google.maps.Size(50, 50), // Make it a little larger
+            }}
+          />
+        )}
+
+        {/* Driver History Polyline */}
+        {selectedDriver && driverHistory.length > 0 && (
+          <Polyline path={driverHistory} options={polylineOptions} />
+        )}
+      </GoogleMap>
+    </div>
+  );
+};
+
+export default OwnerDashboardMap;
