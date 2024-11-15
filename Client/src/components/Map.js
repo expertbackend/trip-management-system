@@ -91,38 +91,30 @@ const OwnerDashboardMap = () => {
   // Handle real-time driver updates
   useEffect(() => {
     socket.on('changeLocation', (data) => {
-      console.log('changelocationData',data)
-      setLocations((prev) => {
-        const existingDriver = prev.find((loc) => loc.userId === data.userId);
-
-        if (existingDriver) {
-          // Update existing driver's location in the state
-          return prev.map((loc) =>
-            loc.userId === data.userId
-              ? { ...loc, location: { coordinates: [data.longitude, data.latitude] } }
-              : loc
-          );
-        }
-
-        // Add new driver if not already in the state
-        return [
-          ...prev,
-          {
-            userId: data.userId,
-            location: { coordinates: [data.longitude, data.latitude] },
-          },
-        ];
-      });
-
-      // Update current location when selected driver moves
-      if (selectedDriver === data.userId) {
-        setCurrentLocation({
-          lat: data.latitude,
-          lng: data.longitude,
-        });
-      }
+      const { userId, latitude, longitude } = data; // Get the user's ID and new coordinates
     
+      // Find the previous location for this user
+      const previousLocation = locations.find(loc => loc.userId === userId);
+    
+      // Determine whether the user is moving or parked
+      const status = previousLocation
+        ? getDistance(previousLocation.location.coordinates[1], previousLocation.location.coordinates[0], latitude, longitude) > MOVEMENT_THRESHOLD
+          ? 'moving'
+          : 'parked'
+        : 'parked'; // If no previous location, assume parked initially
+    
+      // Update the location and status in the state or database
+      setLocations((prev) => {
+        const updatedLocations = prev.filter(loc => loc.userId !== userId); // Remove old location
+        updatedLocations.push({
+          userId,
+          location: { coordinates: [longitude, latitude] },
+          status, // Add status (moving or parked)
+        });
+        return updatedLocations;
+      });
     });
+    
 
     return () => {
       socket.disconnect();

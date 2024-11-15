@@ -263,29 +263,63 @@ exports.getDrivers = async(req,res)=>{
         })
     }
 }
-
+const MOVEMENT_THRESHOLD = 10;
+function getDistance(lat1, lon1, lat2, lon2) {
+    const R = 6371; // Radius of the Earth in km
+    const dLat = (lat2 - lat1) * Math.PI / 180;
+    const dLon = (lon2 - lon1) * Math.PI / 180;
+    const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+              Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+              Math.sin(dLon / 2) * Math.sin(dLon / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    const distance = R * c * 1000; // Distance in meters
+    return distance;
+  }
 exports.driversloc = async(req,res)=>{
     try {
         const driverId = req.params.driverId;
     
-        // Query to get the latest location by sorting by timestamp in descending order
+        // Fetch the latest location
         const latestLocation = await Location.findOne({ userId: driverId })
-          .sort({ timestamp: -1 })  // Sort by timestamp, descending
-          .exec(); // Ensure it's executed
+          .sort({ timestamp: -1 })
+          .exec();
     
         if (!latestLocation) {
           return res.status(404).json({ message: 'Location not found for this driver.' });
         }
     
-        // Return the latest location
+        // Fetch the previous location (second latest)
+        const previousLocation = await Location.findOne({ userId: driverId })
+          .sort({ timestamp: -1 })
+          .skip(1) // Skip the most recent record to get the previous one
+          .exec();
+    
+        if (!previousLocation) {
+          return res.status(404).json({ message: 'No previous location data available.' });
+        }
+    
+        // Calculate the distance between the latest and previous locations
+        const distance = getDistance(
+          latestLocation.location.coordinates[1], // latest latitude
+          latestLocation.location.coordinates[0], // latest longitude
+          previousLocation.location.coordinates[1], // previous latitude
+          previousLocation.location.coordinates[0]  // previous longitude
+        );
+    
+        // Determine if the driver is moving or parked
+        const status = distance > MOVEMENT_THRESHOLD ? 'moving' : 'parked';
+    
+        // Return the location and status
         res.json({
           location: {
-            latitude: latestLocation.location.coordinates[1],  // Latitude is at index 1
-            longitude: latestLocation.location.coordinates[0], // Longitude is at index 0
+            latitude: latestLocation.location.coordinates[1],
+            longitude: latestLocation.location.coordinates[0],
           },
+          status: status,
         });
       } catch (error) {
         console.error(error);
         res.status(500).json({ message: 'Server error' });
       }
+
 }
