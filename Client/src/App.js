@@ -78,6 +78,7 @@ function App() {
     const userRole = localStorage.getItem('role');
     setRole(userRole);
     setLoading(false);
+    startTracking();
   }, []);
 
   // Start location tracking
