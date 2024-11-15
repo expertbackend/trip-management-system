@@ -1,23 +1,21 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { Route, Routes, Navigate, useLocation } from 'react-router-dom';
-import {
-  Login,
-  OwnerDashboard,
-  DriverDashboard,
-  OperatorDashboard,
-  Sidebar,
-  Register,
-  UserPage,
-  VehicleTable,
-  BookingPage,
-  ProfilePage,
-} from './components';
-import Header from './common/Header';
+import Login from './components/Login';
+import OwnerDashboard from './components/OwnerDashboard';
+import DriverDashboard from './components/DriverDashboard';
+import OperatorDashboard from './components/OperatorDashboard';
+import Sidebar from './components/Sidebar';
+import Register from './components/Register';
 import Home from './common/Home';
-import MapComponent from './components/Map';
 import { requestFCMToken } from './utils/firebaseUtils';
 import { getMessaging, onMessage } from 'firebase/messaging';
+import Header from './common/Header';
 import { io } from 'socket.io-client';
+import MapComponent from './components/Map';
+import UserPage from './components/UserPage';
+import VehicleTable from './components/VehiclePage';
+import BookingPage from './components/BookingPage';
+import ProfilePage from './components/ProfilePage';
 
 function App() {
   const [role, setRole] = useState(null);
