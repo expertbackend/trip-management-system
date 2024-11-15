@@ -3,8 +3,8 @@ import axios from 'axios';
 import io from 'socket.io-client';
 import moment from 'moment';
 
-const SOCKET_SERVER_URL = 'http://localhost:4001'; // Replace with your backend URL
-const API_URL = 'http://localhost:4001'; // Replace with your backend API URL
+const SOCKET_SERVER_URL = 'https://trip-management-system-1.onrender.com'; // Replace with your backend URL
+const API_URL = 'https://trip-management-system-1.onrender.com'; // Replace with your backend API URL
 
 function DriverDashboard() {
   const [notifications, setNotifications] = useState([]);
