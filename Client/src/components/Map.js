@@ -58,7 +58,7 @@ const OwnerDashboardMap = () => {
         },
       });
       const data = await response.json();
-      console.log('datatatatatatatatataat',data)
+      console.log('datatatatatatataatt',data)
       const { latitude, longitude } = data.location;
       setCurrentLocation({
         lat: latitude,
@@ -142,7 +142,7 @@ const OwnerDashboardMap = () => {
 
   if (loadError) return <div>Error loading maps</div>;
   if (!isLoaded) return <div>Loading maps...</div>;
-
+console.log('currentlocation',currentLocation)
   return (
     <div className="p-4">
       <h2 className="text-xl font-bold mb-4">Owner Dashboard</h2>
@@ -186,8 +186,8 @@ const OwnerDashboardMap = () => {
           <Marker
             position={currentLocation}
             icon={{
-              url: 'http://maps.google.com/mapfiles/ms/icons/blue-dot.png', // Blue marker for current location
-              scaledSize: new window.google.maps.Size(40, 40), // Make it a little larger
+              url: 'https://developers.google.com/maps/documentation/javascript/examples/full/images/beachflag.png', // Custom Location Pin icon
+              scaledSize: new window.google.maps.Size(50, 50), // Make it a little larger
             }}
           />
         )}
