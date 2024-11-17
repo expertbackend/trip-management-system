@@ -7,7 +7,7 @@ const initializeIo = (serverInstance) => {
   const { Server } = require('socket.io');
   io = new Server(serverInstance, {
     cors: {
-      origin: process.env.FRONTEND_URL || 'https://expsolutions.net/',
+      origin: process.env.FRONTEND_URL || 'https://tms.tripchallanbook.in/',
       methods: ['GET', 'POST'],
     },
   });
