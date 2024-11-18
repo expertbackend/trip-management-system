@@ -5,29 +5,42 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="description" content="Plan and manage your trips seamlessly with our Trip Management System. Travel smarter with tools for booking, planning, and tracking." />
     <meta name="keywords" content="trip management, travel planning, travel tools, booking system, itinerary planning, travel booking, travel tracking, vacation planning, travel management system, trip tracker, travel management software, travel scheduling, trip planner, booking management, travel solutions, transportation booking, travel itinerary, smart trip management, trip organization, travel dashboard, travel logistics, trip booking tools">
+    
+    <!-- Meta Tags for SEO -->
     <meta property="og:title" content="Trip Management System" />
     <meta property="og:description" content="Plan and manage your trips seamlessly with our Trip Management System." />
     <meta property="og:image" content="%PUBLIC_URL%/share-image.png" />
     <meta property="og:url" content="https://tms.tripchallanbook.in" />
     <meta property="og:type" content="website" />
+    <meta name="robots" content="index, follow" /> <!-- To guide search engines to index and follow the page -->
+
+    <!-- Twitter Card for better sharing on Twitter -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Trip Management System - Manage Your Travel Efficiently" />
+    <meta name="twitter:description" content="Plan and manage your trips seamlessly with our Trip Management System." />
+    <meta name="twitter:image" content="%PUBLIC_URL%/share-image.png" />
+
+    <!-- Structured Data (Schema.org) -->
     <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "WebPage",
-      "name": "Trip Management System",
-      "description": "Plan and manage your trips seamlessly with our Trip Management System.",
-      "url": "https://tms.tripchallanbook.in",
-      "publisher": {
-        "@type": "Organization",
-        "name": "Expert Solution",
-        "logo": "https://vahantrackingsystem.com/images/WhatsApp%20Image%202022-03-06%20at%202.08.52%20PM.jpeg"
+      {
+        "@context": "https://schema.org",
+        "@type": "WebPage",
+        "name": "Trip Management System",
+        "description": "Plan and manage your trips seamlessly with our Trip Management System.",
+        "url": "https://tms.tripchallanbook.in",
+        "publisher": {
+          "@type": "Organization",
+          "name": "Expert Solution",
+          "logo": "https://vahantrackingsystem.com/images/WhatsApp%20Image%202022-03-06%20at%202.08.52%20PM.jpeg"
+        }
       }
-    }
     </script>
+
     <title>Trip Management System - Manage Your Travel Efficiently</title>
     <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
     <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png" />
     <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
+    <link rel="canonical" href="https://tms.tripchallanbook.in" /> <!-- Canonical tag for SEO -->
   </head>
   <body>
     <header>
@@ -36,15 +49,18 @@
     <main>
       <p>Plan and manage your trips efficiently with tools designed for travelers.</p>
     </main>
+    <div id="root"></div>
     <footer>
       <p>&copy; 2024 Trip Management Co. All rights reserved.</p>
     </footer>
+
+    <!-- Google Maps API -->
     <script
       src="https://maps.googleapis.com/maps/api/js?key=AIzaSyClo2LZZ-ZoLAp-RPzfWDkzn_c7i6EGKDE&libraries=places"
       async
       defer
     ></script>
     <noscript>You need to enable JavaScript to run this app.</noscript>
-    <div id="root"></div>
+    
   </body>
 </html>
