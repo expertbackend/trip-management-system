@@ -180,7 +180,17 @@ function Sidebar({ role, notifications }) {
             )}
           </div>
         )}
-
+{role === 'driver' && (
+          <li>
+            <Link
+              to='/driver-dashboard'
+              className={`flex items-center p-3 rounded-lg transition-colors ${activeLink === 'driver-dashboard' ? 'bg-white text-black' : 'text-white hover:bg-white hover:text-black'}`}
+              onClick={() => handleLinkClick('driver-dashboard')}
+            >
+              <FaCar className="text-xl" />
+              {isOpen && <span className="ml-4">Driver Dashboard</span>}
+            </Link>
+          </li>)}
         {/* Booking Section - Visible for owner/operator */}
         {(role === 'owner' || role === 'operator') && (
           <div className="mt-4">
