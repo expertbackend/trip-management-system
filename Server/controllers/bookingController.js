@@ -5,7 +5,6 @@ const { getIo } = require('../socket');  // Import the getIo method for Socket.I
 const activeSockets = require('../socketStorage');
 const { Noti } = require('../models/Notification');
 const { Token } = require('../models/Token');
-
 const Notification = require('../tEst/NotificationService');
 // Helper function to calculate the estimated price
 const calculateEstimate = ({ basePay, perKmCharge, kmDriven, halt, tax, toll, discount }) => {
@@ -31,26 +30,38 @@ function convertToIST(date) {
     return new Date(utcDate.getTime() + IST_OFFSET); // Return new Date object adjusted to IST
 }
 
+
 exports.createBooking = async (req, res) => {
     try {
         const {
             vehicleId,
             pickupLocation,
             dropoffLocation,
-            kmDriven,
             customerName,
             custPhNo,
             custEmailId,
             custAddress,
+            startDate,
+            endDate,
+            kmDriven,
             basePay,
             perKmCharge,
             halt,
             tax,
             toll,
-            discount,
-            startDate,
-            endDate
-        } = req.body;
+            discount
+        } = {
+            ...req.body,
+            kmDriven: Number(req.body.kmDriven),
+            basePay: Number(req.body.basePay),
+            perKmCharge: Number(req.body.perKmCharge),
+            halt: Number(req.body.halt),
+            tax: Number(req.body.tax),
+            toll: Number(req.body.toll),
+            discount: Number(req.body.discount),
+            custPhNo: Number(req.body.custPhNo)
+        };
+        
 console.log('req.body',req.body)
         // Convert startDate and endDate to IST
         const startDateIST = convertToIST(startDate);  // Convert to IST
@@ -102,16 +113,25 @@ console.log('req.body',req.body)
 
         // Calculate the estimated invoice
         const invoice = calculateEstimate({ basePay, perKmCharge, kmDriven, halt, tax, toll, discount });
+        console.log(basePay, perKmCharge, kmDriven, halt, tax, toll, discount)
         const invoiceId = `INV-${new Date().toISOString().replace(/[^0-9]/g, '').slice(0, 14)}`;
-
+        const pickupLocationGeoJSON = {
+            type: "Point",
+            coordinates: [pickupLocation.lng, pickupLocation.lat]  // [longitude, latitude]
+        };
+        
+        const dropoffLocationGeoJSON = {
+            type: "Point",
+            coordinates: [dropoffLocation.lng, dropoffLocation.lat]  // [longitude, latitude]
+        };
         // Create a new booking with the estimated invoice
         const newBooking = new Booking({
             owner,
             operator,
             driver,
             vehicle: vehicleId,
-            pickupLocation,
-            dropoffLocation,
+            pickupLocation: pickupLocationGeoJSON,  // Use GeoJSON formatted pickupLocation
+    dropoffLocation: dropoffLocationGeoJSON,
             fare: invoice.finalAmount,
             kmDriven,
             status,
@@ -613,3 +633,258 @@ exports.myBookings = async (req, res) => {
     }
 };
 
+exports.getFinancialSummary = async (req, res) => {
+    try {
+      const { period } = req.query; // e.g., 'today', 'last7days', 'month'
+      let startDate;
+      let dates = [];
+
+      // Get the current date and set the start date based on the period
+      const today = moment().startOf('day');  // Start of the current day (midnight)
+      const last7Days = moment().subtract(7, 'days').startOf('day'); // 7 days ago
+      const currentMonthStart = moment().startOf('month');  // Start of the current month (first day)
+      const currentMonthEnd = moment().endOf('month');  // End of the current month (last day)
+
+      switch (period) {
+        case 'today':
+          startDate = today;
+          dates = [today.format('YYYY-MM-DD')]; // Single date for today
+          break;
+        case 'last7days':
+          startDate = last7Days;
+          dates = Array.from({ length: 7 }, (_, index) => moment().subtract(6 - index, 'days').format('YYYY-MM-DD'));
+          break;
+        case 'month':
+          startDate = currentMonthStart;
+          dates = Array.from({ length: currentMonthEnd.date() }, (_, index) =>
+            currentMonthStart.clone().add(index, 'days').format('YYYY-MM-DD')
+          );
+          break;
+        default:
+          return res.status(400).json({ message: 'Invalid period parameter. Use "today", "last7days", or "month".' });
+      }
+
+      // Fetch the bookings that were completed and have an invoice generated within the specified period
+      const bookings = await Booking.aggregate([
+        {
+          $match: {
+            status: 'completed',  // Only consider completed bookings
+            endDate: { $gte: startDate.toDate() },  // Filter bookings by the start date
+          },
+        },
+        {
+          $project: {
+            'invoice.finalAmount': 1,
+            'invoice.totalFare': 1,
+            'invoice.taxAmount': 1,
+            'invoice.tollAmount': 1,
+            'invoice.discountAmount': 1,
+            profit: 1,
+            extraExpanse: 1,
+            endDate: 1, // Include the end date of each booking
+          },
+        },
+      ]);
+
+      // Initialize totals for the financial data (using arrays to store totals per date)
+      let totalFare = Array(dates.length).fill(0); // Initialize with zeros for each date
+      let totalTaxAmount = Array(dates.length).fill(0);
+      let totalTollAmount = Array(dates.length).fill(0);
+      let totalDiscountAmount = Array(dates.length).fill(0);
+      let totalProfit = Array(dates.length).fill(0);
+      let totalExtraExpanse = Array(dates.length).fill(0);
+
+      // Map bookings to totals by date
+      bookings.forEach(booking => {
+        const bookingDate = moment(booking.endDate).format('YYYY-MM-DD');
+        const dateIndex = dates.indexOf(bookingDate);
+
+        if (dateIndex >= 0) {
+          totalFare[dateIndex] += booking.invoice.totalFare || 0;
+          totalTaxAmount[dateIndex] += booking.invoice.taxAmount || 0;
+          totalTollAmount[dateIndex] += booking.invoice.tollAmount || 0;
+          totalDiscountAmount[dateIndex] += booking.invoice.discountAmount || 0;
+          totalProfit[dateIndex] += booking.profit || 0;
+          totalExtraExpanse[dateIndex] += booking.extraExpanse || 0;
+        }
+      });
+
+      // Respond with the aggregated data along with dates
+      return res.status(200).json({
+        message: `Financial summary for ${period}`,
+        data: {
+          dates, // Include the dates array
+          totalFare,
+          totalTaxAmount,
+          totalTollAmount,
+          totalDiscountAmount,
+          totalProfit,
+          totalExtraExpanse,
+        },
+      });
+
+    } catch (error) {
+      console.error(error);
+      return res.status(500).json({ message: 'Error retrieving financial summary.' });
+    }
+};
+
+exports.getVehicleAndDriverList = async (req, res) => {
+    try {
+      // Fetch all vehicles
+      const vehicles = await Vehicle.find({ owner: req.user._id })
+        .populate('owner', 'name email')  // Populate owner details
+        .populate('driver', 'name email') // Populate driver details
+        .exec();
+  
+      // Fetch all drivers
+      const drivers = await User.find({ 
+        role: 'driver', 
+        ownerId: req.user._id  // Match the ownerId with the current user's ID
+      })
+        .select('name email vehicleCount status') // Select the necessary fields
+        .exec();
+  
+      return res.status(200).json({
+        message: 'Vehicle and Driver list fetched successfully',
+        data: {
+          vehicles,
+          drivers,
+        },
+      });
+    } catch (error) {
+      console.error(error);
+      return res.status(500).json({ message: 'Error fetching vehicle and driver data.' });
+    }
+  };
+
+  exports.addDailyExpenses = async (req, res) => {
+    try {
+        // Get the user ID from the logged-in user (req.user._id)
+        const loggedInUserId = req.user._id;
+
+        // Extract other data from the request body
+        const { fuelExpanse, driverExpanse, vehicleExpanse, date, driverId } = req.body;
+
+        if (!fuelExpanse && !driverExpanse && !vehicleExpanse) {
+            return res.status(400).json({ message: 'At least one expense field must be provided.' });
+        }
+
+        // Determine the user ID to update expenses
+        let userId;
+        if (req.user.role === 'driver') {
+            // If logged-in user is a driver, use their own user ID
+            userId = loggedInUserId;
+        } else if (req.user.role === 'owner' || req.user.role === 'operator') {
+            // If logged-in user is an owner/operator, use the provided driver ID
+            if (!driverId) {
+                return res.status(400).json({ message: 'Driver ID is required when owner/operator is creating expenses for a driver.' });
+            }
+            userId = driverId; // Owner/operator is creating expense for the driver
+        } else {
+            return res.status(403).json({ message: 'Unauthorized access.' });
+        }
+
+        // Find the user (driver)
+        const user = await User.findById(userId);
+        if (!user) {
+            return res.status(404).json({ message: 'User (driver) not found' });
+        }
+
+        // Use provided date or default to today
+        const expenseDate = date ? moment(date).startOf('day').toDate() : moment().startOf('day').toDate();
+
+        // Check if expense date is already set for the user
+        if (user.expenseDate && !moment(user.expenseDate).isSame(expenseDate, 'day')) {
+            return res.status(400).json({ message: 'A single expense date is already set for another day' });
+        }
+
+        // Update expenses for the single expense date
+        if (fuelExpanse) {
+            user.fuelExpanse = [{ date: expenseDate, amount: fuelExpanse }];
+        }
+        if (driverExpanse) {
+            user.driverExpanse = [{ date: expenseDate, amount: driverExpanse }];
+        }
+        if (vehicleExpanse) {
+            user.vehicleExpanse = [{ date: expenseDate, amount: vehicleExpanse }];
+        }
+
+        // Set the expense date for all expenses
+        user.expenseDate = expenseDate;
+
+        // Save updated user data
+        await user.save();
+
+        return res.status(200).json({ message: 'Daily expenses updated successfully', user });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ message: 'An error occurred while updating expenses', error });
+    }
+};
+
+
+exports.getExpensesByDriver = async (req, res) => {
+    try {
+        // Fetch all drivers (users with the role 'driver') and select only necessary fields
+        const users = await User.find({ role: 'driver' }, 'name fuelExpanse driverExpanse vehicleExpanse expenseDate')
+            .populate('vehicle'); // Populate vehicle info if needed (you can remove this if not necessary)
+        // If no drivers found
+        if (!users || users.length === 0) {
+            return res.status(404).json({ message: 'No drivers found' });
+        }
+
+        // Prepare an array of expenses for each driver
+        const driverExpenses = users.map(user => {
+            const expenses = [
+                ...user.fuelExpanse.map(expense => ({
+                    expenseType: 'fuel',
+                    amount: expense.amount,
+                    date: expense.date
+                })),
+                ...user.driverExpanse.map(expense => ({
+                    expenseType: 'driver',
+                    amount: expense.amount,
+                    date: expense.date
+                })),
+                ...user.vehicleExpanse.map(expense => ({
+                    expenseType: 'vehicle',
+                    amount: expense.amount,
+                    date: expense.date
+                }))
+            ];
+
+            // Return only the necessary information: driver's name and their expenses
+            return {
+                driverName: user.name,
+                expenses,
+                expenseDate:user.expenseDate
+            };
+        });
+
+        // Return the formatted result
+        return res.status(200).json({ driverExpenses ,
+            date:users.expenseDate
+        });
+
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ message: 'An error occurred while fetching expenses', error });
+    }
+};
+
+exports.getAllDrivers = async (req, res) => {
+    try {
+      // Fetch the drivers based on the logged-in user's ID
+      const drivers = await User.find({ ownerId: req.user._id, status: 'active',role:'driver' });
+  
+      if (!drivers || drivers.length === 0) {
+        return res.status(404).json({ message: 'No drivers found' });
+      }
+  
+      res.status(200).json(drivers);
+    } catch (error) {
+      console.error('Error fetching drivers:', error);
+      res.status(500).json({ message: 'Internal server error' });
+    }
+  };

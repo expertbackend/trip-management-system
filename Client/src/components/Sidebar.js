@@ -1,26 +1,37 @@
 import React, { useState, useEffect } from 'react';
-import { FaBars, FaTimes, FaHome, FaUser, FaSignOutAlt, FaEnvelope } from 'react-icons/fa';
-import { Link, useNavigate, } from 'react-router-dom';
+import { FaBars, FaTimes, FaHome, FaUser, FaSignOutAlt, FaEnvelope, FaCar, FaUsers,FaDollarSign,FaFileAlt,FaClipboardList,FaCheckCircle, FaCalendarAlt, FaGasPump, FaTaxi, FaCarAlt, FaChevronDown, FaChevronUp } from 'react-icons/fa';
+import { Link, useNavigate } from 'react-router-dom';
 import pic from '../assets/IMG-20231205-WA0001.jpg';
 
 function Sidebar({ role, notifications }) {
   const [isOpen, setIsOpen] = useState(false);
   const [activeLink, setActiveLink] = useState('home');
-
-
   const [showNotifications, setShowNotifications] = useState(false);
+  const [isExpensesOpen, setIsExpensesOpen] = useState(false); // State for the "Expenses" submenu
+  const [isBookingOpen, setIsBookingOpen] = useState(false); // State for the "Booking" submenu
+
   const navigate = useNavigate();
 
   const toggleSidebar = () => {
     setIsOpen(!isOpen);
   };
+
   const handleProfileClick = () => {
-   navigate('/profile'); // Navigate to the profile page on click
+    navigate('/profile');
   };
+
   const handleLogout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('activeLink');
-    navigate('/login'); 
+    navigate('/login');
+  };
+
+  const toggleExpenses = () => {
+    setIsExpensesOpen(!isExpensesOpen);
+  };
+
+  const toggleBooking = () => {
+    setIsBookingOpen(!isBookingOpen); // Toggle for "Booking" submenu
   };
 
   useEffect(() => {
@@ -36,23 +47,23 @@ function Sidebar({ role, notifications }) {
     setActiveLink(link);
     localStorage.setItem('activeLink', link);
   };
- 
+
   const toggleNotifications = () => {
     setShowNotifications(!showNotifications);
   };
 
   return (
-    <div className={`${isOpen ? 'w-64' : 'w-16'} h-screen bg-cover bg-center bg-no-repeat bg-[url('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR5R6qWLHvgMjxwlGPThnutOtUc0liQqoWZo49KdLrUKp_e5NPZL5iVAbiO9umJvJ_ruD0&usqp=CAU')] text-white transition-all duration-400 ease-in-out flex flex-col`}>
+    <div className={`${isOpen ? 'w-64' : 'w-16'} h-screen bg-gradient-to-b from-indigo-600 to-purple-700 text-white transition-all duration-300 ease-in-out flex flex-col shadow-lg overflow-y-auto max-h-[100vh]`}>
       {/* Header Section */}
       <div className="flex justify-between items-center p-4">
-        <button onClick={toggleSidebar} className='text-2xl text-[#340034] p-2 rounded shadow-md'>
+        <button onClick={toggleSidebar} className="text-2xl text-[#340034] p-2 rounded-full shadow-md transition-transform transform hover:scale-110">
           {isOpen ? <FaTimes /> : <FaBars />}
         </button>
 
         <div className="relative">
           <button
             onClick={toggleNotifications}
-            className="flex items-center p-3 rounded-lg transition-colors text-white hover:bg-white hover:text-black"
+            className="flex items-center p-3 rounded-lg transition-colors hover:bg-white hover:text-black"
           >
             <FaEnvelope className="text-xl" />
             {isOpen && <span className="ml-4">Notifications</span>}
@@ -83,117 +94,155 @@ function Sidebar({ role, notifications }) {
       </div>
 
       {/* Navigation Links */}
-      <ul className='flex flex-col space-y-2 mt-4'>
+      <ul className="flex flex-col space-y-2 mt-4">
         <li>
-          <Link 
-            to='/details' 
+          <Link
+            to='/details'
             className={`flex items-center p-3 rounded-lg transition-colors ${activeLink === 'home' ? 'bg-white text-black' : 'text-white hover:bg-white hover:text-black'}`}
             onClick={() => handleLinkClick('home')}
           >
-            <FaHome className="text-xl"/>
-            {isOpen && <span className='ml-4'>Home</span>}
+            <FaHome className="text-xl" />
+            {isOpen && <span className="ml-4">Home</span>}
           </Link>
         </li>
+
         {/* Role-specific Links */}
-        {role === 'owner' && (
-  <li>
-    <Link 
-      to='/owner-dashboard' 
-      className={`flex items-center p-3 rounded-lg transition-colors ${activeLink === 'owner' ? 'bg-white text-black' : 'text-white hover:bg-white hover:text-black'}`}
-      onClick={() => handleLinkClick('owner')}
-    >
-      <FaUser className="text-xl"/>
-      {isOpen && <span className='ml-4'>Owner Dashboard</span>}
-    </Link>
-  </li>
-)}
-
-{role === 'owner' && (
-  <li>
-    <Link 
-      to='/vehicle' 
-      className={`flex items-center p-3 rounded-lg transition-colors ${activeLink === 'vehicle' ? 'bg-white text-black' : 'text-white hover:bg-white hover:text-black'}`}
-      onClick={() => handleLinkClick('vehicle')}
-    >
-      <FaUser className="text-xl"/>
-      {isOpen && <span className='ml-4'>Vehicle</span>}
-    </Link>
-  </li>
-)}
-
-{role === 'owner' && (
-  <li>
-    <Link 
-      to='/user' 
-      className={`flex items-center p-3 rounded-lg transition-colors ${activeLink === 'user' ? 'bg-white text-black' : 'text-white hover:bg-white hover:text-black'}`}
-      onClick={() => handleLinkClick('user')}
-    >
-      <FaUser className="text-xl"/>
-      {isOpen && <span className='ml-4'>User</span>}
-    </Link>
-  </li>
-)}
-
-{role === 'owner' && (
-  <li>
-    <Link 
-      to='/booking' 
-      className={`flex items-center p-3 rounded-lg transition-colors ${activeLink === 'booking' ? 'bg-white text-black' : 'text-white hover:bg-white hover:text-black'}`}
-      onClick={() => handleLinkClick('booking')}
-    >
-      <FaUser className="text-xl"/>
-      {isOpen && <span className='ml-4'>Booking</span>}
-    </Link>
-  </li>
-)}
-        {role === 'driver' && (
-          <li>
-            <Link 
-              to='/driver-dashboard' 
-              className={`flex items-center p-3 rounded-lg transition-colors ${activeLink === 'driver' ? 'bg-white text-black' : 'text-white hover:bg-white hover:text-black'}`}
-              onClick={() => handleLinkClick('driver')}
-            >
-              <FaUser className="text-xl"/>
-              {isOpen && <span className='ml-4'>Driver Dashboard</span>}
-            </Link>
-          </li>
+        {(role === 'owner' || role === 'operator') && (
+          <>
+            <li>
+              <Link
+                to='/owner-dashboard'
+                className={`flex items-center p-3 rounded-lg transition-colors ${activeLink === 'owner' ? 'bg-white text-black' : 'text-white hover:bg-white hover:text-black'}`}
+                onClick={() => handleLinkClick('owner')}
+              >
+                <FaUser className="text-xl" />
+                {isOpen && <span className="ml-4">Owner Dashboard</span>}
+              </Link>
+            </li>
+            <li>
+              <Link
+                to='/vehicle'
+                className={`flex items-center p-3 rounded-lg transition-colors ${activeLink === 'vehicle' ? 'bg-white text-black' : 'text-white hover:bg-white hover:text-black'}`}
+                onClick={() => handleLinkClick('vehicle')}
+              >
+                <FaCar className="text-xl" />
+                {isOpen && <span className="ml-4">Vehicle</span>}
+              </Link>
+            </li>
+            <li>
+              <Link
+                to='/user'
+                className={`flex items-center p-3 rounded-lg transition-colors ${activeLink === 'user' ? 'bg-white text-black' : 'text-white hover:bg-white hover:text-black'}`}
+                onClick={() => handleLinkClick('user')}
+              >
+                <FaUsers className="text-xl" />
+                {isOpen && <span className="ml-4">User</span>}
+              </Link>
+            </li>
+          </>
         )}
-        {role === 'operator' && (
-          <li>
-            <Link 
-              to='/operator-dashboard' 
-              className={`flex items-center p-3 rounded-lg transition-colors ${activeLink === 'operator' ? 'bg-white text-black' : 'text-white hover:bg-white hover:text-black'}`}
-              onClick={() => handleLinkClick('operator')}
-            >
-              <FaUser className="text-xl"/>
-              {isOpen && <span className='ml-4'>Operator Dashboard</span>}
-            </Link>
-          </li>
-        )}
-      </ul>
 
-      <div className="flex items-center p-4 mt-auto border-t border-white">
-        <img className="w-12 h-12 rounded-full mr-4" src={pic} alt="Profile" 
-        onClick={handleProfileClick} />
-        {isOpen && (
-          <div>
-            <p className="text-lg font-semibold">Kavya Balla</p>
-            <p className="text-sm">{role}</p>
+        {/* Expenses Section - Visible for owner/operator */}
+        {(role === 'owner' || role === 'operator') && (
+          <div className="mt-4">
+            <h3
+              onClick={toggleExpenses} // Toggle for "Expenses" submenu
+              className={`flex items-center justify-between text-lg font-semibold text-white mb-2 cursor-pointer ${isExpensesOpen ? 'bg-gray-600' : ''}`}
+            >
+              <span>{isOpen && 'Expenses'}</span>
+              {isExpensesOpen ? <FaChevronUp /> : <FaChevronDown />}
+            </h3>
+
+            {isExpensesOpen && (
+              <ul className="space-y-2">
+                <li>
+                  <Link
+                    to='/add-expense'
+                    className={`flex items-center p-3 rounded-lg transition-colors ${activeLink === 'create-expense' ? 'bg-white text-black' : 'text-white hover:bg-white hover:text-black'}`}
+                    onClick={() => handleLinkClick('create-expense')}
+                  >
+                    <FaDollarSign className="text-xl" />
+                    {isOpen && <span className="ml-4">Create Expense</span>}
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    to='/view-expense'
+                    className={`flex items-center p-3 rounded-lg transition-colors ${activeLink === 'view-expense' ? 'bg-white text-black' : 'text-white hover:bg-white hover:text-black'}`}
+                    onClick={() => handleLinkClick('view-expense')}
+                  >
+                    <FaFileAlt className="text-xl" />
+                    {isOpen && <span className="ml-4">View Expense</span>}
+                  </Link>
+                </li>
+                
+              </ul>
+            )}
           </div>
         )}
-      </div>
 
-      <div className="flex flex-col space-y-2 mt-4">
-        <button 
-          onClick={handleLogout} 
-          className="flex items-center p-3 rounded-lg transition-colors text-white hover:bg-white hover:text-black"
-        >
-          <FaSignOutAlt className="text-xl"/>
-          {isOpen && <span className='ml-4'>Logout</span>}
-        </button>
-      </div>
+        {/* Booking Section - Visible for owner/operator */}
+        {(role === 'owner' || role === 'operator') && (
+          <div className="mt-4">
+            <h3
+              onClick={toggleBooking} // Toggle for "Booking" submenu
+              className={`flex items-center justify-between text-lg font-semibold text-white mb-2 cursor-pointer ${isBookingOpen ? 'bg-gray-600' : ''}`}
+            >
+              <span>{isOpen && 'Booking'}</span>
+              {isBookingOpen ? <FaChevronUp /> : <FaChevronDown />}
+            </h3>
+
+            {isBookingOpen && (
+              <ul className="space-y-2">
+                <li>
+                  <Link
+                    to='/create-booking'
+                    className={`flex items-center p-3 rounded-lg transition-colors ${activeLink === 'create-booking' ? 'bg-white text-black' : 'text-white hover:bg-white hover:text-black'}`}
+                    onClick={() => handleLinkClick('create-booking')}
+                  >
+                    <FaTaxi className="text-xl" />
+                    {isOpen && <span className="ml-4">Create Booking</span>}
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    to='/view-booking'
+                    className={`flex items-center p-3 rounded-lg transition-colors ${activeLink === 'view-booking' ? 'bg-white text-black' : 'text-white hover:bg-white hover:text-black'}`}
+                    onClick={() => handleLinkClick('view-booking')}
+                  >
+                    <FaCarAlt className="text-xl" />
+                    {isOpen && <span className="ml-4">View Booking</span>}
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    to='/assign-booking'
+                    className={`flex items-center p-3 rounded-lg transition-colors ${activeLink === 'assign-booking' ? 'bg-white text-black' : 'text-white hover:bg-white hover:text-black'}`}
+                    onClick={() => handleLinkClick('assign-booking')}
+                  >
+                    <FaClipboardList className="text-xl" />
+                    {isOpen && <span className="ml-4">Assign Booking</span>}
+                  </Link>
+                </li>
+              </ul>
+            )}
+          </div>
+        )}
+
+        {/* Other Links */}
+        <li>
+          <button
+            onClick={handleLogout}
+            className="flex items-center p-3 rounded-lg transition-colors hover:bg-white hover:text-black w-full"
+          >
+            <FaSignOutAlt className="text-xl" />
+            {isOpen && <span className="ml-4">Logout</span>}
+          </button>
+        </li>
+      </ul>
     </div>
   );
 }
 
 export default Sidebar;
+

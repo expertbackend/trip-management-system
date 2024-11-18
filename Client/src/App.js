@@ -16,6 +16,9 @@ import UserPage from './components/UserPage';
 import VehicleTable from './components/VehiclePage';
 import BookingPage from './components/BookingPage';
 import ProfilePage from './components/ProfilePage';
+import ViewExpenses from './components/ViewExpanses';
+import AddExpenses from './components/AddExpanse';
+import CreateBooking from './common/CreateBooking';
 
 function App() {
   const [role, setRole] = useState(null);
@@ -165,6 +168,10 @@ function App() {
               <Route path="/vehicle" element={<PrivateRoute component={VehicleTable} />} />
               <Route path="/booking" element={<PrivateRoute component={BookingPage} />} />
               <Route path="/profile" element={<PrivateRoute component={ProfilePage} />} />
+              <Route path="/view-expense" element={<PrivateRoute component={ViewExpenses} />} />
+              <Route path="/add-expense" element={<PrivateRoute component={AddExpenses} />} />
+              <Route path="/create-booking" element={<PrivateRoute component={CreateBooking} />} />
+
             </Routes>
           </div>
         </>

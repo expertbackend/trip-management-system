@@ -8,7 +8,7 @@ const bookingSchema = new mongoose.Schema({
   pickupLocation: { type: { type: String, default: 'Point' }, coordinates: [Number] },
   dropoffLocation: { type: { type: String, default: 'Point' }, coordinates: [Number] },
   fare: Number,
-  kmDriven: { type: Number, default: 0 },  // Add kilometers driven
+  kmDriven: { type: Number, default: 0 },
   status: { type: String, enum: ['pending', 'assigned', 'in-progress', 'completed', 'canceled'] },
   startDate: Date,
   endDate: Date,
@@ -23,7 +23,7 @@ const bookingSchema = new mongoose.Schema({
   toll: Number,
   discount: Number,
   totalEstimatedAmount: Number,
-  invoice: {  // Invoice details
+  invoice: {
     invoiceId:String,
     customerName:String,
     custPhNo:Number,

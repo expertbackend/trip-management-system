@@ -1,11 +1,397 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import { Line } from 'react-chartjs-2';
+import Chart from 'chart.js/auto';
 
 const Home = () => {
-  return (
-    <div className='bg-red-500'>
-      <h1 className='bg-red-500'>Dashboard</h1>
-    </div>
-  )
-}
+  const token = localStorage.getItem('token');
 
-export default Home
+  // States for storing financial summary and selected period
+  const [financialData, setFinancialData] = useState(null);
+  const [period, setPeriod] = useState('last7days'); // Default to 'today'
+  const [vehicles, setVehicles] = useState([]);
+  const [drivers, setDrivers] = useState([]);
+  const [activeTab, setActiveTab] = useState('vehicles'); // Track active tab
+
+  // Pagination states
+  const [vehiclePage, setVehiclePage] = useState(1);
+  const [driverPage, setDriverPage] = useState(1);
+  const [vehiclesPerPage] = useState(2);  // Items per page for vehicles
+  const [driversPerPage] = useState(2);   // Items per page for drivers
+
+  const axiosInstance = axios.create({
+    baseURL: `${process.env.REACT_APP_API_URL}/api`, // Replace with the correct base URL for your API
+    headers: {
+      Authorization: `Bearer ${token}`, // Include the token in the Authorization header
+    },
+  });
+
+  // Fetch financial data from the API
+  useEffect(() => {
+    const fetchFinancialData = async () => {
+      try {
+        const response = await axiosInstance.get(`/booking/financial-summary?period=${period}`);
+        setFinancialData(response.data.data); // Assuming the data comes in 'data' property
+      } catch (error) {
+        console.error('Error fetching financial data:', error);
+      }
+    };
+
+    fetchFinancialData();
+  }, [period]); // Re-fetch data whenever the period changes
+
+  // Fetch vehicle and driver data from the API
+  useEffect(() => {
+    const fetchVehicleAndDriverData = async () => {
+      try {
+        const response = await axiosInstance.get('/booking/vehicle-driver-list');
+        setVehicles(response.data.data.vehicles); // Set vehicles data
+        setDrivers(response.data.data.drivers); // Set drivers data
+      } catch (error) {
+        console.error('Error fetching vehicle and driver data:', error);
+      }
+    };
+
+    fetchVehicleAndDriverData();
+  }, []);
+
+  // Calculate the total sum of each financial value for the cards
+  const totalFare = financialData?.totalFare.reduce((acc, value) => acc + value, 0) || 0;
+  const totalTaxAmount = financialData?.totalTaxAmount.reduce((acc, value) => acc + value, 0) || 0;
+  const totalTollAmount = financialData?.totalTollAmount.reduce((acc, value) => acc + value, 0) || 0;
+  const totalDiscountAmount = financialData?.totalDiscountAmount.reduce((acc, value) => acc + value, 0) || 0;
+  const totalProfit = financialData?.totalProfit.reduce((acc, value) => acc + value, 0) || 0;
+  const totalExtraExpanse = financialData?.totalExtraExpanse.reduce((acc, value) => acc + value, 0) || 0;
+
+  // Prepare data for the Line Chart
+  const lineChartData = {
+    labels: financialData?.dates || [], // Dates for x-axis (e.g., today, last 7 days, month)
+    datasets: [
+      {
+        label: 'Total Fare',
+        data: financialData?.totalFare || [],  // Data for total fare
+        borderColor: '#FF6384',
+        fill: false,
+        tension: 0.1,
+      },
+      {
+        label: 'Total Tax',
+        data: financialData?.totalTaxAmount || [],  // Data for total tax
+        borderColor: '#FFCE56',
+        fill: false,
+        tension: 0.1,
+      },
+      {
+        label: 'Total Toll',
+        data: financialData?.totalTollAmount || [],  // Data for total toll
+        borderColor: '#36A2EB',
+        fill: false,
+        tension: 0.1,
+      },
+      {
+        label: 'Total Discount',
+        data: financialData?.totalDiscountAmount || [],  // Data for total discount
+        borderColor: '#4BC0C0',
+        fill: false,
+        tension: 0.1,
+      },
+    ],
+  };
+
+  // Render vehicle rows in table with pagination
+  const renderVehicleRows = () => {
+    const indexOfLastVehicle = vehiclePage * vehiclesPerPage;
+    const indexOfFirstVehicle = indexOfLastVehicle - vehiclesPerPage;
+    const currentVehicles = vehicles.slice(indexOfFirstVehicle, indexOfLastVehicle);
+  
+    return currentVehicles.map((vehicle, index) => {
+      let statusColor;
+      let statusText;
+  
+      // Determine the status color based on the vehicle's current status
+      switch (vehicle.status) {
+        case 'created':
+          statusColor = 'bg-gray-300 text-gray-800'; // Light Gray for created
+          statusText = 'Created';
+          break;
+        case 'assigned':
+          statusColor = 'bg-blue-300 text-blue-800'; // Light Blue for assigned
+          statusText = 'Assigned';
+          break;
+        case 'running':
+          statusColor = 'bg-green-300 text-green-800'; // Green for running
+          statusText = 'Running';
+          break;
+        case 'completed':
+          statusColor = 'bg-purple-300 text-purple-800'; // Purple for completed
+          statusText = 'Completed';
+          break;
+        default:
+          statusColor = 'bg-gray-200 text-gray-600'; // Default color for unknown status
+          statusText = 'Unknown';
+      }
+  
+      return (
+        <tr
+          key={vehicle._id}
+          className={`${
+            index % 2 === 0 ? 'bg-gray-50' : 'bg-white'
+          } hover:bg-gray-100 transition-all duration-300 ease-in-out transform hover:scale-105`}
+        >
+          <td className="p-4 text-sm font-medium text-gray-900">{vehicle.name}</td>
+          <td className="p-4 text-sm font-medium text-gray-900">{vehicle.plateNumber}</td>
+          <td className="p-4 text-sm font-medium">
+            <span
+              className={`inline-flex items-center justify-center px-3 py-1.5 text-xs font-semibold rounded-full ${statusColor}`}
+            >
+              {statusText}
+            </span>
+          </td>
+          <td className="p-4 text-sm font-medium text-gray-900">
+            {vehicle.driver ? vehicle.driver.name : 'No Driver'}
+          </td>
+        </tr>
+      );
+    });
+  };
+  
+  
+  // Render driver rows in table with pagination
+  const renderDriverRows = () => {
+    const indexOfLastDriver = driverPage * driversPerPage;
+    const indexOfFirstDriver = indexOfLastDriver - driversPerPage;
+    const currentDrivers = drivers.slice(indexOfFirstDriver, indexOfLastDriver);
+  
+    return currentDrivers.map((driver, index) => {
+      let statusColor;
+      let statusText;
+  
+      // Determine the status color based on the driver's current status
+      switch (driver.status) {
+        case 'active':
+          statusColor = 'bg-green-300 text-green-800'; // Green for active
+          statusText = 'Active';
+          break;
+        case 'inactive':
+          statusColor = 'bg-gray-300 text-gray-800'; // Gray for inactive
+          statusText = 'Inactive';
+          break;
+        case 'on_leave':
+          statusColor = 'bg-yellow-300 text-yellow-800'; // Yellow for on leave
+          statusText = 'On Leave';
+          break;
+        default:
+          statusColor = 'bg-gray-200 text-gray-600'; // Default color for unknown status
+          statusText = 'Unknown';
+      }
+  
+      return (
+        <tr
+          key={driver._id}
+          className={`${
+            index % 2 === 0 ? 'bg-gray-50' : 'bg-white'
+          } hover:bg-gray-100 transition-all duration-300 ease-in-out transform hover:scale-105`}
+        >
+          <td className="p-4 text-sm font-medium text-gray-900">{driver.name}</td>
+          <td className="p-4 text-sm font-medium text-gray-900">{driver.email}</td>
+          <td className="p-4 text-sm font-medium">
+            <span
+              className={`inline-flex items-center justify-center px-3 py-1.5 text-xs font-semibold rounded-full ${statusColor}`}
+            >
+              {statusText}
+            </span>
+          </td>
+          <td className="p-4 text-sm font-medium text-gray-900">{driver.vehicleCount}</td>
+        </tr>
+      );
+    });
+  };
+  
+
+  // Handle page change for vehicles
+  const handleVehiclePageChange = (pageNumber) => {
+    setVehiclePage(pageNumber);
+  };
+
+  // Handle page change for drivers
+  const handleDriverPageChange = (pageNumber) => {
+    setDriverPage(pageNumber);
+  };
+
+  // Pagination for vehicles
+  const totalVehiclePages = Math.ceil(vehicles.length / vehiclesPerPage);
+  const vehiclePageNumbers = [];
+  for (let i = 1; i <= totalVehiclePages; i++) {
+    vehiclePageNumbers.push(i);
+  }
+
+  // Pagination for drivers
+  const totalDriverPages = Math.ceil(drivers.length / driversPerPage);
+  const driverPageNumbers = [];
+  for (let i = 1; i <= totalDriverPages; i++) {
+    driverPageNumbers.push(i);
+  }
+
+  return (
+    <div className="overflow-y-auto max-h-[90vh] p-4">
+      <h1 className="text-4xl text-center mb-6">Dashboard</h1>
+
+      {/* Filter for period */}
+      <div className="flex justify-end mb-6">
+  <select
+    className="p-2 border rounded"
+    value={period}
+    onChange={(e) => setPeriod(e.target.value)}
+  >
+    <option value="today">Today</option>
+    <option value="last7days" selected>Last 7 Days</option>
+    <option value="month">This Month</option>
+  </select>
+</div>
+
+
+      {/* Financial Summary Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {financialData && (
+          <>
+            <div className="p-4 bg-white rounded-lg shadow-md">
+              <h3 className="text-xl font-semibold">Total Fare</h3>
+              <p className="text-2xl text-green-600">{totalFare.toFixed(2)}</p>
+            </div>
+            <div className="p-4 bg-white rounded-lg shadow-md">
+              <h3 className="text-xl font-semibold">Total Tax</h3>
+              <p className="text-2xl text-yellow-600">{totalTaxAmount.toFixed(2)}</p>
+            </div>
+            <div className="p-4 bg-white rounded-lg shadow-md">
+              <h3 className="text-xl font-semibold">Total Toll</h3>
+              <p className="text-2xl text-blue-600">{totalTollAmount.toFixed(2)}</p>
+            </div>
+            <div className="p-4 bg-white rounded-lg shadow-md">
+              <h3 className="text-xl font-semibold">Total Discount</h3>
+              <p className="text-2xl text-red-600">{totalDiscountAmount.toFixed(2)}</p>
+            </div>
+            <div className="p-4 bg-white rounded-lg shadow-md">
+              <h3 className="text-xl font-semibold">Profit</h3>
+              <p className="text-2xl text-purple-600">{totalProfit.toFixed(2)}</p>
+            </div>
+            <div className="p-4 bg-white rounded-lg shadow-md">
+              <h3 className="text-xl font-semibold">Extra Expense</h3>
+              <p className="text-2xl text-orange-600">{totalExtraExpanse.toFixed(2)}</p>
+            </div>
+          </>
+        )}
+      </div>
+
+      {/* Layout for Tabs and Chart */}
+      <div className="flex justify-between mt-8">
+        {/* Left: Tabs for Vehicle and Driver List */}
+        <div className="w-[50%] pr-6">
+        <div className="flex space-x-4 mb-4">
+  <button
+    className={`p-3 w-full text-center font-semibold text-lg rounded-lg transition-all duration-300 ease-in-out transform ${
+      activeTab === 'vehicles' 
+        ? 'bg-indigo-300 text-indigo-900 shadow-sm scale-105 border border-indigo-400' 
+        : 'bg-transparent text-indigo-600 hover:bg-indigo-100 hover:text-indigo-800 hover:shadow-md'
+    }`}
+    onClick={() => setActiveTab('vehicles')}
+  >
+    Vehicles ({vehicles.length})
+  </button>
+  <button
+    className={`p-3 w-full text-center font-semibold text-lg rounded-lg transition-all duration-300 ease-in-out transform ${
+      activeTab === 'drivers' 
+        ? 'bg-teal-300 text-teal-900 shadow-sm scale-105 border border-teal-400' 
+        : 'bg-transparent text-teal-600 hover:bg-teal-100 hover:text-teal-800 hover:shadow-md'
+    }`}
+    onClick={() => setActiveTab('drivers')}
+  >
+    Drivers ({drivers.length})
+  </button>
+</div>
+
+
+
+
+          {/* Table content based on active tab */}
+          <div className="overflow-x-auto">
+            {activeTab === 'vehicles' ? (
+              <div>
+
+<table className="min-w-full table-auto bg-white shadow-xl rounded-lg overflow-hidden border border-gray-300">
+  <thead className="bg-gradient-to-r from-blue-500 to-teal-500 text-white">
+    <tr>
+      <th className="p-4 text-left font-semibold text-lg">Name</th>
+      <th className="p-4 text-left font-semibold text-lg">Plate Number</th>
+      <th className="p-4 text-left font-semibold text-lg">Status</th>
+      <th className="p-4 text-left font-semibold text-lg">Driver</th>
+    </tr>
+  </thead>
+  <tbody className="text-gray-800">
+    {renderVehicleRows()}
+  </tbody>
+</table>
+
+
+                {/* Vehicle Pagination */}
+                <div className="flex justify-center space-x-2 mt-4">
+                  {vehiclePageNumbers.map((number) => (
+                    <button
+                      key={number}
+                      onClick={() => handleVehiclePageChange(number)}
+                      className={`p-2 border rounded ${vehiclePage === number ? 'bg-blue-600 text-white' : ''}`}
+                    >
+                      {number}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            ) : (
+              <div>
+                <table className="min-w-full table-auto bg-white shadow-xl rounded-lg overflow-hidden border border-gray-300">
+                <thead className="bg-gradient-to-r from-blue-500 to-teal-500 text-white">
+                    <tr>
+                      <th className="p-4 text-left font-semibold text-lg">Name</th>
+                      <th className="p-4 text-left font-semibold text-lg">Email</th>
+                      <th className="p-4 text-left font-semibold text-lg">Status</th>
+                      <th className="p-4 text-left font-semibold text-lg">Vehicle Count</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {renderDriverRows()}
+                  </tbody>
+                </table>
+
+                {/* Driver Pagination */}
+                <div className="flex justify-center space-x-2 mt-4">
+                  {driverPageNumbers.map((number) => (
+                    <button
+                      key={number}
+                      onClick={() => handleDriverPageChange(number)}
+                      className={`p-2 border rounded ${driverPage === number ? 'bg-blue-600 text-white' : ''}`}
+                    >
+                      {number}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Right: Financial Distribution Chart */}
+        <div className="w-[40%]">
+          {financialData && (
+            <div>
+              <h2 className="text-2xl text-center mb-4">Financial Distribution Over Time</h2>
+              <div className="w-full max-w-lg mx-auto">
+                <Line data={lineChartData} options={{ responsive: true }} />
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default Home;

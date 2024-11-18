@@ -15,7 +15,11 @@ const userSchema = new mongoose.Schema({
     ownerId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
     status: { type: String, enum: ['active','inactive'] },
     bookingStatus: { type: String, enum: ['pending','assigned',"in-progress","completed"],default:"pending" },
-    bookings: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Booking' }]
+    bookings: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Booking' }],
+    fuelExpanse: [{ date: Date, amount: String }],
+    driverExpanse: [{ date: Date, amount: String }],
+    vehicleExpanse: [{ date: Date, amount: String }],
+    expenseDate: { type: Date, required: true, unique: true },
 });
 
 userSchema.pre('save', async function (next) {
