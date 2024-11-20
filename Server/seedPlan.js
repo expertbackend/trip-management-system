@@ -20,24 +20,28 @@ const seedPlans = async () => {
                 description: 'Ideal for small businesses with a few vehicles.',
                 price: 400,
                 maxVehicles: 2,
+                duration:10
             },
             {
                 name: 'Standard Plan',
                 description: 'Great for growing businesses with moderate vehicle needs.',
                 price: 600,
                 maxVehicles: 3,
+                duration:10
             },
             {
                 name: 'Premium Plan',
                 description: 'Perfect for businesses with a large fleet of vehicles.',
                 price: 1000,
                 maxVehicles: 5,
+                duration:10
             },
             {
                 name: 'Enterprise Plan',
                 description: 'Best for companies with a large fleet and custom needs.',
                 price: 2000,
                 maxVehicles: 10,
+                duration:10
             },
         ];
 
@@ -53,7 +57,7 @@ const seedPlans = async () => {
 };
 
 // Run the seeding function
-// seedPlans();
+seedPlans();
 const Permission = require('./models/Permission');
 
 async function createPermissions() {
@@ -115,4 +119,4 @@ async function createPermissions() {
 }
 
 // Run the seeder function
-createPermissions();
+// createPermissions();

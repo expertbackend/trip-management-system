@@ -22,6 +22,7 @@ import BookingsPage from './common/BookingPage';
 import AssignDriverPage from './common/AssignBooking';
 import TripReport from './common/TripReport';
 import ProfilePage from './common/ProfilePage';
+import SuperAdminPage from './common/SuperAdmin';
 
 function App() {
   const [role, setRole] = useState(null);
@@ -180,6 +181,7 @@ function App() {
               <Route path="/assign-booking" element={<PrivateRoute component={AssignDriverPage} />} />
               <Route path="/trip-report" element={<PrivateRoute component={TripReport} />} />
               <Route path="/profile" element={<PrivateRoute component={ProfilePage} />} />
+              <Route path="/SuperAdmin" element={<PrivateRoute component={SuperAdminPage} />} />
 
             </Routes>
           </div>

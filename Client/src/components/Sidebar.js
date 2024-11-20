@@ -200,6 +200,17 @@ function Sidebar({ role, notifications,username }) {
               {isOpen && <span className="ml-4">Driver Dashboard</span>}
             </Link>
           </li>)}
+          {role === 'superadmin' && (
+          <li>
+            <Link
+              to='/SuperAdmin'
+              className={`flex items-center p-3 rounded-lg transition-colors ${activeLink === 'SuperAdmin' ? 'bg-white text-black' : 'text-white hover:bg-white hover:text-black'}`}
+              onClick={() => handleLinkClick('SuperAdmin')}
+            >
+              <FaCar className="text-xl" />
+              {isOpen && <span className="ml-4">Super Admin Dashboard</span>}
+            </Link>
+          </li>)}
         {/* Booking Section - Visible for owner/operator */}
         {(role === 'owner' || role === 'operator') && (
           <div className="mt-4">

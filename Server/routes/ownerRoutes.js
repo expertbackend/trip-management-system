@@ -11,6 +11,14 @@ const router = express.Router();
 router.use(authMiddleware); // Apply this to all owner routes
 
 router.post('/buy-plan',roleCheck(['owner']), ownerController.buyPlan);
+router.get('/plan-history',roleCheck(['owner']), ownerController.getPlanHistory);
+router.get('/payment-requests', ownerController.getAllPaymentRequests);
+
+// PATCH - Approve a payment request
+router.patch('/payment-requests/:id/approve', ownerController.approvePaymentRequest);
+
+// PATCH - Reject a payment request
+router.patch('/payment-requests/:id/reject', ownerController.rejectPaymentRequest);
 router.post('/add-vehicle',roleCheck(['owner','operator']),hasPermission('create', 'vehicle'), ownerController.addVehicle);
 // router.post('/create-user',roleCheck(['owner','operator']),hasPermission('create', 'user'), ownerController.createUser);
 router.post('/assign-vehicle',roleCheck(['owner','operator']),hasPermission('create', 'vehicle'), ownerController.assignVehicleToDriver);

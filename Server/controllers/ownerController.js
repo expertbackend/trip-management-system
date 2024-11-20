@@ -8,64 +8,59 @@ const Notification = require('../tEst/NotificationService');
 const Location = require('../models/Location');
 const activeSockets = require('../socketStorage');
 const { getIo } = require('../socket');
+const PlanHistory = require('../models/PlanHistory');
+const PaymentRequest = require('../models/PaymentRequest');
 exports.buyPlan = async (req, res) => {
     try {
         const { planId } = req.body;
         const owner = await User.findById(req.user._id);
 
-        // Check if user exists and is an owner
         if (!owner || owner.role !== 'owner') {
             return res.status(403).json({ message: 'Only owners can buy plans.' });
         }
 
-        // Find the plan by ID
         const plan = await Plan.findById(planId);
         if (!plan) {
             return res.status(404).json({ message: 'Plan not found.' });
         }
 
-        // Update the user's plan and maxVehicles field
-        owner.planId = plan._id;
-        owner.maxVehicles = plan.maxVehicles;  // Update maxVehicles based on the plan
-        owner.vehicleCount = 0;  // Reset vehicle count as this is a new plan
-        await owner.save();
-
-        // Create the success notification message
-        const notificationTitle = "Plan Purchase Successful!";
-        const notificationBody = `You have successfully purchased the ${plan.name} plan with ${plan.maxVehicles} max vehicles.`;
-
-        // Save the notification in the database
-        const notification = new Noti({
-            userId: owner._id,
-            title: notificationTitle,
-            body: notificationBody,
+        const paymentRequest = new PaymentRequest({
+            ownerId: owner._id,
+            planId: plan._id,
+            planName: plan.name,
+            amount: plan.price || 0,
+            status: 'Pending', // The request is in 'Pending' state
         });
-        await notification.save();  // Save to the database
 
+        await paymentRequest.save();
 
-      
-        const socketId = activeSockets.get(req.user._id.toString());
-        console.log('socketId',socketId)
-                    const io = getIo(); // Get the io instance
-            if (socketId) {
-              io.emit('notification', {
-                title: notificationTitle,
-                body: notificationBody,
-                timestamp: new Date().toISOString(),
-              });
-              console.log('Real-time notification sent to user:', owner._id);
-            } else {
-              console.log('User is not connected to a socket.');
-            }
-        // Optionally send a push notification to the user's device if device token exists
-        if (owner.deviceToken) {
-            await Notification.sendNotification(owner.deviceToken, notificationTitle, notificationBody);
-            console.log("Push notification sent to user:", owner._id);
-           
+        // Send a notification to superadmin about the new payment request
+        const superadmin = await User.findOne({ role: 'superadmin' });
+        if (superadmin) {
+            const superadminNotification = new Noti({
+                userId: superadmin._id,
+                title: 'New Payment Request',
+                body: `A new payment request has been made by ${owner.name} for the ${plan.name} plan.`,
+            });
+            await superadminNotification.save();
         }
 
-        // Return the success response
-        return res.status(200).json({ message: 'Plan purchased successfully and notification sent.', owner });
+        return res.status(200).json({ message: 'Payment request sent to superadmin for approval.' });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ message: 'Server error.' });
+    }
+};
+
+
+
+
+exports.getPlanHistory = async (req, res) => {
+    try {
+        const userId = req.user._id; // Assuming authentication middleware provides `req.user`
+        const history = await PlanHistory.find({ userId }).populate('planId');
+
+        return res.status(200).json({ planHistory: history });
     } catch (error) {
         console.error(error);
         return res.status(500).json({ message: 'Server error.' });
@@ -85,16 +80,23 @@ exports.getPlans = async (req, res) => {
       res.status(500).json({ message: 'Server error' });
     }
   };
-exports.addVehicle = async (req, res) => {
+  exports.addVehicle = async (req, res) => {
     try {
         const owner = await User.findById(req.user._id).populate('planId');
-        
+
         if (!owner || owner.role !== 'owner') {
             return res.status(403).json({ message: 'Only owners can add vehicles.' });
         }
 
         if (!owner.planId) {
             return res.status(400).json({ message: 'You must purchase a plan first.' });
+        }
+
+        const currentDate = new Date();
+
+        // Check if the plan has expired
+        if (owner.planExpiryDate && owner.planExpiryDate < currentDate) {
+            return res.status(400).json({ message: 'Your current plan has expired. Please renew or purchase a new plan to add vehicles.' });
         }
 
         // Check if the owner has reached the max vehicle limit for their plan
@@ -104,7 +106,7 @@ exports.addVehicle = async (req, res) => {
 
         // Add vehicle logic
         const { name, plateNumber } = req.body;
-        const vehicle = new Vehicle({ name, plateNumber, owner: owner._id ,status:"created"});
+        const vehicle = new Vehicle({ name, plateNumber, owner: owner._id, status: "created" });
         await vehicle.save();
 
         // Increment vehicle count for the owner
@@ -117,6 +119,7 @@ exports.addVehicle = async (req, res) => {
         return res.status(500).json({ message: 'Server error.' });
     }
 };
+
 
 // Assign vehicle to driver
 exports.assignVehicleToDriver = async (req, res) => {
@@ -368,3 +371,144 @@ exports.getProfile = async (req, res) => {
         res.status(500).json({ success: false, message: 'Internal Server Error' });
     }
 };
+
+exports.getAllPaymentRequests = async (req, res) => {
+    try {
+      const paymentRequests = await PaymentRequest.find().populate('ownerId');
+      res.status(200).json(paymentRequests);
+    } catch (error) {
+      console.error('Error fetching payment requests:', error);
+      res.status(500).json({ message: 'Error fetching payment requests' });
+    }
+  };
+  exports.approvePaymentRequest = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const paymentRequest = await PaymentRequest.findById(id);
+
+        if (!paymentRequest) {
+            return res.status(404).json({ message: 'Payment request not found' });
+        }
+
+        // Update the status of the payment request to 'Approved'
+        paymentRequest.status = 'Approved';
+        await paymentRequest.save();
+
+        // Now update the user's plan details
+        const owner = await User.findById(paymentRequest.ownerId);
+        const plan = await Plan.findById(paymentRequest.planId);
+
+        if (!owner || !plan) {
+            return res.status(404).json({ message: 'User or plan not found' });
+        }
+
+        const currentDate = new Date();
+        let newPlanExpiryDate;
+
+        // Calculate the new expiry date for the plan
+        if (owner.planExpiryDate && !isNaN(new Date(owner.planExpiryDate).getTime())) {
+            newPlanExpiryDate = new Date(owner.planExpiryDate.getTime() + plan.duration * 24 * 60 * 60 * 1000);
+        } else {
+            newPlanExpiryDate = new Date(currentDate.getTime() + plan.duration * 24 * 60 * 60 * 1000);
+        }
+
+        // Update the maxVehicles for the owner based on the approved plan
+        owner.maxVehicles = (owner.maxVehicles || 0) + plan.maxVehicles;
+        owner.planExpiryDate = newPlanExpiryDate; // Set the expiry date for the owner's plan
+
+        await owner.save();
+
+        // Create a notification for the user
+        const notificationTitle = 'Plan Purchase Approved';
+        const notificationBody = `Your request for the ${plan.name} plan has been approved! You now have ${owner.maxVehicles} max vehicles.`;
+
+        const notification = new Noti({
+            userId: owner._id,
+            title: notificationTitle,
+            body: notificationBody,
+        });
+        await notification.save();
+
+        // Send real-time notification to the user
+        const socketId = activeSockets.get(owner._id.toString());
+        const io = getIo();
+        if (socketId) {
+            io.emit('notification', {
+                title: notificationTitle,
+                body: notificationBody,
+                timestamp: new Date().toISOString(),
+            });
+        }
+
+        // Send push notification to the user if they have a device token
+        if (owner.deviceToken) {
+            await Notification.sendNotification(owner.deviceToken, notificationTitle, notificationBody);
+        }
+
+        return res.status(200).json({ message: 'Payment request approved and user plan updated.' });
+    } catch (error) {
+        console.error('Error approving payment request:', error);
+        return res.status(500).json({ message: 'Error approving payment request' });
+    }
+};
+
+
+  
+  // PATCH - Reject a payment request
+  exports.rejectPaymentRequest = async (req, res) => {
+    try {
+      const { id } = req.params;
+      const paymentRequest = await PaymentRequest.findById(id);
+  
+      if (!paymentRequest) {
+        return res.status(404).json({ message: 'Payment request not found' });
+      }
+  
+      paymentRequest.status = 'Rejected';  // Change the status to 'Rejected'
+      await paymentRequest.save();
+  
+      res.status(200).json({ message: 'Payment request rejected successfully' });
+    } catch (error) {
+      console.error('Error rejecting payment request:', error);
+      res.status(500).json({ message: 'Error rejecting payment request' });
+    }
+  };
+
+  exports.createOwner = async (req, res) => {
+    try {
+        const { name, email, phoneNumber, gender, address, companyLogoUrl } = req.body;
+        console.log("req.body", req.body);
+
+        // Only superadmins can create new owners
+        if (req.user.role !== 'superadmin') {
+            return res.status(403).json({ message: 'Only superadmins can create new owners.' });
+        }
+
+        // Optionally: Prevent superadmins from creating other superadmins (if needed)
+        if (req.body.role === 'superadmin') {
+            return res.status(400).json({ message: 'You cannot create another superadmin.' });
+        }
+
+        // Create a new owner with the provided name and other details
+        const newOwner = new User({
+            name,  // Only one field for name
+            email,
+            phoneNumber,
+            gender,
+            address,
+            companyLogoUrl,
+            // Optionally, associate the creator superadmin with the new owner (if needed)
+            createdBy: req.user._id, // or another field for audit
+        });
+
+        // Save the new owner to the database
+        await newOwner.save();
+
+        // Return success response
+        res.status(201).json({ message: 'Owner created successfully', owner: newOwner });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Error creating owner' });
+    }
+};
+  

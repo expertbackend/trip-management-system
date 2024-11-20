@@ -20,11 +20,18 @@ const userSchema = new mongoose.Schema({
     driverExpanse: [{ date: Date, amount: String }],
     vehicleExpanse: [{ date: Date, amount: String }],
     expenseDate: { type: Date, unique: true },
+    planExpiryDate: { type: Date },
+    phoneNumber: { type: String },
+  gender: { type: String, enum: ['Male', 'Female', 'Other'] },
+  address: { type: String },
+  companyLogoUrl: { type: String },
+    
 });
 
 userSchema.pre('save', async function (next) {
     if (!this.isModified('password')) return next();
     this.password = await bcrypt.hash(this.password, 10);
+    
     next();
 });
 
