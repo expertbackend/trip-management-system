@@ -44,7 +44,12 @@ exports.buyPlan = async (req, res) => {
             });
             await superadminNotification.save();
         }
-
+        const notificationTitle = "New Payment Request";
+        const notificationBody = `A new payment request has been made by ${owner.name} for the ${plan.name} plan.`;
+        const deviceToken = await Token.findOne({ userId: superadmin._id });
+        if (deviceToken?.token) {
+          await Notification.sendNotification(deviceToken.token, notificationTitle, notificationBody);
+        }
         return res.status(200).json({ message: 'Payment request sent to superadmin for approval.' });
     } catch (error) {
         console.error(error);
