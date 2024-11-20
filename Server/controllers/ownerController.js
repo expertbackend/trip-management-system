@@ -445,9 +445,9 @@ exports.getAllPaymentRequests = async (req, res) => {
             });
         }
 
-        // Send push notification to the user if they have a device token
-        if (owner.deviceToken) {
-            await Notification.sendNotification(owner.deviceToken, notificationTitle, notificationBody);
+        const deviceToken = await Token.findOne({ userId: owner._id });
+        if (deviceToken?.token) {
+          await Notification.sendNotification(deviceToken.token, notificationTitle, notificationBody);
         }
 
         return res.status(200).json({ message: 'Payment request approved and user plan updated.' });
