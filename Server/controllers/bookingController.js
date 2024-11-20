@@ -6,6 +6,8 @@ const activeSockets = require('../socketStorage');
 const { Noti } = require('../models/Notification');
 const { Token } = require('../models/Token');
 const Notification = require('../tEst/NotificationService');
+const mongoose = require('mongoose');
+
 // Helper function to calculate the estimated price
 const calculateEstimate = ({ basePay, perKmCharge, kmDriven, halt, tax, toll, discount }) => {
     console.log('basePay, perKmCharge, kmDriven, halt, tax, toll, discount',basePay, perKmCharge, kmDriven, halt, tax, toll, discount)
@@ -116,14 +118,20 @@ console.log('req.body',req.body)
         console.log(basePay, perKmCharge, kmDriven, halt, tax, toll, discount)
         const invoiceId = `INV-${new Date().toISOString().replace(/[^0-9]/g, '').slice(0, 14)}`;
         const pickupLocationGeoJSON = {
-            type: "Point",
-            coordinates: [pickupLocation.lng, pickupLocation.lat]  // [longitude, latitude]
-        };
-        
-        const dropoffLocationGeoJSON = {
-            type: "Point",
-            coordinates: [dropoffLocation.lng, dropoffLocation.lat]  // [longitude, latitude]
-        };
+            address: pickupLocation.address, // Store the address
+            coordinates: {
+              type: "Point",
+              coordinates: [pickupLocation.lng, pickupLocation.lat], // [longitude, latitude]
+            },
+          };
+          
+          const dropoffLocationGeoJSON = {
+            address: dropoffLocation.address, // Store the address
+            coordinates: {
+              type: "Point",
+              coordinates: [dropoffLocation.lng, dropoffLocation.lat], // [longitude, latitude]
+            },
+          };
         // Create a new booking with the estimated invoice
         const newBooking = new Booking({
             owner,
@@ -290,10 +298,9 @@ exports.assignDriver = async (req, res) => {
       if (!driver || driver.role !== 'driver') {
         return res.status(400).json({ message: 'Invalid driver.' });
       }
-  console.log('req.params.id',req.params.id)
-      // Check the device token for notifications
-      const deviceToken = await Token.findOne({ userId: driverId });
   
+      console.log('req.params.id', req.params.id);
+      
       // Get the bookings from the request body (it can be an array of booking IDs)
       const bookingIds = req.params.id; // Expecting an array of booking IDs
       const bookings = await Booking.find({ '_id': { $in: bookingIds } }).populate('vehicle');
@@ -325,10 +332,16 @@ exports.assignDriver = async (req, res) => {
           return res.status(400).json({ message: `Driver has a schedule conflict with booking ${booking._id}.` });
         }
   
-        // Assign the driver to this booking
-        booking.driver = driverId;
-        booking.status = 'assigned';
-        await booking.save();
+        // Update the booking instead of saving it
+        await Booking.updateOne(
+          { _id: booking._id }, // Find the booking by its ID
+          {
+            $set: { 
+              driver: driverId, 
+              status: 'assigned' 
+            }
+          }
+        );
   
         // Update the driver’s booking list (array of bookings)
         driver.bookings = [...driver.bookings, booking._id];
@@ -353,14 +366,15 @@ exports.assignDriver = async (req, res) => {
             bookingId: booking._id,
             vehicle: booking.vehicle,
             message: `You have been assigned a new booking!`,
-            status: booking.status,
+            status: 'assigned',
             timestamp: new Date().toISOString(),
           });
         } else {
           console.log('Driver is not connected to a socket.');
         }
   
-        if (deviceToken.token) {
+        const deviceToken = await Token.findOne({ userId: driverId });
+        if (deviceToken?.token) {
           await Notification.sendNotification(deviceToken.token, notificationTitle, notificationBody);
         }
       }
@@ -371,6 +385,7 @@ exports.assignDriver = async (req, res) => {
       return res.status(500).json({ message: 'Server error while assigning driver.' });
     }
   };
+  
   
 
 exports.startBooking = async (req, res) => {
@@ -888,3 +903,77 @@ exports.getAllDrivers = async (req, res) => {
       res.status(500).json({ message: 'Internal server error' });
     }
   };
+
+
+  exports.getTripReports = async (req, res) => {
+    try {
+        const { vehicleId, startDate, endDate, period } = req.query;
+
+        // Validate the required fields
+        if (!vehicleId) {
+            return res.status(400).json({ error: "Vehicle ID is required." });
+        }
+
+        // Construct the query filter
+        const filter = { vehicle: new mongoose.Types.ObjectId(vehicleId) };
+        if (startDate) filter.startDate = { $gte: new Date(startDate) };
+        if (endDate) filter.endDate = { ...filter.endDate, $lte: new Date(endDate) };
+
+        // Fetch vehicle details
+        const vehicle = await Vehicle.findById(vehicleId).populate("owner driver");
+
+        if (!vehicle) {
+            return res.status(404).json({ error: "Vehicle not found." });
+        }
+
+        // Fetch booking data for the trip report
+        const bookings = await Booking.find(filter)
+            .populate("driver", "name") // Populate driver details
+            .sort({ createdAt: -1 }); // Sort by recent bookings
+
+        // Aggregate booking data
+        const aggregatedData = bookings.reduce(
+            (acc, booking) => {
+                acc.totalTrips += 1;
+                acc.totalFare += booking.fare || 0;
+                acc.totalKmDriven += booking.kmDriven || 0;
+                acc.extraExpenses += booking.extraExpanse || 0;
+                acc.totalProfit += booking.profit || 0;
+                return acc;
+            },
+            { totalTrips: 0, totalFare: 0, totalKmDriven: 0, extraExpenses: 0, totalProfit: 0 }
+        );
+
+        // Construct detailed booking reports
+        const detailedBookings = bookings.map((booking) => ({
+            bookingId: booking._id,
+            driverName: booking.driver?.name || "N/A",
+            tripDate: booking.startDate,
+            fare: booking.fare,
+            kmDriven: booking.kmDriven,
+            extraExpenses: booking.extraExpanse,
+            profit: booking.profit,
+        }));
+
+        // Construct the response
+        const report = {
+            period: period || "N/A",
+            vehicleName: vehicle.name,
+            plateNumber: vehicle.plateNumber,
+            totalTrips: aggregatedData.totalTrips,
+            totalFare: aggregatedData.totalFare,
+            totalKmDriven: aggregatedData.totalKmDriven,
+            extraExpenses: aggregatedData.extraExpenses,
+            totalProfit: aggregatedData.totalProfit,
+            bookings: detailedBookings,
+        };
+
+        // Respond with the aggregated data and detailed bookings
+        return res.status(200).json({ report });
+    } catch (error) {
+        console.error("Error fetching trip reports:", error);
+        return res.status(500).json({ error: "Internal Server Error" });
+    }
+};
+
+  

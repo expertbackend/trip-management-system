@@ -327,3 +327,44 @@ exports.driversloc = async(req,res)=>{
       }
 
 }
+
+exports.getProfile = async (req, res) => {
+    try {
+        const userId = req.user._id; 
+        const user = await User.findById(userId).populate('vehicle').populate('bookings').populate('ownerId');
+
+        if (!user) {
+            return res.status(404).json({ success: false, message: 'User not found' });
+        }
+
+        let profileData;
+
+        if (user.role === 'owner') {
+            profileData = {
+                name: user.name,
+                email: user.email,
+                maxVehicles: user.maxVehicles,
+                vehicleCount: user.vehicleCount,
+                role:user.role
+            };
+        } else if (user.role === 'operator' || user.role === 'driver') {
+            profileData = {
+                name: user.name,
+                email: user.email,
+                role: user.role,
+                isVerified: user.isVerified,
+                permissions: user.permissions,
+                vehicle: user.vehicle,
+                ownerId: user.ownerId,
+                status: user.status,
+            };
+        } else {
+            return res.status(403).json({ success: false, message: 'Access denied' });
+        }
+
+        res.status(200).json({ success: true, profile: profileData });
+    } catch (error) {
+        console.error('Error fetching profile:', error);
+        res.status(500).json({ success: false, message: 'Internal Server Error' });
+    }
+};

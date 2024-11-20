@@ -15,13 +15,17 @@ import MapComponent from './components/Map';
 import UserPage from './components/UserPage';
 import VehicleTable from './components/VehiclePage';
 import BookingPage from './components/BookingPage';
-import ProfilePage from './components/ProfilePage';
 import ViewExpenses from './components/ViewExpanses';
 import AddExpenses from './components/AddExpanse';
 import CreateBooking from './common/CreateBooking';
+import BookingsPage from './common/BookingPage';
+import AssignDriverPage from './common/AssignBooking';
+import TripReport from './common/TripReport';
+import ProfilePage from './common/ProfilePage';
 
 function App() {
   const [role, setRole] = useState(null);
+  const [name, setName] = useState(null);
   const [loading, setLoading] = useState(true);
   const [notifications, setNotifications] = useState([]);
   const [fcmToken, setFcmToken] = useState(null);
@@ -79,7 +83,9 @@ function App() {
   // Load user role from local storage
   useEffect(() => {
     const userRole = localStorage.getItem('role');
+    const userName = localStorage.getItem('developer');
     setRole(userRole);
+    setName(userName)
     setLoading(false);
     startTracking();
   }, []);
@@ -152,7 +158,7 @@ function App() {
         <div>Please allow location permission to use this website.</div>
       ) : (
         <>
-          {!isAuthPage && <Sidebar role={role} notifications={notifications} />}
+          {!isAuthPage && <Sidebar role={role} notifications={notifications} username={name}/>}
           <div className="content flex-grow">
             {!isAuthPage && (
               <Header notifications={notifications} clearNotifications={clearNotifications} />
@@ -167,10 +173,13 @@ function App() {
               <Route path="/user" element={<PrivateRoute component={UserPage} />} />
               <Route path="/vehicle" element={<PrivateRoute component={VehicleTable} />} />
               <Route path="/booking" element={<PrivateRoute component={BookingPage} />} />
-              <Route path="/profile" element={<PrivateRoute component={ProfilePage} />} />
               <Route path="/view-expense" element={<PrivateRoute component={ViewExpenses} />} />
               <Route path="/add-expense" element={<PrivateRoute component={AddExpenses} />} />
               <Route path="/create-booking" element={<PrivateRoute component={CreateBooking} />} />
+              <Route path="/view-booking" element={<PrivateRoute component={BookingsPage} />} />
+              <Route path="/assign-booking" element={<PrivateRoute component={AssignDriverPage} />} />
+              <Route path="/trip-report" element={<PrivateRoute component={TripReport} />} />
+              <Route path="/profile" element={<PrivateRoute component={ProfilePage} />} />
 
             </Routes>
           </div>

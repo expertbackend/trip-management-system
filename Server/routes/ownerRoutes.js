@@ -23,6 +23,7 @@ router.get('/drivers',roleCheck(['owner','operator']), ownerController.findDrive
 router.get('/plans',roleCheck(['owner','operator']),hasPermission('read', 'plan'), ownerController.getPlans);
 router.get('/getDrivers',roleCheck(['owner','operator']),hasPermission('read', 'plan'), ownerController.getDrivers);
 router.get('/drivers/:driverId/location',roleCheck(['owner','operator']),hasPermission('read', 'plan'), ownerController.driversloc);
+router.get('/getProfile',roleCheck(['owner','operator','driver']),ownerController.getProfile);
 
 
 module.exports = router;

@@ -43,7 +43,6 @@ exports.login = async (req, res) => {
     // Optionally send the notification to the device
     await Notification.sendNotification(deviceToken, welcomeTitle, welcomeBody);
     }
-
     const token = jwt.sign(
         { id: user._id, role: user.role },
          "hahahahahahahyoudontknowre",
@@ -52,7 +51,7 @@ exports.login = async (req, res) => {
 
   
 
-    res.json({ token, role: user.role });
+    res.json({ token, role: user.role,name:user.name });
 };
 
 exports.createUser = async (req, res) => {

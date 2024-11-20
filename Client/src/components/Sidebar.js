@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { FaBars, FaTimes, FaHome, FaUser, FaSignOutAlt, FaEnvelope, FaCar, FaUsers,FaDollarSign,FaFileAlt,FaClipboardList,FaCheckCircle, FaCalendarAlt, FaGasPump, FaTaxi, FaCarAlt, FaChevronDown, FaChevronUp } from 'react-icons/fa';
+import { FaBars, FaTimes, FaHome, FaUser, FaSignOutAlt, FaEnvelope, FaCar, FaUsers,FaDollarSign,FaFileAlt,FaClipboardList,FaCheckCircle, FaCalendarAlt, FaGasPump, FaTaxi, FaCarAlt, FaChevronDown, FaChevronUp, FaTruckPickup } from 'react-icons/fa';
 import { Link, useNavigate } from 'react-router-dom';
-import pic from '../assets/IMG-20231205-WA0001.jpg';
-
-function Sidebar({ role, notifications }) {
+import Avatar from 'react-avatar';
+function Sidebar({ role, notifications,username }) {
   const [isOpen, setIsOpen] = useState(false);
   const [activeLink, setActiveLink] = useState('home');
   const [showNotifications, setShowNotifications] = useState(false);
@@ -117,6 +116,16 @@ function Sidebar({ role, notifications }) {
               >
                 <FaUser className="text-xl" />
                 {isOpen && <span className="ml-4">Owner Dashboard</span>}
+              </Link>
+            </li>
+            <li>
+              <Link
+                to='/trip-report'
+                className={`flex items-center p-3 rounded-lg transition-colors ${activeLink === 'trip-report' ? 'bg-white text-black' : 'text-white hover:bg-white hover:text-black'}`}
+                onClick={() => handleLinkClick('trip-report')}
+              >
+                <FaTruckPickup className="text-xl" />
+                {isOpen && <span className="ml-4">Trip Report</span>}
               </Link>
             </li>
             <li>
@@ -238,6 +247,26 @@ function Sidebar({ role, notifications }) {
             )}
           </div>
         )}
+<li 
+  className="flex items-center space-x-4 p-3 bg-gray-100 rounded-lg"
+  onClick={handleProfileClick}
+>
+  {/* Profile Section */}
+  <div className="flex items-center">
+    {/* Avatar Image */}
+    <Avatar 
+      name={username} 
+      size="40" 
+      round="20px" 
+      className="shadow-md" 
+    />
+    {/* Username and Role */}
+    <div className="ml-4">
+      <p className="font-semibold text-gray-700">{username}</p>
+      <p className="text-sm text-gray-500">{role}</p>
+    </div>
+  </div>
+</li>
 
         {/* Other Links */}
         <li>

@@ -19,7 +19,7 @@ const userSchema = new mongoose.Schema({
     fuelExpanse: [{ date: Date, amount: String }],
     driverExpanse: [{ date: Date, amount: String }],
     vehicleExpanse: [{ date: Date, amount: String }],
-    expenseDate: { type: Date, required: true, unique: true },
+    expenseDate: { type: Date, unique: true },
 });
 
 userSchema.pre('save', async function (next) {

@@ -5,8 +5,20 @@ const bookingSchema = new mongoose.Schema({
   operator: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
   driver: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
   vehicle: { type: mongoose.Schema.Types.ObjectId, ref: 'Vehicle' },
-  pickupLocation: { type: { type: String, default: 'Point' }, coordinates: [Number] },
-  dropoffLocation: { type: { type: String, default: 'Point' }, coordinates: [Number] },
+  pickupLocation: {
+    address: { type: String}, // Store the pickup address
+    coordinates: {
+      type: { type: String, default: 'Point' },
+      coordinates: { type: [Number] }, // GeoJSON format: [lng, lat]
+    },
+  },
+  dropoffLocation: {
+    address: { type: String}, // Store the dropoff address
+    coordinates: {
+      type: { type: String, default: 'Point' },
+      coordinates: { type: [Number] }, // GeoJSON format: [lng, lat]
+    },
+  },
   fare: Number,
   kmDriven: { type: Number, default: 0 },
   status: { type: String, enum: ['pending', 'assigned', 'in-progress', 'completed', 'canceled'] },
