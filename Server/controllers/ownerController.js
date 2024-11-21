@@ -62,41 +62,47 @@ exports.buyPlan = async (req, res) => {
 
 exports.getPlanHistory = async (req, res) => {
     try {
-        // Ensure user is authenticated and req.user is populated
+        // Ensure the user is authenticated and req.user is populated
         if (!req.user || !req.user._id) {
             return res.status(401).json({ message: 'Unauthorized: User not authenticated.' });
         }
 
-        const userId = req.user._id; // Assuming authentication middleware provides `req.user`
+        const userId = req.user._id; // Assuming authentication middleware populates `req.user`
 
-        // Fetch user data, including planIds (multiple plans)
-        const user = await User.findById(userId).populate('planIds');
-        
-        // If user doesn't exist or doesn't have plans, return an error
+        // Fetch the user document with associated planIds (optional, if needed for further filtering)
+        const user = await User.findById(userId).populate('planIds'); // Assuming planIds is a field that holds plan references
+
+        // If the user doesn't exist or doesn't have plans, return an error
         if (!user || !user.planIds || user.planIds.length === 0) {
-            return res.status(404).json({ message: 'User has no associated plans.' });
+            return res.status(200).json({ message: 'User has no associated plans.' });
         }
 
-        // Fetch plan history for all the plans in user.planIds
-        const history = await PlanHistory.find({ planId: { $in: user.planIds.map(plan => plan._id) } }).populate('planId');
+        // Fetch plan history for the logged-in user by userId
+        const history = await PlanHistory.find({ userId: userId }) // Filter by userId to ensure it's the logged-in user's history
+            .populate('planId'); // Populate planId to get full plan details
 
-        // Check if plan history exists for the user
+        console.log('User Plan History:', history);
+
+        // If no plan history is found, return an error message
         if (history.length === 0) {
             return res.status(404).json({ message: 'No plan history found for this user.' });
         }
 
+        // Return the plan history
         return res.status(200).json({ planHistory: history });
+
     } catch (error) {
-        console.error(error);
+        console.error('Error fetching plan history:', error);
         return res.status(500).json({ message: 'Server error.' });
     }
 };
 
 
 
+
 exports.getPlans = async (req, res) => {
     try {
-      const plans = await Plan.find();
+      const plans = await Plan.find().sort({  price: 1 });
       if (!plans) {
         return res.status(404).json({ message: 'No plans found.' });
       }
@@ -440,12 +446,21 @@ exports.getAllPaymentRequests = async (req, res) => {
         // Update the maxVehicles for the owner based on the approved plan
         owner.maxVehicles = (owner.maxVehicles || 0) + plan.maxVehicles;
         owner.planExpiryDate = newPlanExpiryDate; // Set the expiry date for the owner's plan
-
+console.log('planIds',plan._id)
         // Add the new planId to the owner's planIds array
         owner.planIds.push(plan._id);
 
         await owner.save();
+        const planHistory = new PlanHistory({
+            userId: owner._id,
+            planId: plan._id,
+            planName: plan.name,
+            purchasedAt: currentDate,
+            expiryDate: newPlanExpiryDate,
+            amount: paymentRequest.amount, // Assuming paymentRequest contains the amount paid
+        });
 
+        await planHistory.save();
         // Create a notification for the user
         const notificationTitle = 'Plan Purchase Approved';
         const notificationBody = `Your request for the ${plan.name} plan has been approved! You now have ${owner.maxVehicles} max vehicles.`;

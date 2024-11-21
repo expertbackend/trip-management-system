@@ -29,13 +29,15 @@ const ProfilePage = () => {
       axiosInstance.get('/plan-history'), // Fetch plan history
     ])
       .then(([profileResponse, plansResponse, historyResponse]) => {
-        setProfileData(profileResponse.data.profile);
-        setPlans(plansResponse.data);
+        setProfileData(profileResponse.data.profile || null);
+        setPlans(plansResponse.data || []);
         setPlanHistory(historyResponse.data.planHistory || []); // Handle missing data or errors in plan history
         setLoading(false);
       })
       .catch((error) => {
         console.error('Error fetching data:', error);
+        setMessage({ type: 'Error', text: 'Error fetching data.' });
+        setIsModalOpen(true);
         setLoading(false);
       });
   }, [id]);
