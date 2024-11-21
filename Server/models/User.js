@@ -7,7 +7,7 @@ const userSchema = new mongoose.Schema({
     password: { type: String, required: true },
     role: { type: String, enum: ['owner', 'driver', 'operator', 'superadmin'], required: true },
     isVerified: { type: Boolean, default: false },
-    planId: { type: mongoose.Schema.Types.ObjectId, ref: 'Plan' },
+    planIds: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Plan' }], 
     permissions: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Permission' }],
     vehicleCount: { type: Number, default: 0 },
     maxVehicles: { type: Number, default: 0 },

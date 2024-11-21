@@ -62,8 +62,28 @@ exports.buyPlan = async (req, res) => {
 
 exports.getPlanHistory = async (req, res) => {
     try {
+        // Ensure user is authenticated and req.user is populated
+        if (!req.user || !req.user._id) {
+            return res.status(401).json({ message: 'Unauthorized: User not authenticated.' });
+        }
+
         const userId = req.user._id; // Assuming authentication middleware provides `req.user`
-        const history = await PlanHistory.find({ userId }).populate('planId');
+
+        // Fetch user data, including planIds (multiple plans)
+        const user = await User.findById(userId).populate('planIds');
+        
+        // If user doesn't exist or doesn't have plans, return an error
+        if (!user || !user.planIds || user.planIds.length === 0) {
+            return res.status(404).json({ message: 'User has no associated plans.' });
+        }
+
+        // Fetch plan history for all the plans in user.planIds
+        const history = await PlanHistory.find({ planId: { $in: user.planIds.map(plan => plan._id) } }).populate('planId');
+
+        // Check if plan history exists for the user
+        if (history.length === 0) {
+            return res.status(404).json({ message: 'No plan history found for this user.' });
+        }
 
         return res.status(200).json({ planHistory: history });
     } catch (error) {
@@ -71,6 +91,7 @@ exports.getPlanHistory = async (req, res) => {
         return res.status(500).json({ message: 'Server error.' });
     }
 };
+
 
 
 exports.getPlans = async (req, res) => {
@@ -87,15 +108,13 @@ exports.getPlans = async (req, res) => {
   };
   exports.addVehicle = async (req, res) => {
     try {
-        const owner = await User.findById(req.user._id).populate('planId');
+        const owner = await User.findById(req.user._id)
 
         if (!owner || owner.role !== 'owner') {
             return res.status(403).json({ message: 'Only owners can add vehicles.' });
         }
 
-        if (!owner.planId) {
-            return res.status(400).json({ message: 'You must purchase a plan first.' });
-        }
+       
 
         const currentDate = new Date();
 
@@ -124,6 +143,7 @@ exports.getPlans = async (req, res) => {
         return res.status(500).json({ message: 'Server error.' });
     }
 };
+
 
 
 // Assign vehicle to driver
@@ -219,7 +239,7 @@ exports.getAllPermission = async (req, res) => {
 // Get all vehicles for the authenticated owner
 exports.getAllVehicles = async (req, res) => {
     try {
-        const owner = await User.findById(req.user._id).populate('planId');
+        const owner = await User.findById(req.user._id).populate('planIds');
 
         if (!owner || owner.role !== 'owner') {
             return res.status(403).json({ message: 'Only owners can view their vehicles.' });
@@ -421,6 +441,9 @@ exports.getAllPaymentRequests = async (req, res) => {
         owner.maxVehicles = (owner.maxVehicles || 0) + plan.maxVehicles;
         owner.planExpiryDate = newPlanExpiryDate; // Set the expiry date for the owner's plan
 
+        // Add the new planId to the owner's planIds array
+        owner.planIds.push(plan._id);
+
         await owner.save();
 
         // Create a notification for the user
@@ -458,6 +481,7 @@ exports.getAllPaymentRequests = async (req, res) => {
 };
 
 
+
   
   // PATCH - Reject a payment request
   exports.rejectPaymentRequest = async (req, res) => {
@@ -481,9 +505,7 @@ exports.getAllPaymentRequests = async (req, res) => {
 
   exports.createOwner = async (req, res) => {
     try {
-        const { name, email, phoneNumber, gender, address, companyLogoUrl } = req.body;
-        console.log("req.body", req.body);
-
+        const { name, email, phoneNumber, gender, address, companyLogoUrl,password,role } = req.body;
         // Only superadmins can create new owners
         if (req.user.role !== 'superadmin') {
             return res.status(403).json({ message: 'Only superadmins can create new owners.' });
@@ -502,8 +524,10 @@ exports.getAllPaymentRequests = async (req, res) => {
             gender,
             address,
             companyLogoUrl,
+            password,
             // Optionally, associate the creator superadmin with the new owner (if needed)
-            createdBy: req.user._id, // or another field for audit
+            createdBy: req.user._id,
+            role
         });
 
         // Save the new owner to the database

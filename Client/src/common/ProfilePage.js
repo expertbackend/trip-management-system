@@ -31,7 +31,7 @@ const ProfilePage = () => {
       .then(([profileResponse, plansResponse, historyResponse]) => {
         setProfileData(profileResponse.data.profile);
         setPlans(plansResponse.data);
-        setPlanHistory(historyResponse.data.planHistory);
+        setPlanHistory(historyResponse.data.planHistory || []); // Handle missing data or errors in plan history
         setLoading(false);
       })
       .catch((error) => {
@@ -101,7 +101,7 @@ const ProfilePage = () => {
   const renderPlanHistory = () => (
     <div className="mt-8">
       <h3 className="text-2xl font-bold text-gray-800 mb-6">Plan History</h3>
-      {planHistory?.length === 0 ? (
+      {planHistory.length === 0 ? (
         <p className="text-gray-600">No plan history available.</p>
       ) : (
         <table className="min-w-full bg-white border-collapse border border-gray-300 shadow-sm rounded-md">
@@ -114,7 +114,7 @@ const ProfilePage = () => {
             </tr>
           </thead>
           <tbody>
-            {planHistory?.map((history) => (
+            {planHistory.map((history) => (
               <tr key={history._id}>
                 <td className="py-2 px-4 border-b">{history.planName}</td>
                 <td className="py-2 px-4 border-b">
