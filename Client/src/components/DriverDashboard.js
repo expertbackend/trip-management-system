@@ -13,7 +13,10 @@ function DriverDashboard() {
   const [completedBookings, setCompletedBookings] = useState([]);
   const [isSocketConnected, setIsSocketConnected] = useState(false);
   const [loadingBookings, setLoadingBookings] = useState(false);
-
+  const [formData, setFormData] = useState({
+    images: {},
+    // other form fields can go here
+  });
   // Modal states for ending bookings
   const [kmDriven, setKmDriven] = useState('');
   const [extraExpanse, setExtraExpanse] = useState('');
@@ -21,8 +24,13 @@ function DriverDashboard() {
   const [currentBookingId, setCurrentBookingId] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [selectedBooking, setSelectedBooking] = useState(null);
-
+  const [startDashboardImage, setStartDashboardImage] = useState(null);
+  const [endDashboardImage, setEndDashboardImage] = useState(null);
   const handleCloseModal = () => setSelectedBooking(null);
+  const [uploadProgress, setUploadProgress] = useState(0); // Track progress (0-100)
+const [isUploading, setIsUploading] = useState(false);   // Track if the upload is in progress
+const [isUploadComplete, setIsUploadComplete] = useState(false); // Track if the upload is finished
+
   // Connect to Socket.IO
   useEffect(() => {
     const socket = io(SOCKET_SERVER_URL, {
@@ -50,7 +58,54 @@ function DriverDashboard() {
       socket.disconnect();
     };
   }, []);
-
+  const handleImagesChange = async (e, field) => {
+    const { files } = e.target;
+    const fileArray = Array.from(files);
+    
+    const uploadedImages = [];
+    
+    setIsUploading(true); // Set upload status to true
+  
+    for (const file of fileArray) {
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('upload_preset', 'testpreset'); // Use your Cloudinary upload preset here
+  
+      try {
+        // Upload the image to Cloudinary
+        const response = await axios.post('https://api.cloudinary.com/v1_1/dlgyhmuxb/image/upload', formData, {
+          headers: { 'Content-Type': 'multipart/form-data' },
+          onUploadProgress: (progressEvent) => {
+            const percent = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+            setUploadProgress(percent); // Update the progress state
+          }
+        });
+  
+        // Push the secure URL of the uploaded image to the array
+        uploadedImages.push(response.data.secure_url);
+      } catch (error) {
+        console.error('Error uploading image:', error);
+      }
+    }
+  
+    // Update the state with the uploaded images (store URLs)
+    setFormData((prevData) => ({
+      ...prevData,
+      images: {
+        ...prevData.images,
+        [field]: [...prevData.images[field] || [], ...uploadedImages],
+      },
+    }));
+  
+    // Assuming you're setting 'startDashboardImage' or similar
+    setStartDashboardImage(uploadedImages[0]); // Save the URL of the first image uploaded
+    
+    // Set the upload complete status once all files are uploaded
+    setIsUploading(false);
+    setIsUploadComplete(true); // Set to true when upload is complete
+  };
+  
+  
   // Fetch bookings data
   useEffect(() => {
     const fetchBookings = async () => {
@@ -114,11 +169,16 @@ function DriverDashboard() {
   
 
   // Start booking
-  const handleStartBooking = async (bookingId) => {
+  const handleStartBooking = async (bookingId,startDashboardImage) => {
     try {
+      console.log('hhhhhh',startDashboardImage)
+      if (!startDashboardImage) {
+        alert('Please upload the dashboard image before starting the booking.');
+        return;
+      }
       await axios.put(
         `${API_URL}/api/booking/start/${bookingId}`,
-        {},
+        {startDashboardImage},
         { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } }
       );
       setTodayBookings((prev) =>
@@ -131,6 +191,7 @@ function DriverDashboard() {
 
   // End booking with modal
   const handleEndBooking = (bookingId) => {
+    setSelectedBooking(null);
     setCurrentBookingId(bookingId);
     setShowModal(true);
   };
@@ -143,7 +204,7 @@ function DriverDashboard() {
     try {
       const response = await axios.put(
         `${API_URL}/api/booking/end/${currentBookingId}`,
-        { kmDriven: parseFloat(kmDriven), extraExpanse: parseFloat(extraExpanse), description },
+        { kmDriven: parseFloat(kmDriven), extraExpanse: parseFloat(extraExpanse), description,startDashboardImage },
         { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } }
       );
       setTodayBookings((prev) =>
@@ -274,23 +335,50 @@ function DriverDashboard() {
                   "MMMM Do YYYY, hh:mm A"
                 )}
               </p>
+              
             </div>
-            <div className="mt-4 flex justify-end gap-2">
-              {selectedBooking.status === "assigned" && (
-                <button
-                  onClick={() => handleStartBooking(selectedBooking._id)}
-                  className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition-colors"
-                >
-                  Start Booking
-                </button>
-              )}
+            <input 
+  type="file" 
+  onChange={(e) => handleImagesChange(e, 'gpsImeiPic')} 
+  className="mb-2 w-full sm:w-auto" 
+  disabled={isUploading || isUploadComplete} // Disable during upload
+/>
+
+{/* Progress bar */}
+{isUploading && (
+  <div className="mt-2 w-full bg-gray-200 rounded-full h-2.5">
+    <div 
+      className="bg-blue-600 h-2.5 rounded-full"
+      style={{ width: `${uploadProgress}%` }}
+    ></div>
+  </div>
+)}
+
+<div className="mt-4 flex justify-end gap-2">
+  {selectedBooking.status === "assigned" && (
+    <button
+      onClick={() => handleStartBooking(selectedBooking._id, startDashboardImage)}
+      className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition-colors"
+      disabled={isUploading || !startDashboardImage || !isUploadComplete} // Disable if uploading or no image uploaded
+    >
+      Start Booking
+    </button>
+  )}
               {selectedBooking.status === "in-progress" && (
+                <div>
+                  <label className="block text-gray-700">Upload Car Dashboard Image (End Booking):</label>
+                <input
+                  type="file"
+                  onChange={(e) => setEndDashboardImage(e.target.files[0])}
+                  className="mt-2"
+                />
                 <button
                   onClick={() => handleEndBooking(selectedBooking._id)}
                   className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition-colors"
                 >
                   End Booking
                 </button>
+                </div>
               )}
             </div>
           </div>
@@ -355,13 +443,40 @@ function DriverDashboard() {
               placeholder="Description"
               className="block w-full border border-gray-300 p-2 mb-4"
             />
-            <div className="flex justify-end">
-              <button
-                onClick={handleModalSubmit}
-                className="bg-blue-600 text-white px-4 py-2 rounded mr-2"
-              >
-                Submit
-              </button>
+           <input
+        type="file"
+        onChange={(e) => handleImagesChange(e, 'EndDash')}
+        className="mb-2 w-full sm:w-auto"
+        multiple // Allow multiple file selection
+      />
+
+      {/* Progress bar */}
+      {isUploading && (
+        <div className="mt-4">
+          <progress
+            value={uploadProgress}
+            max="100"
+            className="w-full h-2 bg-gray-200 rounded"
+          >
+            {uploadProgress}%
+          </progress>
+          <span>{uploadProgress}%</span>
+        </div>
+      )}
+
+      {isUploadComplete && (
+        <p className="mt-2 text-green-500">Upload Complete!</p>
+      )}
+
+      {/* Submit button */}
+      <div className="flex justify-end">
+        <button
+          onClick={handleModalSubmit}
+          className="bg-blue-600 text-white px-4 py-2 rounded mr-2"
+          disabled={!isUploadComplete || isUploading} // Disable if uploading or not complete
+        >
+          Submit
+        </button>
               <button
                 onClick={() => setShowModal(false)}
                 className="bg-gray-400 text-white px-4 py-2 rounded"

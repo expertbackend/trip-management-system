@@ -352,7 +352,7 @@ India`;
               <option value="">Select Vehicle</option>
               {vehicles.map((vehicle) => (
                 <option key={vehicle._id} value={vehicle._id}>
-                  {vehicle.name} - {vehicle.model} ({vehicle.registrationNumber})
+                  {vehicle.name} - {vehicle.status} ({vehicle.plateNumber})
                 </option>
               ))}
             </select>

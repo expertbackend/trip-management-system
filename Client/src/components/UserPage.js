@@ -3,7 +3,8 @@ import axios from 'axios';
 import { jsPDF } from 'jspdf';
 import 'jspdf-autotable';
 import Modal from './Modal'; // Assuming Modal component is in the same directory
-import { FaEye, FaLock, FaNode, FaUserPlus } from 'react-icons/fa';
+import { FaCheckCircle, FaEdit, FaEye, FaLock, FaNode, FaTimesCircle, FaUserPlus } from 'react-icons/fa';
+import UserModal from '../modals/UserModal';
 
 const UserPage = () => {
   const [isUserModalOpen, setIsUserModalOpen] = useState(false);
@@ -17,9 +18,11 @@ const UserPage = () => {
   const [selectedPermissions, setSelectedPermissions] = useState([]);
   const [selectedUser, setSelectedUser] = useState('');
   const [users, setUsers] = useState([]);
-  const [newUser, setNewUser] = useState({ name: '', email: '', password: '', role: 'user' });
+  const [newUser, setNewUser] = useState({ name: '', email: '', password: '', role: 'user',phoneNumber:'' });
+  const [selectedUser1, setSelectedUser1] = useState(null); // State to store selected user details
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalMode, setModalMode] = useState('view');
 
-  
   // Fetch users
   useEffect(() => {
     setCurrentPage(1);
@@ -38,34 +41,70 @@ const UserPage = () => {
       };
   
       fetchPermissions();
-    const fetchUsers = async () => {
-        try {
-          // Retrieve the token from local storage or another secure storage method
-          const token = localStorage.getItem('token'); // Adjust if token is stored elsewhere
-      
-          // Make the request with the token in the Authorization header
-          const response = await axios.get(
-            `${process.env.REACT_APP_API_URL}/api/owner/users`,
-            {
-              headers: {
-                Authorization: `Bearer ${token}`, // Add Bearer token
-              },
-            }
-          );
-      
-          setUsers(response.data.users);
-        } catch (error) {
-          console.error('Error fetching users:', error);
-          // Handle token errors, such as redirecting to login if token is invalid or expired
-          if (error.response && error.response.status === 401) {
-            console.error('Unauthorized: Token may be invalid or expired');
-            // Redirect to login or show an error message
-          }
-        }
-      };
-    fetchUsers();
+    
   }, [searchQuery]);
+  const fetchUsers = async () => {
+    try {
+      // Retrieve the token from local storage or another secure storage method
+      const token = localStorage.getItem('token'); // Adjust if token is stored elsewhere
+  
+      // Make the request with the token in the Authorization header
+      const response = await axios.get(
+        `${process.env.REACT_APP_API_URL}/api/owner/users`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`, // Add Bearer token
+          },
+        }
+      );
+  
+      setUsers(response.data.users);
+    } catch (error) {
+      console.error('Error fetching users:', error);
+      // Handle token errors, such as redirecting to login if token is invalid or expired
+      if (error.response && error.response.status === 401) {
+        console.error('Unauthorized: Token may be invalid or expired');
+        // Redirect to login or show an error message
+      }
+    }
+  };
+  useEffect(() => {
+    
+    fetchUsers(); // Fetch users
+  }, []);
+  const handleStatusToggle = async (userId) => {
+    try {
+        // Show a confirmation prompt before toggling the status
+        const userConfirmed = window.confirm("Are you sure you want to toggle the user status?");
+        if (!userConfirmed) return;
 
+        // Send request to the backend to toggle the user status
+        const response = await axiosInstance.put(`/updateStatus/${userId}`);
+
+        if (response.status === 200) {
+            alert(`User status updated to ${response.data.user.status}`);
+            // After updating, re-fetch the users
+            fetchUsers(); // This will update the users in the state
+        }
+    } catch (error) {
+        console.error("Error updating status:", error);
+        alert("Failed to update user status. Please try again.");
+    }
+};
+
+  const handleViewClick = (user) => {
+    setModalMode('view');
+    setSelectedUser1(user);
+    setIsModalOpen(true); // Open the modal
+  };
+  const handleEditClick = (user) => {
+    setModalMode('edit');
+    setSelectedUser1(user);
+    setIsModalOpen(true);
+  };
+  const closeModal = () => {
+    setIsModalOpen(false); // Close the modal
+  };
   const handleUserSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -141,7 +180,13 @@ const filteredUsers = users.filter((user) =>
   
   // Total pages for the filtered data
   const totalPages = Math.ceil(filteredUsers.length / usersPerPage);
-  
+  const token = localStorage.getItem('token');
+  const axiosInstance = axios.create({
+      baseURL: `${process.env.REACT_APP_API_URL}/api/owner`,
+      headers: {
+          Authorization: `Bearer ${token}`,
+      },
+  });
   // Pagination function
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
   
@@ -150,7 +195,10 @@ const filteredUsers = users.filter((user) =>
     const doc = new jsPDF();
     doc.setFontSize(18);
     doc.text('User List', 14, 22);
-  
+    if (!filteredUsers.length) {
+      alert("No data available to download.");
+      return;
+    }
     const columns = ['ID', 'FULL NAME', 'EMAIL','Permissions'];
     const data = filteredUsers.map((user, index) => [
       index + 1,
@@ -169,7 +217,10 @@ const filteredUsers = users.filter((user) =>
   
     doc.save('user_list.pdf');
   };
-  
+  const phoneRegex = /^[6-9]\d{9}$/;
+ 
+
+
 
   return (
     <div className="w-full p-4 bg-white">
@@ -220,6 +271,31 @@ const filteredUsers = users.filter((user) =>
         className="w-full mt-2 p-2 border border-gray-300 rounded-md"
       />
     </div>
+    <div className="mb-4">
+  <label className="block text-gray-700">Phone Number</label>
+  <input
+    type="text"
+    placeholder="Enter phone number"
+    required
+    maxLength="10"
+    value={newUser.phoneNumber}
+    onChange={(e) => {
+      const phone = e.target.value;
+
+      // Allow only numbers (use a regex to remove non-numeric characters)
+      if (/^\d*$/.test(phone)) {
+        setNewUser({ ...newUser, phoneNumber: phone });
+      }
+    }}
+    className="w-full mt-2 p-2 border border-gray-300 rounded-md"
+  />
+  <p className="text-red-500 text-sm mt-1">
+    {newUser.phoneNumber && !/^[789]\d{9}$/.test(newUser.phoneNumber) && "Please enter a valid Indian phone number starting with 7, 8, or 9."}
+  </p>
+</div>
+
+
+
     <div className="mb-4">
       <label className="block text-gray-700">Password</label>
       <input
@@ -367,21 +443,43 @@ const filteredUsers = users.filter((user) =>
             <td className="px-4 py-2">{user.email}</td>
             <td className="px-4 py-2">{user.role}</td>
             <td className="px-4 py-2">
-              <div className="flex justify-between">
-                <button
-                  // onClick={() => handlePermissionClick(user._id)} // Trigger the permission modal on click
-                  className="text-blue-600 hover:text-blue-800"
-                >
-                  <FaNode title="Active" /> {/* Permission icon */}
-                </button>
-                <button
-                  // onClick={() => handlePermissionClick(user._id)} // Trigger the permission modal on click
-                  className="text-blue-600 hover:text-blue-800"
-                >
-                  <FaEye title="view profile" /> {/* View profile icon */}
-                </button>
-              </div>
-            </td>
+  <div className="flex justify-between">
+    {/* Active/Inactive Icon */}
+    {user.status === "active" ? (
+        <button
+          onClick={() => handleStatusToggle(user._id)} // Trigger status toggle
+          className="text-green-600 hover:text-green-800"
+        >
+          <FaCheckCircle title="Active" /> {/* Active icon */}
+        </button>
+      ) : (
+        <button
+          onClick={() => handleStatusToggle(user._id)} // Trigger status toggle
+          className="text-red-600 hover:text-red-800"
+        >
+          <FaTimesCircle title="Inactive" /> {/* Inactive icon */}
+        </button>
+      )}
+    {/* Edit Icon */}
+    <button
+      // onClick={() => handleEditClick(user._id)} // Trigger the edit modal or functionality
+      className="text-blue-600 hover:text-blue-800"
+      onClick={() => handleEditClick(user)}
+    >
+      <FaEdit title="Edit" /> {/* Edit icon */}
+    </button>
+
+    {/* View Profile Icon */}
+    <button
+  onClick={() => handleViewClick(user)} // Trigger the view profile modal or page
+  className="text-blue-600 hover:text-blue-800"
+>
+  <FaEye title="View Profile" /> {/* View profile icon */}
+</button>
+
+  </div>
+</td>
+
           </tr>
         );
       })}
@@ -415,6 +513,12 @@ const filteredUsers = users.filter((user) =>
           Next
         </button>
       </div>
+      <UserModal
+        user={selectedUser1}
+        isOpen={isModalOpen}
+        onClose={closeModal}
+        mode={modalMode}
+      />
     </div>
   );
 };

@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const Plan = require('./models/Plan'); // Path to your Plan model
+const User = require('./models/User')
 require('dotenv').config();
 const seedPlans = async () => {
     try {
@@ -57,8 +58,9 @@ const seedPlans = async () => {
 };
 
 // Run the seeding function
-seedPlans();
+// seedPlans();
 const Permission = require('./models/Permission');
+const Vehicle = require('./models/Vehicle');
 
 async function createPermissions() {
     try {
@@ -118,5 +120,69 @@ async function createPermissions() {
     }
 }
 
+
 // Run the seeder function
 // createPermissions();
+const addPhoneNumberToUsers = async () => {
+    const MONGO_URI = process.env.DB_CONNECTION_STRING;
+
+// Connect to MongoDB
+mongoose
+  .connect(MONGO_URI, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  })
+  .then(() => console.log('MongoDB connected.'))
+  .catch((error) => console.error('Error connecting to MongoDB:', error));
+    try {
+      const result = await User.updateMany(
+        { phoneNumber: { $exists: true } }, // Target only documents without the field
+        { $set: { phoneNumber: '7978394726' } } // Add the `phoneNumber` field with a default value of `null`
+      );
+  
+      console.log(`Updated ${result.modifiedCount} users with phoneNumber field.`);
+    } catch (error) {
+      console.error('Error updating users:', error);
+    } finally {
+      // Close the MongoDB connection
+      mongoose.connection.close();
+    }
+  };
+  
+  // Execute the function
+//   addPhoneNumberToUsers();
+const updateTimestamps = async () => {
+    const MONGO_URI = process.env.DB_CONNECTION_STRING;
+  
+    // Connect to MongoDB
+    mongoose
+      .connect(MONGO_URI, {
+        useNewUrlParser: true,
+        useUnifiedTopology: true,
+      })
+      .then(() => console.log('MongoDB connected.'))
+      .catch((error) => console.error('Error connecting to MongoDB:', error));
+  
+    try {
+      const currentDate = new Date();
+  
+      const result = await Vehicle.updateMany(
+        {}, // Match all documents
+        {
+          $set: {
+            updatedAt: currentDate,
+            createdAt: currentDate, // Update createdAt as well
+          },
+        }
+      );
+  
+      console.log(`${result.modifiedCount} documents updated with new timestamps.`);
+    } catch (error) {
+      console.error('Error updating timestamps:', error);
+    } finally {
+      mongoose.connection.close();
+    }
+  };
+  
+  // Run the update function
+  updateTimestamps();

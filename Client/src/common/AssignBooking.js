@@ -107,7 +107,7 @@ const AssignDriverPage = () => {
           <option key={booking._id} value={booking._id}>
             {booking.customerName} booked {booking.vehicle?.name} from{' '}
             {new Date(booking.startDate).toLocaleDateString()} to{' '}
-            {new Date(booking.endDate).toLocaleDateString()}
+            {new Date(booking.endDate).toLocaleDateString()} status is:{booking.status}
           </option>
         ))
       )}

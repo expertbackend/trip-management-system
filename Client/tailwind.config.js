@@ -8,6 +8,7 @@ module.exports = {
       boxShadow: {
         'custom-white': '0 3px 3px rgb(255, 255, 255)',
       },
+      
     },
   },
   plugins: [],

@@ -56,7 +56,7 @@ exports.login = async (req, res) => {
 
 exports.createUser = async (req, res) => {
     try {
-        const { name, email, password, role } = req.body;
+        const { name, email, password, role,phoneNumber } = req.body;
         console.log("req.body",req.body)
         // Only owners can create new users
         if (req.user.role !== 'owner') {
@@ -73,7 +73,8 @@ exports.createUser = async (req, res) => {
             password,
             role,
             ownerId: req.user._id, // Associate the new user with the authenticated owner
-            status:"active"
+            status:"active",
+            phoneNumber
         });
 
         // Save the user to the database
@@ -102,3 +103,90 @@ exports.getAllUsers = async (req, res) => {
         res.status(500).json({ message: 'Error retrieving users' });
     }
 };
+
+exports.updateUser = async (req, res) => {
+    try {
+        const { userId } = req.params; // Get userId from route params
+        const { name, role, phoneNumber, address, gender, permissions } = req.body;
+
+        console.log('userId:', userId);
+        console.log('req.user:', req.user,role);
+
+        // Only owners can update other users
+        if (req.user.role !== 'owner') {
+            return res.status(403).json({ message: 'Only owners can update users.' });
+        }
+
+        // Construct the update object with the provided fields
+        const updateData = {};
+        if (name) updateData.name = name;
+        if (role && role !== 'owner') updateData.role = role; // Prevent owners from changing role to 'owner'
+        if (phoneNumber) updateData.phoneNumber = phoneNumber;
+        if (address) updateData.address = address;
+        if (gender) updateData.gender = gender;
+
+        // Permissions update logic
+        if (permissions && Array.isArray(permissions)) {
+            const user = await User.findById(userId);
+            if (!user) {
+                return res.status(404).json({ message: 'User not found.' });
+            }
+
+            // Combine existing permissions with new permissions, ensuring no duplicates
+            const updatedPermissions = Array.from(new Set([
+                ...(user.permissions || []), // Existing permissions
+                ...permissions, // New permissions
+            ]));
+
+            updateData.permissions = updatedPermissions;
+        }
+
+        // Update the user using findByIdAndUpdate without upsert
+        const updatedUser = await User.findByIdAndUpdate(
+            userId,
+            { $set: updateData }, // Set the fields to be updated
+            { new: true } // `new: true` returns the updated document
+        );
+
+        // If no user is found, return an error
+        if (!updatedUser) {
+            return res.status(404).json({ message: 'User not found.' });
+        }
+
+        res.status(200).json({ message: 'User updated successfully', user: updatedUser });
+
+    } catch (error) {
+        console.error("Error updating user:", error);
+        res.status(500).json({ message: 'Error updating user.' });
+    }
+};
+exports.toggleUserStatus = async (req, res) => {
+    const { userId } = req.params;
+  console.log('params',userId,req.params)
+    try {
+      // Find user by ID
+      const user = await User.findById(userId);
+  
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+  
+      // Toggle status
+      const newStatus = user.status === "active" ? "inactive" : "active";
+  
+      // Update user
+      user.status = newStatus;
+      console.log('new',user.status,newStatus)
+      await user.save();
+  
+      res.status(200).json({
+        message: `User status updated to ${newStatus}`,
+        user,
+      });
+    } catch (error) {
+      console.error("Error toggling user status:", error);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  };
+
+

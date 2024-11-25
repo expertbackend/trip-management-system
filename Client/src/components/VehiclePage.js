@@ -4,6 +4,7 @@ import 'jspdf-autotable';
 import Modal from './Modal'; // Assume Modal is a reusable component
 import { FaCar } from 'react-icons/fa';
 import axios from 'axios';
+import VehicleModal from '../common/VehicleModal';
 
 const VehicleTable = () => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -13,14 +14,15 @@ const VehicleTable = () => {
   const vehiclesPerPage = 5;
   const [isVehicleModalOpen, setIsVehicleModalOpen] = useState(false);
   const [isVehicleModalOpen1, setIsVehicleModalOpen1] = useState(false);
-  const [isPlanModalOpen, setIsPlanModalOpen] = useState(false);
   const [vehicles, setVehicles] = useState([]); // State to hold vehicles list
   const [drivers, setDrivers] = useState([]); // State to hold drivers list
   const [newVehicleData, setNewVehicleData] = useState({ name: '', plateNumber: '', type: 'car' }); // State for new vehicle data
   const [selectedDriver, setSelectedDriver] = useState(null); // State for selected driver
   const [selectedVehicleId, setSelectedVehicleId] = useState(null); // State for selected vehicle ID
   const [error, setError] = useState(""); // State for selected vehicle ID
-
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedVehicle, setSelectedVehicle] = useState(null);
+  const [modalMode, setModalMode] = useState('view');
   const token = localStorage.getItem('token'); // Assuming the token is stored in localStorage
 
   // Fetch vehicles and drivers when the component mounts
@@ -64,11 +66,11 @@ const VehicleTable = () => {
 
   const handleCreateVehicle = async (e) => {
     e.preventDefault();
-  
+
     try {
       // Send the request to create a new vehicle
       const response = await axiosInstance.post('/add-vehicle', newVehicleData); // Replace with actual endpoint
-  
+
       // Check if the response contains a success message
       if (response.data && response.data.message) {
         alert(response.data.message); // Show the success message returned by the backend
@@ -77,14 +79,14 @@ const VehicleTable = () => {
         alert("Vehicle created successfully");
         window.location.reload();
       }
-  
+
       // Close the modal and refresh the vehicle list
       setIsVehicleModalOpen(false);
       fetchVehicles();
-  
+
     } catch (error) {
       console.error('Error creating vehicle:', error);
-  
+
       // Check if the error response contains a message
       if (error.response && error.response.data && error.response.data.message) {
         alert(error.response.data.message); // Show error message from the API
@@ -98,20 +100,20 @@ const VehicleTable = () => {
 
   const handleAssignVehicleToDriver = async (e) => {
     e.preventDefault();
-  
+
     // Check if both vehicle and driver are selected
     if (!selectedDriver || !selectedVehicleId) {
       alert("Please select both vehicle and driver.");
       return;
     }
-  
+
     try {
       // Send the request to assign the vehicle to the driver
-      const response = await axiosInstance.post('/assign-vehicle', { 
-        vehicleId: selectedVehicleId, 
-        driverId: selectedDriver 
+      const response = await axiosInstance.post('/assign-vehicle', {
+        vehicleId: selectedVehicleId,
+        driverId: selectedDriver
       });
-  
+
       // If the response has a success message, show it
       if (response.data && response.data.message) {
         alert(response.data.message); // This will show success or error message
@@ -120,14 +122,14 @@ const VehicleTable = () => {
         alert("Vehicle successfully assigned to the driver.");
         window.location.reload();
       }
-  
+
       // Close the modal and refresh the vehicle list
       setIsVehicleModalOpen1(false);
       fetchVehicles();
-  
+
     } catch (error) {
       console.error('Error assigning vehicle:', error);
-  
+
       // Handle the error response if there is one
       if (error.response && error.response.data && error.response.data.message) {
         alert(error.response.data.message); // Show error message from the API
@@ -136,17 +138,33 @@ const VehicleTable = () => {
       }
     }
   };
-  
+  function formatDateTime(dateString) {
+    const date = new Date(dateString);
+    const options = {
+      year: 'numeric',
+      month: 'short', // Use 'long' for full month name or '2-digit' for numeric
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: true, // Set to false for 24-hour format
+    };
+    return date.toLocaleString('en-US', options);
+  }
+
 
   const downloadPDF = () => {
     const doc = new jsPDF();
     doc.setFontSize(12);
     const title = 'Vehicle Data';
     const headers = ['Sl No.', 'ID', 'Vehicle No.', 'Driver Name', 'Status'];
-    
+
     // Check if there is a search query or date range and filter accordingly
     const dataToDownload = searchQuery || startDate || endDate ? filteredVehicles : vehicles;
-  
+    if (!dataToDownload.length) {
+      alert("No data available to download.");
+      return;
+    }
     const data = dataToDownload.map(vehicle => [
       vehicle.slNo,
       vehicle._id,
@@ -154,39 +172,72 @@ const VehicleTable = () => {
       vehicle.driver?.name || "Vehicle Not Assigned",
       vehicle.status,
     ]);
-  
+
     doc.text(title, 14, 10);
     doc.autoTable({
       head: [headers],
       body: data,
       startY: 20,
     });
-  
+
     doc.save('vehicle_data.pdf');
   };
-  
+
 
   const filteredVehicles = vehicles.filter(vehicle => {
-    const isVehicleNoMatch = vehicle.plateNumber.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      vehicle.driver?.name.toLowerCase().includes(searchQuery.toLowerCase());
+    const vehicleDate = new Date(vehicle.createdAt);
 
-    const vehicleDate = new Date(vehicle.date);
-    const startDateObj = startDate ? new Date(startDate) : null;
-    const endDateObj = endDate ? new Date(endDate) : null;
+    // Normalize startDate to the beginning of the day (00:00:00)
+    const startDateObj = startDate
+      ? new Date(new Date(startDate).setHours(0, 0, 0, 0))
+      : null;
 
-    const isDateInRange = (!startDateObj || vehicleDate >= startDateObj) &&
+    // Normalize endDate to the end of the day (23:59:59)
+    const endDateObj = endDate
+      ? new Date(new Date(endDate).setHours(23, 59, 59, 999))
+      : null;
+
+    // Check if the vehicle's date falls within the date range
+    const isDateInRange =
+      (!startDateObj || vehicleDate >= startDateObj) &&
       (!endDateObj || vehicleDate <= endDateObj);
 
+    // Check if the search query matches plate number or driver name
+    const searchQueryLower = searchQuery.toLowerCase();
+    const isVehicleNoMatch =
+      vehicle.plateNumber.toLowerCase().includes(searchQueryLower) ||
+      (vehicle.driver?.name.toLowerCase().includes(searchQueryLower));
+
+    // Return true if both conditions are satisfied
     return isVehicleNoMatch && isDateInRange;
   });
+
 
   const indexOfLastVehicle = currentPage * vehiclesPerPage;
   const indexOfFirstVehicle = indexOfLastVehicle - vehiclesPerPage;
   const currentVehicles = filteredVehicles.slice(indexOfFirstVehicle, indexOfLastVehicle);
 
   const totalPages = Math.ceil(filteredVehicles.length / vehiclesPerPage);
+ 
 
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
+  const handleView = (vehicle) => {
+    setModalMode('view');
+    setSelectedVehicle(vehicle);
+    setIsModalOpen(true);
+  };
+
+  const handleEdit = (vehicle) => {
+    setModalMode('edit');
+    setSelectedVehicle(vehicle);
+    console.log('selectedVehicle,',selectedVehicle,vehicle)
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+  };
+
 
   return (
     <div className="w-full p-4 bg-white">
@@ -199,9 +250,6 @@ const VehicleTable = () => {
         </button>
         <button onClick={() => setIsVehicleModalOpen1(true)} className="btn btn-secondary flex items-center gap-2 p-3 rounded-lg">
           Assign Vehicle
-        </button>
-        <button onClick={() => setIsPlanModalOpen(true)} className="btn btn-secondary flex items-center gap-2 p-3 rounded-lg">
-          Buy Plan
         </button>
         <button onClick={downloadPDF} className="bg-red-500 text-white px-4 py-2 rounded-lg flex items-center">
           <span className="mr-2">&#128196;</span> PDF
@@ -313,53 +361,72 @@ const VehicleTable = () => {
             <tr className="bg-white border-b">
               <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">SL No.</th>
               <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Plate Number</th>
-              <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">DRIVER NAME</th>
               <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">MODEL NAME</th>
+              <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">DRIVER NAME</th>
+              <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">DRIVER PHONE NUMBER</th>
+             
               <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">STATUS</th>
-              <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">ACTION</th>
               <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">DATE</th>
+              <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">ACTION</th>
             </tr>
           </thead>
           <tbody>
-  {currentVehicles.map((vehicle, index) => (
-    <tr key={index} className={index % 2 === 0 ? 'bg-white' : 'bg-[#F0F0FF]'}>
-      {/* Updated Serial Number */}
-      <td className="px-4 py-2 text-sm text-gray-900">
-        {index + (currentPage - 1) * vehiclesPerPage + 1}
-      </td>
-      <td className="px-4 py-2 text-sm text-gray-900">{vehicle.plateNumber}</td>
-      <td className="px-4 py-2 text-sm text-gray-900">{vehicle.driver?.name || 'Vehicle Not Assigned'}</td>
-      <td className="px-4 py-2 text-sm text-gray-900">{vehicle.name}</td>
-      <td className="px-4 py-2">
-        <div className="flex items-center">
-          <span
-            className={`w-4 h-4 mr-1 inline-block rounded-full 
-              ${vehicle.status === 'created' ? 'bg-gray-400' : ''}
-              ${vehicle.status === 'assigned' ? 'bg-blue-500' : ''}
-              ${vehicle.status === 'running' ? 'bg-yellow-500' : ''}
-              ${vehicle.status === 'completed' ? 'bg-green-500' : ''}`}
-          />
-          <span
-            className={`text-xs font-medium 
-              ${vehicle.status === 'created' ? 'text-gray-600' : ''}
-              ${vehicle.status === 'assigned' ? 'text-blue-500' : ''}
-              ${vehicle.status === 'running' ? 'text-yellow-500' : ''}
-              ${vehicle.status === 'completed' ? 'text-green-500' : ''}`}
-          >
-            {vehicle.status}
-          </span>
-        </div>
-      </td>
-      <td className="px-4 py-2">
-        <button className="text-gray-500 hover:text-gray-700">&#9660;</button>
-      </td>
-      <td className="px-4 py-2 text-sm text-gray-900">{vehicle.date}</td>
-    </tr>
-  ))}
-</tbody>
+            {currentVehicles.map((vehicle, index) => (
+              <tr key={index} className={index % 2 === 0 ? 'bg-white' : 'bg-[#F0F0FF]'}>
+                {/* Serial Number */}
+                <td className="px-4 py-2 text-sm text-gray-900">
+                  {index + (currentPage - 1) * vehiclesPerPage + 1}
+                </td>
+                <td className="px-4 py-2 text-sm text-gray-900">{vehicle.plateNumber}</td>
+                <td className="px-4 py-2 text-sm text-gray-900">{vehicle.name}</td>
 
+                <td className="px-4 py-2 text-sm text-gray-900">{vehicle.driver?.name || 'Vehicle Not Assigned'}</td>
+                <td className="px-4 py-2 text-sm text-gray-900">{vehicle.driver?.phoneNumber || 'Vehicle Not Assigned'}</td>
+                <td className="px-4 py-2">
+                  <div className="flex items-center">
+                    <span
+                      className={`w-4 h-4 mr-1 inline-block rounded-full 
+                  ${vehicle.status === 'created' ? 'bg-gray-400' : ''}
+                  ${vehicle.status === 'assigned' ? 'bg-blue-500' : ''}
+                  ${vehicle.status === 'running' ? 'bg-yellow-500' : ''}
+                  ${vehicle.status === 'completed' ? 'bg-green-500' : ''}`}
+                    />
+                    <span
+                      className={`text-xs font-medium 
+                  ${vehicle.status === 'created' ? 'text-gray-600' : ''}
+                  ${vehicle.status === 'assigned' ? 'text-blue-500' : ''}
+                  ${vehicle.status === 'running' ? 'text-yellow-500' : ''}
+                  ${vehicle.status === 'completed' ? 'text-green-500' : ''}`}
+                    >
+                      {vehicle.status}
+                    </span>
+                  </div>
+                </td>
+                <td className="px-4 py-2 text-sm text-gray-900">
+                  {formatDateTime(vehicle.createdAt)}
+                </td>
+                <td className="px-4 py-2">
+                  <div className="flex gap-2">
+                    <button
+                      className="px-2 py-1 text-xs text-white bg-blue-500 rounded hover:bg-blue-600"
+                      onClick={() => handleEdit(vehicle)}
+                    >
+                      Edit
+                    </button>
+                    <button
+                      className="px-2 py-1 text-xs text-white bg-gray-500 rounded hover:bg-gray-600"
+                      onClick={() => handleView(vehicle)}
+                    >
+                      View
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
         </table>
       </div>
+
 
       {/* Pagination */}
       <div className="flex justify-center mt-4">
@@ -387,6 +454,12 @@ const VehicleTable = () => {
           Next
         </button>
       </div>
+      <VehicleModal
+      isOpen={isModalOpen}
+      onClose={handleCloseModal}
+      vehicle={selectedVehicle}
+      mode={modalMode}
+    />
     </div>
   );
 };

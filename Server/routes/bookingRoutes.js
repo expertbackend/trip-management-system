@@ -1,5 +1,5 @@
 const express = require('express');
-const { createBooking, getBookings, getBookingById, assignDriver, startBooking, endBooking, getPendingBookings, getAvailableDrivers, myBookings, getFinancialSummary, getVehicleAndDriverList, addDailyExpenses, getExpensesByDriver, getAllDrivers, getTripReports } = require('../controllers/bookingController');
+const { createBooking, getBookings, getBookingById, assignDriver, startBooking, endBooking, getPendingBookings, getAvailableDrivers, myBookings, getFinancialSummary, getVehicleAndDriverList, addDailyExpenses, getExpensesByDriver, getAllDrivers, getTripReports, cancelBooking } = require('../controllers/bookingController');
 const authMiddleware = require('../middlewares/authMiddleware');
 const  roleCheck = require('../middlewares/roleMiddleware'); // Import the roleCheck middleware
 const {hasPermission} = require('../middlewares/permissions'); // Import the hasPermission middleware
@@ -34,5 +34,6 @@ router.put('/add-daily-expanse',roleCheck(['owner', 'operator','driver']), addDa
 router.get('/view-expanse',roleCheck(['owner', 'operator','driver']), getExpensesByDriver);
 router.get('/alldrivers',roleCheck(['owner', 'operator','driver']), getAllDrivers);
 router.get('/reports/trips',roleCheck(['owner', 'operator','driver']), getTripReports);
+router.delete('/bookings/:id',roleCheck(['owner', 'operator','driver']), cancelBooking);
 
 module.exports = router;

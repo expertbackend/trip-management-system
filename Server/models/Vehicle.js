@@ -10,7 +10,9 @@ const vehicleSchema = new mongoose.Schema({
         bookingId: { type: mongoose.Schema.Types.ObjectId, ref: 'Booking' },
         startDate: { type: Date },
         endDate: { type: Date }
-    }]
+    }],
+    createdAt:Date,
+    updatedAt:Date
 });
 
 module.exports = mongoose.model('Vehicle', vehicleSchema);

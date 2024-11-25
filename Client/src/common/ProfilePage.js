@@ -7,8 +7,8 @@ const ProfilePage = () => {
   const { id } = useParams(); // Retrieve the user ID from the URL
   const [profileData, setProfileData] = useState(null);
   const [plans, setPlans] = useState([]);
-  const [selectedPlan, setSelectedPlan] = useState(null);
   const [planHistory, setPlanHistory] = useState([]);
+  const [selectedPlan, setSelectedPlan] = useState(null);
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -22,24 +22,33 @@ const ProfilePage = () => {
   });
 
   useEffect(() => {
-    // Fetch profile, plans, and plan history data
-    Promise.all([
-      axiosInstance.get('/getProfile'),
-      axiosInstance.get('/plans'),
-      axiosInstance.get('/plan-history'), // Fetch plan history
-    ])
-      .then(([profileResponse, plansResponse, historyResponse]) => {
-        setProfileData(profileResponse.data.profile || null);
-        setPlans(plansResponse.data || []);
-        setPlanHistory(historyResponse.data.planHistory || []); // Handle missing data or errors in plan history
+    const fetchData = async () => {
+      try {
+        // Fetch the profile data
+        const profileResponse = await axiosInstance.get('/getProfile');
+        const profile = profileResponse.data.profile || null;
+        setProfileData(profile);
+
+        // Fetch additional data only if the role is 'owner'
+        if (profile?.role === 'owner') {
+          const [plansResponse, historyResponse] = await Promise.all([
+            axiosInstance.get('/plans'),
+            axiosInstance.get('/plan-history'),
+          ]);
+          setPlans(plansResponse.data || []);
+          setPlanHistory(historyResponse.data.planHistory || []);
+        }
+
         setLoading(false);
-      })
-      .catch((error) => {
+      } catch (error) {
         console.error('Error fetching data:', error);
         setMessage({ type: 'Error', text: 'Error fetching data.' });
         setIsModalOpen(true);
         setLoading(false);
-      });
+      }
+    };
+
+    fetchData();
   }, [id]);
 
   const handlePlanSelect = (planId) => {
@@ -80,7 +89,6 @@ const ProfilePage = () => {
             >
               <h4 className="text-lg font-semibold">{plan.name}</h4>
               <p className="text-sm">{plan.description || 'No description available'}</p>
-              <p className="text-sm">{plan.maxVehicles || 'No description available'}</p>
               <p className="mt-4 text-xl font-bold">&#x20B9; {plan.price} /month</p>
             </div>
           ))}
@@ -155,11 +163,15 @@ const ProfilePage = () => {
 
       {/* Role-Specific Details */}
       {profileData.role === 'owner' ? (
-        <div className="mt-6">
-          <h3 className="text-xl font-bold text-gray-800">Owner Details</h3>
-          <p>Max Vehicles: {profileData.maxVehicles}</p>
-          <p>Vehicle Count: {profileData.vehicleCount}</p>
-        </div>
+        <>
+          <div className="mt-6">
+            <h3 className="text-xl font-bold text-gray-800">Owner Details</h3>
+            <p>Max Vehicles: {profileData.maxVehicles}</p>
+            <p>Vehicle Count: {profileData.vehicleCount}</p>
+          </div>
+          {renderPlans()}
+          {renderPlanHistory()}
+        </>
       ) : (
         <div className="mt-6">
           <h3 className="text-xl font-bold text-gray-800">Operator/Driver Details</h3>
@@ -167,12 +179,6 @@ const ProfilePage = () => {
           <p>Owner Name: {profileData.ownerId.name}</p>
         </div>
       )}
-
-      {/* Render Plans Section */}
-      {renderPlans()}
-
-      {/* Render Plan History */}
-      {renderPlanHistory()}
 
       {/* Modal for Feedback */}
       {isModalOpen && (

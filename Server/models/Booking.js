@@ -21,7 +21,7 @@ const bookingSchema = new mongoose.Schema({
   },
   fare: Number,
   kmDriven: { type: Number, default: 0 },
-  status: { type: String, enum: ['pending', 'assigned', 'in-progress', 'completed', 'canceled'] },
+  status: { type: String, enum: ['pending', 'assigned', 'in-progress', 'completed', 'cancelled'] },
   startDate: Date,
   endDate: Date,
   customerName: String,
@@ -52,6 +52,14 @@ const bookingSchema = new mongoose.Schema({
   extraExpanse: { type: Number, default: 0 },
   extraExpanseDescription: { type: String, default: '' },
   profit: { type: Number, default: 0 }, 
+  startDashboardImage : {
+    type: String,
+    required: true,  // Ensure that each image has a URL
+  },
+  endDashboardImage : {
+    type: String,
+    required: true,  // Ensure that each image has a URL
+  },
 });
 
 module.exports = mongoose.model('Booking', bookingSchema);

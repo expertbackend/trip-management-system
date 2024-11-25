@@ -390,6 +390,8 @@ exports.assignDriver = async (req, res) => {
 
 exports.startBooking = async (req, res) => {
     try {
+      const { startDashboardImage } = req.body;
+      console.log('hehehehhe',startDashboardImage)
         // Find the booking by ID and populate the vehicle
         const booking = await Booking.findById(req.params.id).populate('vehicle').populate('driver');
 
@@ -404,7 +406,7 @@ exports.startBooking = async (req, res) => {
 
         // Update the booking's status to 'in-progress'
         booking.status = 'in-progress';
-
+booking.startDashboardImage=startDashboardImage;
         // Set the startDate to current time
         booking.startDate = new Date();
 
@@ -433,7 +435,7 @@ exports.startBooking = async (req, res) => {
 
 exports.endBooking = async (req, res) => {
     try {
-        const { kmDriven,extraExpanse,extraExpanseDescription } = req.body;  // Updated kilometers driven at the end of the trip
+        const { kmDriven,extraExpanse,extraExpanseDescription,startDashboardImage } = req.body;  // Updated kilometers driven at the end of the trip
         const booking = await Booking.findById(req.params.id).populate('vehicle').populate('driver');
 
         if (!booking) {
@@ -502,7 +504,7 @@ booking.extraExpanseDescription =extraExpanseDescription
             booking.vehicle.status = 'completed';  // Set vehicle status to available after trip completion
             await booking.vehicle.save();
         }
-
+booking.endDashboardImage=startDashboardImage;
         // Save the updated booking with the profit included
         await booking.save();
 
@@ -678,11 +680,27 @@ exports.getFinancialSummary = async (req, res) => {
         default:
           return res.status(400).json({ message: 'Invalid period parameter. Use "today", "last7days", or "month".' });
       }
-
+      const userId = req.user._id; // Assuming `req.user` contains the logged-in user's information.
+      const userRole = req.user.role; // Role can be 'owner', 'driver', etc.
+      const ownerId = req.user.ownerId; // For drivers/operators, the associated owner's ID.
+      
+      let ownerFilter = {};
+      if (userRole === 'owner') {
+        // If the logged-in user is an owner, show data for their bookings
+        ownerFilter = { 'owner': userId };
+      } else if (userRole === 'driver') {
+        // If the logged-in user is a driver, show data for their associated owner's bookings
+        ownerFilter = { 'owner': ownerId };
+      }
+      else if (userRole === 'operator') {
+        // If the logged-in user is a driver, show data for their associated owner's bookings
+        ownerFilter = { 'owner': ownerId };
+      }
       // Fetch the bookings that were completed and have an invoice generated within the specified period
       const bookings = await Booking.aggregate([
         {
           $match: {
+            ...ownerFilter,
             status: 'completed',  // Only consider completed bookings
             endDate: { $gte: startDate.toDate() },  // Filter bookings by the start date
           },
@@ -751,7 +769,7 @@ exports.getVehicleAndDriverList = async (req, res) => {
         .populate('owner', 'name email')  // Populate owner details
         .populate('driver', 'name email') // Populate driver details
         .exec();
-  
+      
       // Fetch all drivers
       const drivers = await User.find({ 
         role: 'driver', 
@@ -841,8 +859,11 @@ exports.getVehicleAndDriverList = async (req, res) => {
 
 exports.getExpensesByDriver = async (req, res) => {
     try {
+      console.log(req.user)
+      let userId;
+      req.user.role ==="owner"?userId=req.user._id:req.user.ownerId
         // Fetch all drivers (users with the role 'driver') and select only necessary fields
-        const users = await User.find({ role: 'driver' }, 'name fuelExpanse driverExpanse vehicleExpanse expenseDate')
+        const users = await User.find({ role: 'driver',ownerId:userId }, 'name fuelExpanse driverExpanse vehicleExpanse expenseDate')
             .populate('vehicle'); // Populate vehicle info if needed (you can remove this if not necessary)
         // If no drivers found
         if (!users || users.length === 0) {
@@ -977,3 +998,29 @@ exports.getAllDrivers = async (req, res) => {
 };
 
   
+exports.cancelBooking = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    // Find booking by ID
+    const booking = await Booking.findById(id);
+
+    if (!booking) {
+      return res.status(404).json({ message: "Booking not found" });
+    }
+
+    // Check if the booking status is "completed" or "in progress"
+    if (booking.status === "completed" || booking.status === "in-progress") {
+      return res.status(400).json({ message: "Booking is either completed or in progress and cannot be cancelled" });
+    }
+
+    // Update the status to "cancelled"
+    booking.status = "cancelled";
+    await booking.save();
+
+    res.status(200).json({ message: "Booking cancelled successfully" });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Failed to cancel booking" });
+  }
+};

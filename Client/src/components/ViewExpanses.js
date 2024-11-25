@@ -90,7 +90,10 @@ function ViewExpenses() {
     const expensesToPrint = isAll
       ? filteredExpenses
       : expenses.filter((exp) => exp.driverName === driverName);
-  
+      if (expensesToPrint.length === 0) {
+        alert("No expenses available to generate a PDF.");
+        return; // Exit the function early
+      }
     // Title based on whether we are printing for all drivers or a specific driver
     doc.text(isAll ? "All Driver Expenses" : `${driverName}'s Expenses`, 14, 10);
   

@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { FaDownload, FaEye, FaTimes } from "react-icons/fa";
 import jsPDF from "jspdf"; // For PDF generation
+import Modal from "../components/Modal";
+import BookingModal from "./BookingModal";
 
 const BookingsPage = () => {
   const [bookings, setBookings] = useState([]);
@@ -12,8 +14,10 @@ const BookingsPage = () => {
   const [error, setError] = useState("");
   const [currentPage, setCurrentPage] = useState(0);
   const [bookingsPerPage] = useState(5); // Adjust per page items
-
+  const [selectedBooking, setSelectedBooking] = useState(null); // State for selected booking
+  const [isModalOpen, setIsModalOpen] = useState(false); 
   const token = localStorage.getItem("token");
+  const [mode, setMode] = useState("add");
 
   const axiosInstance = axios.create({
     baseURL: `${process.env.REACT_APP_API_URL}/api/booking`,
@@ -70,6 +74,10 @@ const BookingsPage = () => {
       "Days",
       "Status",
     ];
+    if (!bookingsToDownload.length) {
+      alert("No data available to download.");
+      return;
+    }
     const tableData = bookingsToDownload.map((booking) => [
       booking.customerName || "N/A",
       booking.vehicle?.name || "N/A",
@@ -80,7 +88,6 @@ const BookingsPage = () => {
       calculateDaysCount(booking.startDate, booking.endDate),
       booking.status || "N/A",
     ]);
-
     // Add title
     doc.text("Bookings Overview", 10, 10);
 
@@ -136,9 +143,38 @@ const BookingsPage = () => {
   };
 
   // Handle Cancel Booking
-  const handleCancelBooking = (id) => {
-    alert(`Canceling booking ID: ${id}`);
+  const handleCancelBooking = async (id) => {
+    // Show confirmation prompt
+    const isConfirmed = window.confirm("Are you sure you want to cancel this booking?");
+    
+    if (isConfirmed) {
+      try {
+        // API call to cancel the booking
+        const response = await axiosInstance.delete(`/bookings/${id}`);
+        
+        // Check if the response is successful
+        if (response.status === 200) {
+          // Remove the canceled booking from the state
+          setBookings(bookings.filter((booking) => booking._id !== id));
+          setFilteredBookings(filteredBookings.filter((booking) => booking._id !== id));
+          
+          alert("Booking canceled successfully!");
+          window.location.reload()
+        }
+      } catch (err) {
+        // Check if the error response is from the server
+        if (err.response) {
+          // If error response exists, show error message from backend
+          alert(err.response.data.message || "An error occurred while canceling the booking.");
+        } else {
+          // If error response doesn't exist, show a general error message
+          alert("An error occurred. Please try again later.");
+        }
+      }
+    }
   };
+  
+  
 
   // Calculate the number of days between two dates
  const calculateDaysCount = (startDate, endDate) => {
@@ -157,11 +193,14 @@ const BookingsPage = () => {
 
 
   // Handle View Booking
-  const handleViewBooking = (bookingId) => {
-    alert(`Viewing booking ID: ${bookingId}`);
-    // Add actual view logic here (could open a modal or navigate to another page)
+  const handleViewBooking = (booking) => {
+    setSelectedBooking(booking);
+    setMode("view");
+    setIsModalOpen(true);
   };
-
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+  };
   if (loading) return <div>Loading bookings...</div>;
   if (error) return <div className="text-red-500">{error}</div>;
 
@@ -174,10 +213,11 @@ const BookingsPage = () => {
   <div className="flex items-center gap-4 w-2/3">
     <input
       type="text"
-      placeholder="Search bookings..."
+     placeholder="Search by Customer Name, Driver Name, or Vehicle Name"
+  className="w-full py-3 px-5 text-xl bg-gray-100 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500 placeholder-gray-500 placeholder-opacity-70 transition-all duration-300"
       value={searchQuery}
       onChange={(e) => handleSearch(e.target.value)}
-      className="px-4 py-2 border border-gray-300 rounded-lg w-2/5"
+      // className="px-4 py-2 border border-gray-300 rounded-lg w-2/5"
     />
     <select
       value={statusFilter}
@@ -238,7 +278,7 @@ const BookingsPage = () => {
           <td className="px-4 py-2">
   <div className="flex items-center justify-center gap-2">
     <button
-      onClick={() => handleViewBooking(booking._id)}
+      onClick={() => handleViewBooking(booking)}
       className="text-blue-500"
       title="view booking"
     >
@@ -286,6 +326,12 @@ const BookingsPage = () => {
           Next
         </button>
       </div>
+      <BookingModal
+      isOpen={isModalOpen}
+      onClose={() => setIsModalOpen(false)}
+      booking={selectedBooking}
+      mode={mode}
+    />
     </div>
   );
 };

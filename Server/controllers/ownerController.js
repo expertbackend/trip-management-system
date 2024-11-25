@@ -245,14 +245,23 @@ exports.getAllPermission = async (req, res) => {
 // Get all vehicles for the authenticated owner
 exports.getAllVehicles = async (req, res) => {
     try {
-        const owner = await User.findById(req.user._id).populate('planIds');
-
-        if (!owner || owner.role !== 'owner') {
-            return res.status(403).json({ message: 'Only owners can view their vehicles.' });
+        let userId;
+        if (req.user.role === 'operator' || req.user.role === 'driver') {
+            userId = req.user.ownerId;
+        } else {
+            userId = req.user._id;
         }
 
-        // Fetch all vehicles belonging to the owner
-        const vehicles = await Vehicle.find({ owner: owner._id }).populate('driver');
+        const owner = await User.findById(userId).populate('planIds');
+        console.log('owner', owner._id);
+
+        // Fetch all vehicles belonging to the owner and populate bookings with the related Booking details
+        const vehicles = await Vehicle.find({ owner: owner._id })
+            .populate('driver') // Populating driver details
+            .populate({
+                path: 'bookings.bookingId', // Populate the bookingId inside the bookings array
+                model: 'Booking' // Explicitly define the model for the bookings
+            });
 
         return res.status(200).json({ message: 'Vehicles fetched successfully.', vehicles });
     } catch (error) {
@@ -555,4 +564,47 @@ console.log('planIds',plan._id)
         res.status(500).json({ message: 'Error creating owner' });
     }
 };
-  
+
+
+exports.viewVehicle = async (req, res) => {
+    const { id } = req.params; // Use the ID from params
+
+    try {
+        const vehicle = await Vehicle.findById(id) // Use findById to fetch by _id
+            .populate('owner', 'name email') // Populate the owner details
+            .populate('driver', 'name phoneNumber') // Populate the driver details
+            .populate('bookings.bookingId'); // Populate booking details
+
+        if (!vehicle) {
+            return res.status(404).json({ message: 'Vehicle not found' });
+        }
+
+        res.json(vehicle); // Return the vehicle data
+    } catch (error) {
+        console.error('Error fetching vehicle:', error);
+        res.status(500).json({ message: 'Server error' });
+    }
+};
+
+// Edit Vehicle Data (PUT)
+exports.editVehicle = async (req, res) => {
+    const { id } = req.params; // Use the ID from params
+    const updatedData = req.body;
+console.log('updateddata',updatedData,req.params)
+    try {
+        const vehicle = await Vehicle.findByIdAndUpdate( // Use findByIdAndUpdate to update by _id
+            id,
+            updatedData,
+            { new: true } // Return the updated document
+        );
+
+        if (!vehicle) {
+            return res.status(404).json({ message: 'Vehicle not found' });
+        }
+
+        res.json(vehicle); // Send the updated vehicle data
+    } catch (error) {
+        console.error('Error updating vehicle:', error);
+        res.status(500).json({ message: 'Server error' });
+    }
+};
