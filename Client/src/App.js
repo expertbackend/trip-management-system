@@ -145,7 +145,12 @@ function App() {
 
   // Private route component
   const PrivateRoute = ({ component: Component }) => {
-    return role ? <Component /> : <Navigate to="/login" />;
+    const token = localStorage.getItem('token')
+    if(!token){
+return <Navigate to ="/login"/>
+    }
+    return <Component/>
+    // return token ? <Component /> : <Navigate to="/login" />;
   };
 
   // Show loading spinner until user role is determined
@@ -167,7 +172,7 @@ function App() {
             <Routes>
               <Route path="/login" element={<Login />} />
               <Route path="/signup" element={<Register />} />
-              <Route path="/details" element={<Home />} />
+              <Route path="/details" element={<PrivateRoute component={Home} />}  />
               <Route path="/owner-dashboard" element={<PrivateRoute component={OwnerDashboard} />} />
               <Route path="/driver-dashboard" element={<PrivateRoute component={DriverDashboard} />} />
               <Route path="/operator-dashboard" element={<PrivateRoute component={OperatorDashboard} />} />

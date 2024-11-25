@@ -54,11 +54,11 @@ const bookingSchema = new mongoose.Schema({
   profit: { type: Number, default: 0 }, 
   startDashboardImage : {
     type: String,
-    required: true,  // Ensure that each image has a URL
+    
   },
   endDashboardImage : {
     type: String,
-    required: true,  // Ensure that each image has a URL
+   
   },
 });
 

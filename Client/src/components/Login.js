@@ -7,8 +7,11 @@ import signinbg from "../assets/sign2.png";
 function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+
   const handleLogin = async (e) => {
     e.preventDefault();
+    setLoading(true)
     const deviceToken = localStorage.getItem("deviceToken");
     try {
       const response = await axios.post(
@@ -25,6 +28,9 @@ function Login() {
     } catch (error) {
       console.error("Login failed:", error);
     }
+    finally {
+      setLoading(false);
+  }
   };
 
   return (
@@ -105,7 +111,7 @@ function Login() {
                 type="submit"
                 className="w-full py-2 text-white bg-yellow-500 rounded-md hover:bg-yellow-600 focus:outline-none focus:ring-2 focus:ring-teal-500"
               >
-                SUBMIT
+                {loading ? 'Login...' : 'Login'}
               </button>
             </form>
           </div>

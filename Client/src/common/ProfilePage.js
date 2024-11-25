@@ -162,23 +162,66 @@ const ProfilePage = () => {
       </div>
 
       {/* Role-Specific Details */}
-      {profileData.role === 'owner' ? (
-        <>
-          <div className="mt-6">
-            <h3 className="text-xl font-bold text-gray-800">Owner Details</h3>
-            <p>Max Vehicles: {profileData.maxVehicles}</p>
-            <p>Vehicle Count: {profileData.vehicleCount}</p>
-          </div>
-          {renderPlans()}
-          {renderPlanHistory()}
-        </>
-      ) : (
-        <div className="mt-6">
-          <h3 className="text-xl font-bold text-gray-800">Operator/Driver Details</h3>
-          <p>Status: {profileData.status}</p>
-          <p>Owner Name: {profileData.ownerId.name}</p>
+      <div className="mt-6">
+  {profileData.role === 'owner' ? (
+    <>
+      <div className="mt-6">
+        <h3 className="text-xl font-bold text-gray-800">Owner Details</h3>
+        <p>Max Vehicles: {profileData.maxVehicles}</p>
+        <p>Vehicle Count: {profileData.vehicleCount}</p>
+      </div>
+      {renderPlans()}
+      {renderPlanHistory()}
+    </>
+  ) : profileData.role === 'superadmin' ? (
+    <>
+      <div className="mt-6">
+        <h3 className="text-xl font-bold text-gray-800">Superadmin Details</h3>
+        <p>
+          <strong>ID:</strong> {profileData._id}
+        </p>
+        <p>
+          <strong>Name:</strong> {profileData.name}
+        </p>
+        <p>
+          <strong>Email:</strong> {profileData.email}
+        </p>
+        <p>
+          <strong>Role:</strong> {profileData.role}
+        </p>
+        <p>
+          <strong>Phone Number:</strong> {profileData.phoneNumber}
+        </p>
+        <p>
+          <strong>Status:</strong> {profileData.status}
+        </p>
+        <p>
+          <strong>Booking Status:</strong> {profileData.bookingStatus}
+        </p>
+        <div className="mt-4">
+          <h4 className="text-lg font-semibold text-gray-700">Additional Data:</h4>
+          <p>
+            <strong>Max Vehicles:</strong> {profileData.maxVehicles}
+          </p>
+          <p>
+            <strong>Vehicle Count:</strong> {profileData.vehicleCount}
+          </p>
+          <p>
+            <strong>Permissions:</strong>{' '}
+            {profileData.permissions.length > 0 ? profileData.permissions.join(', ') : 'No Permissions'}
+          </p>
         </div>
-      )}
+      </div>
+    </>
+  ) : (
+    <div className="mt-6">
+      <h3 className="text-xl font-bold text-gray-800">Operator/Driver Details</h3>
+      <p>Status: {profileData.status}</p>
+      <p>Owner Name: {profileData.ownerId?.name || 'N/A'}</p>
+    </div>
+  )}
+</div>
+
 
       {/* Modal for Feedback */}
       {isModalOpen && (

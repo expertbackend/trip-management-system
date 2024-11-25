@@ -273,7 +273,7 @@ exports.getAllVehicles = async (req, res) => {
 // Get all drivers
 exports.findDrivers = async (req, res) => {
     try {
-        const drivers = await User.find({ role: 'driver' }).select('name email vehicle');
+        const drivers = await User.find({ role: 'driver',status:'active' }).select('name email vehicle');
 
         if (!drivers || drivers.length === 0) {
             return res.status(404).json({ message: 'No drivers found.' });
@@ -390,7 +390,7 @@ exports.getProfile = async (req, res) => {
                 vehicleCount: user.vehicleCount,
                 role:user.role
             };
-        } else if (user.role === 'operator' || user.role === 'driver') {
+        } else if (user.role === 'operator' || user.role === 'driver' || user.role === 'superadmin') {
             profileData = {
                 name: user.name,
                 email: user.email,

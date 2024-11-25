@@ -52,7 +52,7 @@ function AddExpenses() {
       setShowPopup(true);
     } catch (error) {
       console.error('Error submitting expense:', error);
-      setMessage(error.message);
+      setMessage(error.response.data.message);
       setShowPopup(true);
     }
   };

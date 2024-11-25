@@ -800,7 +800,7 @@ exports.getVehicleAndDriverList = async (req, res) => {
         const { fuelExpanse, driverExpanse, vehicleExpanse, date, driverId } = req.body;
 
         if (!fuelExpanse && !driverExpanse && !vehicleExpanse) {
-            return res.status(400).json({ message: 'At least one expense field must be provided.' });
+            return res.status(404).json({ message: 'At least one expense field must be provided.' });
         }
 
         // Determine the user ID to update expenses
@@ -811,7 +811,7 @@ exports.getVehicleAndDriverList = async (req, res) => {
         } else if (req.user.role === 'owner' || req.user.role === 'operator') {
             // If logged-in user is an owner/operator, use the provided driver ID
             if (!driverId) {
-                return res.status(400).json({ message: 'Driver ID is required when owner/operator is creating expenses for a driver.' });
+                return res.status(404).json({ message: 'Driver ID is required when owner/operator is creating expenses for a driver.' });
             }
             userId = driverId; // Owner/operator is creating expense for the driver
         } else {
@@ -829,7 +829,7 @@ exports.getVehicleAndDriverList = async (req, res) => {
 
         // Check if expense date is already set for the user
         if (user.expenseDate && !moment(user.expenseDate).isSame(expenseDate, 'day')) {
-            return res.status(400).json({ message: 'A single expense date is already set for another day' });
+            return res.status(404).json({ message: 'A single expense date is already set for another day' });
         }
 
         // Update expenses for the single expense date

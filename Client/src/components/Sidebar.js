@@ -17,10 +17,33 @@ function Sidebar({ role, notifications,username }) {
 
   const handleProfileClick = () => {
     navigate('/profile');
+    setActiveLink('profile')
   };
+  useEffect(() => {
+    // Check for token in localStorage when the sidebar loads
+    const token = localStorage.getItem('token');
+    if(role === 'driver'){
+      setActiveLink('profile')
+      navigate('/profile')
+      
 
+    }
+    if (!token) {
+      // If no token, redirect to login page
+      navigate('/login');
+    } else {
+      // If token exists, check for active link
+      const savedLink = localStorage.getItem('activeLink');
+      if (savedLink) {
+        setActiveLink(savedLink);
+      } else {
+        setActiveLink('home');
+      }
+    }
+  }, [navigate]);
   const handleLogout = () => {
     localStorage.removeItem('token');
+    localStorage.removeItem('role');
     localStorage.removeItem('activeLink');
     navigate('/login');
   };
@@ -94,6 +117,8 @@ function Sidebar({ role, notifications,username }) {
 
       {/* Navigation Links */}
       <ul className="flex flex-col space-y-2 mt-4">
+      {(role === 'owner' || role === 'operator') && (
+          <>
         <li>
           <Link
             to='/details'
@@ -104,7 +129,8 @@ function Sidebar({ role, notifications,username }) {
             {isOpen && <span className="ml-4">Home</span>}
           </Link>
         </li>
-
+</>
+      )}
         {/* Role-specific Links */}
         {(role === 'owner' || role === 'operator') && (
           <>
@@ -212,7 +238,7 @@ function Sidebar({ role, notifications,username }) {
             </Link>
           </li>)}
         {/* Booking Section - Visible for owner/operator */}
-        {(role === 'owner' || role === 'operator') && (
+        {(role === 'owner' || role === 'operator' ) && (
           <div className="mt-4">
             <h3
               onClick={toggleBooking} // Toggle for "Booking" submenu
@@ -258,8 +284,18 @@ function Sidebar({ role, notifications,username }) {
             )}
           </div>
         )}
+        {role === 'driver' && (
+  <li>
+    <Link to='/create-booking' >
+      <FaTaxi className="text-xl" />
+      {isOpen && <span className="ml-4">Create Booking</span>}
+    </Link>
+  </li>
+)}
+
 <li 
-  className="flex items-center space-x-4 p-3 bg-gray-100 rounded-lg"
+  className={`flex items-center p-3 rounded-lg transition-colors ${activeLink === 'profile' ? 'bg-white text-black' : 'text-white hover:bg-white hover:text-black'}`}
+
   onClick={handleProfileClick}
 >
   {/* Profile Section */}

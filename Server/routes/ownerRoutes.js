@@ -26,7 +26,7 @@ router.post('/assign-permissions',roleCheck(['owner']), ownerController.assignPe
 router.post('/createUser',roleCheck(['owner']), createUser);
 router.get('/users',roleCheck(['owner','operator']),hasPermission('read', 'user'), getAllUsers);
 router.get('/getAllPermission',roleCheck(['owner']), ownerController.getAllPermission);
-router.get('/vehicles',roleCheck(['owner','operator']),hasPermission('read', 'vehicle'), ownerController.getAllVehicles);
+router.get('/vehicles',roleCheck(['owner','operator','driver']),hasPermission('read', 'vehicle'), ownerController.getAllVehicles);
 router.post('/createOwner',roleCheck(['superadmin']), ownerController.createOwner);
 router.put('/update/:userId',roleCheck(['owner','operator']),hasPermission('edit', 'user'), updateUser);
 
@@ -34,7 +34,7 @@ router.get('/drivers',roleCheck(['owner','operator']), ownerController.findDrive
 router.get('/plans',roleCheck(['owner','operator']),hasPermission('read', 'plan'), ownerController.getPlans);
 router.get('/getDrivers',roleCheck(['owner','operator']),hasPermission('read', 'plan'), ownerController.getDrivers);
 router.get('/drivers/:driverId/location',roleCheck(['owner','operator']),hasPermission('read', 'plan'), ownerController.driversloc);
-router.get('/getProfile',roleCheck(['owner','operator','driver']),ownerController.getProfile);
+router.get('/getProfile',roleCheck(['owner','operator','driver','superadmin']),ownerController.getProfile);
 router.get('/vehicle/:id',roleCheck(['owner','operator','driver']),ownerController.viewVehicle );
 
 // Route for editing vehicle details by vehicle ID
