@@ -110,17 +110,9 @@ const VehicleModal = ({ isOpen, onClose, vehicle, mode }) => {
                     {/* Vehicle Status */}
                     <div className="mb-6">
                         <label className="block text-gray-700">Status</label>
-                        {mode === "edit" ? (
-                            <input
-                                type="text"
-                                name="status"
-                                value={vehicleData.status}
-                                onChange={handleEditChange}
-                                className="w-full mt-2 p-2 border border-gray-300 rounded-md"
-                            />
-                        ) : (
+                        
                             <p className="w-full mt-2 p-2 border border-gray-300 rounded-md">{vehicleData.status}</p>
-                        )}
+                       
                     </div>
 
                     {/* Driver Info */}
@@ -173,7 +165,7 @@ const VehicleModal = ({ isOpen, onClose, vehicle, mode }) => {
             </div>
             <div className="flex items-center space-x-2 text-lg text-gray-800 font-medium">
               <span className="text-xl">🚗</span>
-              <span>Dropoff: <span className="font-semibold">{booking.bookingId?.dropOffLocation?.address}</span></span>
+              <span>Dropoff: <span className="font-semibold">{booking.bookingId?.dropoffLocation?.address}</span></span>
             </div>
   
             {/* Dates */}

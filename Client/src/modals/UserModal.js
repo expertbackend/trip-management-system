@@ -172,7 +172,7 @@ const UserModal = ({ isOpen, onClose, user, mode }) => {
             ) : (
               <ul className="mt-2 list-disc pl-4">
                 {userData.permissions?.map((permission) => (
-                  <li key={permission.name}>{permission.resource}</li>
+                  <li key={permission.name}>{permission.name} {permission.resource}</li>
                 ))}
               </ul>
             )}

@@ -379,7 +379,7 @@ exports.assignDriver = async (req, res) => {
         }
       }
   
-      return res.status(200).json({ message: 'Driver assigned to multiple bookings successfully.' });
+      return res.status(200).json({ message: 'Driver assigned to this bookings successfully.' });
     } catch (error) {
       console.error(error);
       return res.status(500).json({ message: 'Server error while assigning driver.' });
@@ -767,7 +767,7 @@ exports.getVehicleAndDriverList = async (req, res) => {
       // Fetch all vehicles
       const vehicles = await Vehicle.find({ owner: req.user._id })
         .populate('owner', 'name email')  // Populate owner details
-        .populate('driver', 'name email') // Populate driver details
+        .populate('driver', 'name email phoneNumber') // Populate driver details
         .exec();
       
       // Fetch all drivers

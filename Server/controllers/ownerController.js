@@ -530,6 +530,7 @@ console.log('planIds',plan._id)
   exports.createOwner = async (req, res) => {
     try {
         const { name, email, phoneNumber, gender, address, companyLogoUrl,password,role } = req.body;
+        console.log('req',req.body,req.params)
         // Only superadmins can create new owners
         if (req.user.role !== 'superadmin') {
             return res.status(403).json({ message: 'Only superadmins can create new owners.' });

@@ -114,6 +114,10 @@ const Home = () => {
           statusColor = 'bg-gray-300 text-gray-800'; // Light Gray for created
           statusText = 'Created';
           break;
+          case 'pending':
+          statusColor = 'bg-gray-300 text-gray-800'; // Light Gray for created
+          statusText = 'Pending';
+          break;
         case 'assigned':
           statusColor = 'bg-blue-300 text-blue-800'; // Light Blue for assigned
           statusText = 'Assigned';
@@ -125,6 +129,10 @@ const Home = () => {
         case 'completed':
           statusColor = 'bg-purple-300 text-purple-800'; // Purple for completed
           statusText = 'Completed';
+          break;
+          case 'in-progress':
+          statusColor = 'bg-purple-300 text-purple-800'; // Purple for completed
+          statusText = 'In-Progress';
           break;
         default:
           statusColor = 'bg-gray-200 text-gray-600'; // Default color for unknown status
@@ -194,6 +202,8 @@ const Home = () => {
         >
           <td className="p-4 text-sm font-medium text-gray-900">{driver.name}</td>
           <td className="p-4 text-sm font-medium text-gray-900">{driver.email}</td>
+          <td className="p-4 text-sm font-medium text-gray-900">{driver.phoneNumber}</td>
+
           <td className="p-4 text-sm font-medium">
             <span
               className={`inline-flex items-center justify-center px-3 py-1.5 text-xs font-semibold rounded-full ${statusColor}`}
@@ -352,6 +362,7 @@ const Home = () => {
                     <tr>
                       <th className="p-4 text-left font-semibold text-lg">Name</th>
                       <th className="p-4 text-left font-semibold text-lg">Email</th>
+                      <th className="p-4 text-left font-semibold text-lg">Phone Number</th>
                       <th className="p-4 text-left font-semibold text-lg">Status</th>
                       <th className="p-4 text-left font-semibold text-lg">Vehicle Count</th>
                     </tr>

@@ -66,7 +66,8 @@ const BookingsPage = () => {
     // Add a table for all bookings
     const tableColumns = [
       "Customer Name",
-      "Vehicle",
+      "Vehicle Name",
+      "Vehicle Number",
       "Driver",
       "Pickup Location",
       "Dropoff Location",
@@ -81,6 +82,7 @@ const BookingsPage = () => {
     const tableData = bookingsToDownload.map((booking) => [
       booking.customerName || "N/A",
       booking.vehicle?.name || "N/A",
+      booking.vehicle?.plateNumber || "N/A",
       booking.driver?.name || "N/A",
       booking.pickupLocation?.address || "N/A",
       booking.dropoffLocation?.address || "N/A",
@@ -248,6 +250,7 @@ const BookingsPage = () => {
         <th className="px-4 py-2">SL No.</th> {/* Serial Number Column */}
         <th className="px-4 py-2">Customer Name</th>
         <th className="px-4 py-2">Vehicle</th>
+        <th className="px-4 py-2">Vehicle No</th>
         <th className="px-4 py-2">Driver</th>
         <th className="px-4 py-2">Pickup Location</th>
         <th className="px-4 py-2">Dropoff Location</th>
@@ -264,6 +267,7 @@ const BookingsPage = () => {
           <td className="px-4 py-2">{index + 1}</td> {/* Serial Number for each row */}
           <td className="px-4 py-2">{booking.customerName || "N/A"}</td>
           <td className="px-4 py-2">{booking.vehicle?.name || "N/A"}</td>
+          <td className="px-4 py-2">{booking.vehicle?.plateNumber || "N/A"}</td>
           <td className="px-4 py-2">{booking.driver?.name || "N/A"}</td>
           <td className="px-4 py-2">{booking.pickupLocation?.address || "N/A"}</td>
           <td className="px-4 py-2">{booking.dropoffLocation?.address || "N/A"}</td>

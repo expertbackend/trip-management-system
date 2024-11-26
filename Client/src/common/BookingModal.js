@@ -98,8 +98,12 @@ const BookingModal = ({ isOpen, onClose, booking, mode }) => {
                 <span className="font-semibold text-gray-800 text-lg">{bookingData.custEmailId}</span>
               </div>
               <div className="flex justify-between items-center">
-                <span className="text-gray-600 text-lg">Vehicle:</span>
+                <span className="text-gray-600 text-lg">Vehicle Name:</span>
                 <span className="font-semibold text-gray-800 text-lg">{bookingData.vehicle.name}</span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-gray-600 text-lg">Vehicle Number:</span>
+                <span className="font-semibold text-gray-800 text-lg">{bookingData.vehicle.plateNumber}</span>
               </div>
               <div className="flex justify-between items-center">
                 <span className="text-gray-600 text-lg">Pickup Location:</span>

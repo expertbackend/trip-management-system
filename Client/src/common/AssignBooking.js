@@ -77,10 +77,12 @@ const AssignDriverPage = () => {
       });
       
       setMessage(response.data.message);
+      alert(response.data.message)
       setSelectedBooking1(""); // Clear booking selection
       setSelectedDriver1(""); // Clear driver selection
     } catch (error) {
-      setMessage(error.response?.data?.message || "Failed to assign driver.");
+      alert(error.response?.data?.message || "Failed to assign driver.");
+      
     }
   };
 

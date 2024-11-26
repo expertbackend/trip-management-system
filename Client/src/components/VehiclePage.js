@@ -386,10 +386,12 @@ const VehicleTable = () => {
                   <div className="flex items-center">
                     <span
                       className={`w-4 h-4 mr-1 inline-block rounded-full 
-                  ${vehicle.status === 'created' ? 'bg-gray-400' : ''}
-                  ${vehicle.status === 'assigned' ? 'bg-blue-500' : ''}
-                  ${vehicle.status === 'running' ? 'bg-yellow-500' : ''}
-                  ${vehicle.status === 'completed' ? 'bg-green-500' : ''}`}
+                  ${vehicle.status === 'created' ? 'bg-gray-400 text-gray-800 hover:bg-gray-500' : ''}
+                  ${vehicle.status === 'pending' ? 'bg-yellow-400 text-yellow-800 hover:bg-yellow-500' : ''}
+                  ${vehicle.status === 'in-progress' ? 'bg-blue-400 text-blue-800 hover:bg-blue-500' : ''}
+                  ${vehicle.status === 'assigned' ? 'bg-blue-500 text-white hover:bg-blue-600' : ''}
+                  ${vehicle.status === 'running' ? 'bg-yellow-500 text-white hover:bg-yellow-600' : ''}
+                  ${vehicle.status === 'completed' ? 'bg-green-500 text-white hover:bg-green-600' : ''}`}
                     />
                     <span
                       className={`text-xs font-medium 

@@ -23,12 +23,7 @@ function Sidebar({ role, notifications,username }) {
   useEffect(() => {
     // Check for token in localStorage when the sidebar loads
     const token = localStorage.getItem('token');
-    if(role === 'driver'){
-      setActiveLink('profile')
-      navigate('/profile')
-      
-
-    }
+  
     if (!token) {
       // If no token, redirect to login page
       navigate('/login');
