@@ -137,64 +137,58 @@ const VehicleModal = ({ isOpen, onClose, vehicle, mode }) => {
                     {/* Bookings as Carousel */}
                     {vehicleData.bookings?.length > 0 && (
     <div className="mb-6">
-        <label className="block text-3xl font-semibold text-gray-900 mb-6">Bookings</label>
-        <Slider {...carouselSettings}>
-            {vehicleData.bookings.map((booking, index) => (
-                <div
-                    key={booking._id}
-                    className="relative w-full h-96 bg-gradient-to-r from-indigo-500 via-purple-400 to-pink-500 rounded-3xl overflow-hidden shadow-xl transform transition-transform duration-500 hover:scale-105 hover:shadow-2xl"
-                >
-                    <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent p-6 flex flex-col justify-start items-start space-y-4">
-                        <div className="text-sm font-bold text-white">{booking.bookingId._id}</div>
-
-                        {/* Customer Name and Info */}
-                        <div className="flex items-center space-x-2 text-lg text-white font-medium">
-                            <span className="text-xl">👤</span>
-                            <span>Customer: <span className="font-semibold">{booking.bookingId.customerName}</span></span>
-                        </div>
-
-                        {/* Phone Number */}
-                        <div className="flex items-center space-x-2 text-lg text-white font-medium">
-                            <span className="text-xl">📞</span>
-                            <span>{booking.bookingId.custPhNo}</span>
-                        </div>
-
-                        {/* Email Address */}
-                        <div className="flex items-center space-x-2 text-lg text-white font-medium">
-                            <span className="text-xl">📧</span>
-                            <span>{booking.bookingId.custEmailId}</span>
-                        </div>
-
-                        {/* Pickup and Dropoff Locations */}
-                        <div className="flex items-center space-x-2 text-lg text-white font-medium">
-                            <span className="text-xl">📍</span>
-                            <span>Pickup: <span className="font-semibold">{booking.bookingId?.pickupLocation?.address}</span></span>
-                        </div>
-                        <div className="flex items-center space-x-2 text-lg text-white font-medium">
-                            <span className="text-xl">🚗</span>
-                            <span>Dropoff: <span className="font-semibold">{booking.bookingId?.dropOffLocation?.address}</span></span>
-                        </div>
-
-                        {/* Dates */}
-                        <div className="text-sm text-white">
-                            <span className="font-semibold">Start Date:</span> {new Date(booking.startDate).toLocaleString()}
-                        </div>
-                        <div className="text-sm text-white">
-                            <span className="font-semibold">End Date:</span> {new Date(booking.endDate).toLocaleString()}
-                        </div>
-                    </div>
-
-                    {/* Overlay for better text visibility */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-transparent via-transparent to-black opacity-40"></div>
-
-                    {/* Add subtle icon animation for extra interactivity */}
-                    <div className="absolute bottom-4 right-4 text-2xl text-white opacity-60 hover:opacity-100 transition-opacity duration-300">
-                        <span>🔄</span>
-                    </div>
-                </div>
-            ))}
-        </Slider>
-    </div>
+    <label className="block text-3xl font-semibold text-gray-900 mb-6">Bookings</label>
+    <Slider {...carouselSettings}>
+      {vehicleData.bookings.map((booking, index) => (
+        <div
+          key={booking._id}
+          className="relative w-full h-96 rounded-xl overflow-hidden shadow-md transform transition-transform duration-500 hover:scale-105"
+        >
+          {/* Booking Details */}
+          <div className="absolute inset-0 p-6 flex flex-col justify-start space-y-4 bg-white">
+            <div className="text-sm font-bold text-gray-900">{booking.bookingId._id}</div>
+  
+            {/* Customer Name */}
+            <div className="flex items-center space-x-2 text-lg text-gray-800 font-medium">
+              <span className="text-xl">👤</span>
+              <span>Customer: <span className="font-semibold">{booking.bookingId.customerName}</span></span>
+            </div>
+  
+            {/* Phone Number */}
+            <div className="flex items-center space-x-2 text-lg text-gray-800 font-medium">
+              <span className="text-xl">📞</span>
+              <span>{booking.bookingId.custPhNo}</span>
+            </div>
+  
+            {/* Email Address */}
+            <div className="flex items-center space-x-2 text-lg text-gray-800 font-medium">
+              <span className="text-xl">📧</span>
+              <span>{booking.bookingId.custEmailId}</span>
+            </div>
+  
+            {/* Pickup and Dropoff Locations */}
+            <div className="flex items-center space-x-2 text-lg text-gray-800 font-medium">
+              <span className="text-xl">📍</span>
+              <span>Pickup: <span className="font-semibold">{booking.bookingId?.pickupLocation?.address}</span></span>
+            </div>
+            <div className="flex items-center space-x-2 text-lg text-gray-800 font-medium">
+              <span className="text-xl">🚗</span>
+              <span>Dropoff: <span className="font-semibold">{booking.bookingId?.dropOffLocation?.address}</span></span>
+            </div>
+  
+            {/* Dates */}
+            <div className="text-sm text-gray-700">
+              <span className="font-semibold">Start Date:</span> {new Date(booking.startDate).toLocaleString()}
+            </div>
+            <div className="text-sm text-gray-700">
+              <span className="font-semibold">End Date:</span> {new Date(booking.endDate).toLocaleString()}
+            </div>
+          </div>
+        </div>
+      ))}
+    </Slider>
+  </div>
+  
 )}
 
 
