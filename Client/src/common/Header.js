@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState,useRef } from 'react';
 import { FaBell } from 'react-icons/fa';
 import { io } from 'socket.io-client';
 
@@ -6,7 +6,23 @@ function Header({ clearNotifications }) {
   const [notifications, setNotifications] = useState([]);
   const [showNotifications, setShowNotifications] = useState(false);
   const token = localStorage.getItem('token'); // Assuming you store the JWT token in localStorage
+  const notificationRef = useRef(null);
+  const handleClickOutside = (event) => {
+    if (notificationRef.current && !notificationRef.current.contains(event.target)) {
+      setShowNotifications(false); // Close the notification panel
+    }
+  };
 
+  useEffect(() => {
+    if (showNotifications) {
+      document.addEventListener("mousedown", handleClickOutside);
+    } else {
+      document.removeEventListener("mousedown", handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside); // Cleanup
+    };
+  }, [showNotifications]);
   // Socket.IO client setup
   const socket = io(process.env.REACT_APP_API_URL, {
     auth: {
@@ -88,7 +104,8 @@ function Header({ clearNotifications }) {
   
       {/* Notifications Dropdown */}
       {showNotifications && (
-        <div className="absolute right-0 mt-2 w-64 sm:w-48 bg-gray-800 text-white shadow-lg rounded-md p-3 z-10 max-w-xs h-[30vh] overflow-y-auto">
+        <div className="absolute right-0 mt-2 w-64 sm:w-48 bg-gray-800 text-white shadow-lg rounded-md p-3 z-10 max-w-xs h-[30vh] overflow-y-auto"
+        ref={notificationRef}>
           {notifications.length === 0 ? (
             <p className="text-sm">No notifications</p>
           ) : (
