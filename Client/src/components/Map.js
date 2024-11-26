@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { GoogleMap, Marker, Polyline, useLoadScript } from '@react-google-maps/api';
 import io from 'socket.io-client';
 
@@ -23,59 +23,62 @@ const OwnerDashboardMap = () => {
     googleMapsApiKey: process.env.REACT_APP_GOOGLE_MAPS_API_KEY || '', // Your Google Maps API Key
   });
 
-  const [locations, setLocations] = useState([]); // Stores live driver locations
-  const [driverHistory, setDriverHistory] = useState([]); // Stores history for selected driver
-  const [selectedDriver, setSelectedDriver] = useState(null); // Tracks selected driver
-  const [drivers, setDrivers] = useState([]); // List of all drivers for dropdown
-  const [currentLocation, setCurrentLocation] = useState(null); // Stores current location of selected driver
+  const mapRef = useRef(null); // Reference for the Google Map instance
+  const [locations, setLocations] = useState([]);
+  const [driverHistory, setDriverHistory] = useState([]);
+  const [selectedDriver, setSelectedDriver] = useState(null);
+  const [drivers, setDrivers] = useState([]);
+  const [currentLocation, setCurrentLocation] = useState(null);
 
-  // Initialize Socket.IO
   const socket = io(process.env.REACT_APP_API_URL); // Replace with your backend's Socket.IO endpoint
   const token = localStorage.getItem('token');
 
-  // Fetch list of drivers from the backend
   const fetchDrivers = async () => {
     try {
       const response = await fetch(`${process.env.REACT_APP_API_URL}/api/owner/getDrivers`, {
         headers: {
-          Authorization: `Bearer ${token}`, // Include the token in the Authorization header
+          Authorization: `Bearer ${token}`,
         },
       });
       const data1 = await response.json();
       const data = data1.drivers;
-      setDrivers(data); // Update state with the list of drivers
+      setDrivers(data);
     } catch (error) {
       console.error('Error fetching drivers:', error);
     }
   };
 
-  // Fetch current location of the selected driver
   const fetchDriverLocation = async (driverId) => {
     try {
       const response = await fetch(`${process.env.REACT_APP_API_URL}/api/owner/drivers/${driverId}/location`, {
         headers: {
-          Authorization: `Bearer ${token}`, // Include the token in the Authorization header
+          Authorization: `Bearer ${token}`,
         },
       });
       const data = await response.json();
       const { latitude, longitude, status, drivername } = data.location;
-      setCurrentLocation({
+      const location = {
         lat: latitude,
         lng: longitude,
         status,
         drivername,
-      });
+      };
+      setCurrentLocation(location);
+
+      // Center the map on the driver's location
+      if (mapRef.current) {
+        mapRef.current.panTo(location);
+      }
     } catch (error) {
       console.error('Error fetching driver location:', error);
     }
   };
 
-  // Fetch location history for the selected driver
   const fetchDriverHistory = async (driverId) => {
     try {
       const response = await fetch(`${process.env.REACT_APP_API_URL}/api/drivers/${driverId}/history`, {
         headers: {
-          Authorization: `Bearer ${token}`, // Include the token in the Authorization header
+          Authorization: `Bearer ${token}`,
         },
       });
       const data = await response.json();
@@ -89,42 +92,16 @@ const OwnerDashboardMap = () => {
     }
   };
 
-  const MOVEMENT_THRESHOLD = 50; // Threshold in meters (adjust as needed)
-
-  function getDistance(lat1, lon1, lat2, lon2) {
-    const R = 6371; // Earth radius in kilometers
-    const dLat = (lat2 - lat1) * Math.PI / 180;
-    const dLon = (lon2 - lon1) * Math.PI / 180;
-    const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-              Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
-              Math.sin(dLon / 2) * Math.sin(dLon / 2);
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-    const distance = R * c * 1000; // Distance in meters
-    return distance;
-  }
-
-  // Handle real-time driver updates
   useEffect(() => {
     socket.on('changeLocation', (data) => {
-      const { userId, latitude, longitude } = data; // Get the user's ID and new coordinates
-    
-      // Find the previous location for this user
-      const previousLocation = locations.find(loc => loc.userId === userId);
-    
-      // Determine whether the user is moving or parked
-      const status = previousLocation
-        ? getDistance(previousLocation.location.coordinates[1], previousLocation.location.coordinates[0], latitude, longitude) > MOVEMENT_THRESHOLD
-          ? 'moving'
-          : 'parked'
-        : 'parked'; // If no previous location, assume parked initially
-    
-      // Update the location and status in the state or database
+      const { userId, latitude, longitude } = data;
+
       setLocations((prev) => {
-        const updatedLocations = prev.filter(loc => loc.userId !== userId); // Remove old location
+        const updatedLocations = prev.filter((loc) => loc.userId !== userId);
         updatedLocations.push({
           userId,
           location: { coordinates: [longitude, latitude] },
-          status, // Add status (moving or parked)
+          status: 'moving',
         });
         return updatedLocations;
       });
@@ -133,16 +110,16 @@ const OwnerDashboardMap = () => {
     return () => {
       socket.disconnect();
     };
-  }, [socket, selectedDriver]);
+  }, [socket]);
 
   useEffect(() => {
-    fetchDrivers(); // Fetch the list of drivers on component mount
+    fetchDrivers();
   }, []);
 
   useEffect(() => {
     if (selectedDriver) {
-      fetchDriverLocation(selectedDriver); // Fetch current location when a driver is selected
-      fetchDriverHistory(selectedDriver); // Fetch history when a driver is selected
+      fetchDriverLocation(selectedDriver);
+      fetchDriverHistory(selectedDriver);
     }
   }, [selectedDriver]);
 
@@ -151,31 +128,40 @@ const OwnerDashboardMap = () => {
 
   return (
     <div className="p-4">
-      <h2 className="text-xl font-bold mb-4">Owner Dashboard</h2>
+  <h2 className="text-xl font-bold mb-4">Owner Dashboard</h2>
 
-      {/* Dropdown to Select Driver */}
-      <div className="mb-4">
-        <label htmlFor="driver-select" className="block mb-2 font-semibold">
-          Select a Driver:
-        </label>
-        <select
-          id="driver-select"
-          value={selectedDriver || ''}
-          onChange={(e) => setSelectedDriver(e.target.value)}
-          className="p-2 border rounded w-full"
-        >
-          <option value="">-- Select a Driver --</option>
-          {drivers.map((driver) => (
-            <option key={driver.userId} value={driver._id}>
-              Driver {driver.name} {/* Replace with driver's name or other details */}
-            </option>
-          ))}
-        </select>
+  <div className="flex flex-col md:flex-row">
+    {/* Driver List Section - Left side */}
+    <div className="w-full md:w-1/3 p-2 mb-4 md:mb-0">
+    <div className="mb-4">
+  <label htmlFor="driver-list" className="block mb-2 font-semibold">
+    Select a Driver:
+  </label>
+  <div id="driver-list" className="flex flex-col space-y-2">
+    {drivers.map((driver) => (
+      <div
+        key={driver.userId}
+        onClick={() => setSelectedDriver(driver._id)}
+        className={`flex items-center p-3 border rounded cursor-pointer ${
+          selectedDriver === driver._id ? 'bg-blue-200 border-blue-400' : 'bg-gray-100 border-gray-300'
+        }`}
+      >
+        <span className="font-semibold">{driver.name || `Driver ${driver.userId}`}</span>
       </div>
+    ))}
+  </div>
+</div>
 
-      {/* Google Map */}
-      <GoogleMap mapContainerStyle={mapContainerStyle} center={center} zoom={12}>
-        {/* Live Driver Markers */}
+    </div>
+
+    {/* Map Section - Right side */}
+    <div className="w-full md:w-2/3 sm:w-1/3">
+      <GoogleMap
+        mapContainerStyle={mapContainerStyle}
+        center={center}
+        zoom={12}
+        onLoad={(map) => (mapRef.current = map)}
+      >
         {locations.map((loc) => (
           <Marker
             key={loc.userId}
@@ -187,24 +173,25 @@ const OwnerDashboardMap = () => {
           />
         ))}
 
-        {/* Current Location Marker */}
         {currentLocation && (
           <Marker
             position={currentLocation}
             icon={{
-              url: 'https://developers.google.com/maps/documentation/javascript/examples/full/images/beachflag.png', // Custom Location Pin icon
-              scaledSize: new window.google.maps.Size(50, 50), // Make it a little larger
+              url: 'https://developers.google.com/maps/documentation/javascript/examples/full/images/beachflag.png',
+              scaledSize: new window.google.maps.Size(50, 50),
             }}
             label={`${currentLocation.drivername} - ${currentLocation.status}`}
           />
         )}
 
-        {/* Driver History Polyline */}
         {selectedDriver && driverHistory.length > 0 && (
           <Polyline path={driverHistory} options={polylineOptions} />
         )}
       </GoogleMap>
     </div>
+  </div>
+</div>
+
   );
 };
 

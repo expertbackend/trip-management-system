@@ -79,7 +79,7 @@ function Sidebar({ role, notifications,username }) {
     <div
     className={`${
       isOpen ? "w-64" : "w-16"
-    } h-auto bg-gradient-to-b from-indigo-600 to-purple-700 text-white transition-all duration-300 ease-in-out flex flex-col shadow-lg`}
+    } h-full bg-gradient-to-b from-indigo-600 to-purple-700 text-white transition-all duration-300 ease-in-out flex flex-col shadow-lg`}
   >
     {/* Header Section */}
     <div className="flex justify-between items-center p-4">

@@ -3,7 +3,7 @@ import MapComponent from './Map';
 
 function OwnerDashboard() {
   return (
-    <div>
+    <div className='overflow-y-auto max-h-[90vh]'>
       <h1>Owner Dashboard</h1>
       {/* <h2>Live Locations:</h2> */}
           <MapComponent/>

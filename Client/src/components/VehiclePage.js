@@ -240,7 +240,7 @@ const VehicleTable = () => {
 
 
   return (
-    <div className="w-full p-4 bg-white">
+    <div className="w-full p-4 bg-white overflow-y-auto max-h-[90vh]">
       {/* Filter Inputs */}
 
       {/* Modal Buttons */}

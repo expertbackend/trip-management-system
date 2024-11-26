@@ -145,7 +145,7 @@ const VehicleModal = ({ isOpen, onClose, vehicle, mode }) => {
                     className="relative w-full h-96 bg-gradient-to-r from-indigo-500 via-purple-400 to-pink-500 rounded-3xl overflow-hidden shadow-xl transform transition-transform duration-500 hover:scale-105 hover:shadow-2xl"
                 >
                     <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent p-6 flex flex-col justify-start items-start space-y-4">
-                        <div className="text-2xl font-bold text-white">{booking.bookingId._id}</div>
+                        <div className="text-sm font-bold text-white">{booking.bookingId._id}</div>
 
                         {/* Customer Name and Info */}
                         <div className="flex items-center space-x-2 text-lg text-white font-medium">

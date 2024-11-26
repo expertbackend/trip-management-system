@@ -205,7 +205,7 @@ const BookingsPage = () => {
   if (error) return <div className="text-red-500">{error}</div>;
 
   return (
-    <div className="container mx-auto p-6 overflow-y-auto max-h-[90vh]">
+    <div className=" mx-auto p-6 overflow-y-auto max-h-[100vh]">
       <h1 className="text-3xl font-semibold mb-6">Bookings Overview</h1>
 
       {/* Search and Filter */}

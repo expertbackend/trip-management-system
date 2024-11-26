@@ -233,7 +233,7 @@ const Home = () => {
   }
 
   return (
-    <div className=" p-4">
+    <div className="overflow-y-auto max-h-[90vh] p-4">
       <h1 className="text-4xl text-center mb-6">Dashboard</h1>
 
       {/* Filter for period */}
