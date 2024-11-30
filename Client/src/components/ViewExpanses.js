@@ -221,6 +221,7 @@ function ViewExpenses() {
                 <th className="border border-gray-300 p-3 text-left">Sl No.</th>
                 <th className="border border-gray-300 p-3 text-left">Driver Name</th>
                 <th className="border border-gray-300 p-3 text-left">Expense Type</th>
+                <th className="border border-gray-300 p-3 text-left">Vehicle Expense Description</th>
                 <th className="border border-gray-300 p-3 text-left">Amount</th>
                 <th className="border border-gray-300 p-3 text-left">Date</th>
                 <th className="border border-gray-300 p-3 text-left">Total Expense</th>
@@ -253,6 +254,7 @@ function ViewExpenses() {
                             </td>
                           )}
                           <td className="border border-gray-300 p-3">{expense.expenseType || "N/A"}</td>
+                          <td className="border border-gray-300 p-3">{expense.vehicleExpanseDescription || "N/A"}</td>
                           <td className="border border-gray-300 p-3">{expense.amount || "0.00"}</td>
                           <td className="border border-gray-300 p-3">{expenseDate}</td> {/* Display single date */}
                           {expenseIndex === 0 && (

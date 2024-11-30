@@ -51,7 +51,7 @@ exports.login = async (req, res) => {
 
   
 
-    res.json({ token, role: user.role,name:user.name });
+    res.json({ token, role: user.role,name:user.name,tokenId:user._id });
 };
 
 exports.createUser = async (req, res) => {

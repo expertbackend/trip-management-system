@@ -5,6 +5,8 @@ function AddExpenses() {
   const [fuelExpanse, setFuelExpanse] = useState('');
   const [driverExpanse, setDriverExpanse] = useState('');
   const [vehicleExpanse, setVehicleExpanse] = useState('');
+  const [vehicleExpanseDescription, setVehicleExpanseDescription] = useState('');
+
   const [date, setDate] = useState('');
   const [message, setMessage] = useState('');
   const [showPopup, setShowPopup] = useState(false);
@@ -41,6 +43,7 @@ function AddExpenses() {
         fuelExpanse,
         driverExpanse,
         vehicleExpanse,
+        vehicleExpanseDescription,
         date,
         driverId: selectedDriver, // Send selected driver to the backend
       });
@@ -95,6 +98,17 @@ function AddExpenses() {
               id="vehicleExpanse"
               value={vehicleExpanse}
               onChange={(e) => setVehicleExpanse(e.target.value)}
+              className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md"
+              placeholder="Enter vehicle expense"
+            />
+          </div>
+          <div>
+            <label htmlFor="vehicleExpanse" className="block text-gray-600 font-medium">Vehicle Expense description</label>
+            <input
+              type="text"
+              id="vehicleExpanse"
+              value={vehicleExpanseDescription}
+              onChange={(e) => setVehicleExpanseDescription(e.target.value)}
               className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md"
               placeholder="Enter vehicle expense"
             />

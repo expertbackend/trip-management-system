@@ -23,6 +23,8 @@ import AssignDriverPage from './common/AssignBooking';
 import TripReport from './common/TripReport';
 import ProfilePage from './common/ProfilePage';
 import SuperAdminPage from './common/SuperAdmin';
+import VehicleManagement from './common/VehicleManagement';
+import Announcements from './common/Announcement';
 
 function App() {
   const [role, setRole] = useState(null);
@@ -159,13 +161,13 @@ return <Navigate to ="/login"/>
   }
 
   return (
-    <div className="app flex">
+    <div className="app flex max-h-[100vh] overflow-scroll ">
       {permissionDenied ? (
         <div>Please allow location permission to use this website.</div>
       ) : (
         <>
           {!isAuthPage && <Sidebar role={role} notifications={notifications} username={name}/>}
-          <div className="content flex-grow">
+          <div className="content flex-grow overflow-scroll">
             {!isAuthPage && (
               <Header notifications={notifications} clearNotifications={clearNotifications} />
             )}
@@ -187,6 +189,8 @@ return <Navigate to ="/login"/>
               <Route path="/trip-report" element={<PrivateRoute component={TripReport} />} />
               <Route path="/profile" element={<PrivateRoute component={ProfilePage} />} />
               <Route path="/SuperAdmin" element={<PrivateRoute component={SuperAdminPage} />} />
+              <Route path="/fms" element={<PrivateRoute component={VehicleManagement} />} />
+              <Route path="/announcement" element={<PrivateRoute component={Announcements} />} />
 
             </Routes>
           </div>

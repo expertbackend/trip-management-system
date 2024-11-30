@@ -15,6 +15,8 @@ const { initializeIo } = require('./socket');
 const server = http.createServer(app);
 const activeSockets = require('./socketStorage');
 const io = initializeIo(server);
+const tyreRoute = require('./routes/tyreRoutes');
+require('./cronJob')
 // const io = new Server(server, {
 //   cors: {
 //     origin: process.env.FRONTEND_URL || 'http://localhost:3000',
@@ -43,6 +45,7 @@ const connectDB = async () => {
 
 connectDB();
 app.use('/api/owner', ownerRoutes);
+app.use('/api/tyre',tyreRoute)
 // Middleware to authenticate Socket.IO connections
 io.use(async (socket, next) => {
   const token = socket.handshake.auth.token;
@@ -138,6 +141,7 @@ app.get('/api/users/:userId', async (req, res) => {
 });
 const fireBaseRoutes = require('./routes/notificationRoutes');
 const Notification = require('./tEst/NotificationService');
+const authMiddleware = require('./middlewares/authMiddleware');
 app.use('/api/firebase',fireBaseRoutes)
 // app.get('/',(req,res)=>{
 //     res.json({

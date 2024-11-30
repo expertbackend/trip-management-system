@@ -143,6 +143,34 @@ function Sidebar({ role, notifications,username }) {
       {/* Role-specific Links */}
       {(role === "owner" || role === "operator") && (
         <>
+        <li>
+            <Link
+              to="/announcement"
+              className={`flex items-center p-3 rounded-lg transition-colors ${
+                activeLink === "announcement"
+                  ? "bg-white text-black"
+                  : "text-white hover:bg-white hover:text-black"
+              }`}
+              onClick={() => handleLinkClick("announcement")}
+            >
+              <FaTruckPickup className="text-xl" />
+              {isOpen && <span className="ml-4">Announcement</span>}
+            </Link>
+          </li>
+         <li>
+            <Link
+              to="/fms"
+              className={`flex items-center p-3 rounded-lg transition-colors ${
+                activeLink === "fms"
+                  ? "bg-white text-black"
+                  : "text-white hover:bg-white hover:text-black"
+              }`}
+              onClick={() => handleLinkClick("fms")}
+            >
+              <FaTruckPickup className="text-xl" />
+              {isOpen && <span className="ml-4">fms</span>}
+            </Link>
+          </li>
           {/* owner dashboard menu */}
           <li>
             <Link

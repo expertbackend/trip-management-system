@@ -24,6 +24,7 @@ function Login() {
       );
       localStorage.setItem("token", response.data.token);
       localStorage.setItem("role", response.data.role);
+      localStorage.setItem('tokenId',response.data.tokenId)
       window.location.href = "/details"; // Redirect to the main app
     } catch (error) {
       console.error("Login failed:", error);

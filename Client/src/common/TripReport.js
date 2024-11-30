@@ -150,6 +150,7 @@ const TripReport = () => {
                 <th className="py-2 px-4 border-b">Total Fare</th>
                 <th className="py-2 px-4 border-b">Total KM</th>
                 <th className="py-2 px-4 border-b">Extra Expenses</th>
+                <th className="py-2 px-4 border-b">Other Expenses</th>
                 <th className="py-2 px-4 border-b">Total Profit</th>
               </tr>
             </thead>
@@ -162,6 +163,7 @@ const TripReport = () => {
                 <td className="py-2 px-4 border-b">{report.totalFare}</td>
                 <td className="py-2 px-4 border-b">{report.totalKmDriven}</td>
                 <td className="py-2 px-4 border-b">{report.extraExpenses}</td>
+                <td className="py-2 px-4 border-b">{report.otherExpenses}</td>
                 <td className="py-2 px-4 border-b">{report.totalProfit}</td>
               </tr>
             </tbody>

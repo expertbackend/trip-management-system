@@ -7,6 +7,7 @@ const expenseSchema = new mongoose.Schema({
   fuel: Number,
   food:Number,
   vehicleExpanse:Number,
+  vehicleDescription:String,
   totalAmount:Number,
   EmergencyAmount:Number,
   date: { type: Date, default: Date.now },
