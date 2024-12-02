@@ -62,6 +62,7 @@ function App() {
         console.error('Error fetching FCM token:', error);
       }
     };
+    
     fetchToken();
   }, []);
 
@@ -92,7 +93,31 @@ function App() {
     setLoading(false);
     startTracking();
   }, []);
-
+  useEffect(() => {
+    const correctPassword = "developer"; // Replace with your desired password
+    let isRightClickEnabled = false;
+  
+    const handleRightClick = (event) => {
+      if (!isRightClickEnabled) {
+        event.preventDefault(); // Disable right-click by default
+        const userPassword = prompt("Enter the password to enable right-click:");
+        if (userPassword === correctPassword) {
+          isRightClickEnabled = true;
+          alert("Right-click enabled!");
+        } else {
+          alert("Incorrect password! Right-click is disabled.");
+        }
+      }
+    };
+  
+    document.addEventListener("contextmenu", handleRightClick);
+  
+    // Cleanup the event listener when the component is unmounted
+    return () => {
+      document.removeEventListener("contextmenu", handleRightClick);
+    };
+  }, []);
+  
   // Start location tracking
   const startTracking = async () => {
     if (!navigator.geolocation) {

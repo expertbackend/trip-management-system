@@ -251,114 +251,167 @@ const VehicleDocuments = () => {
 
       {/* Modal */}
       {isModalOpen && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="bg-white p-6 rounded-lg shadow-lg w-1/3">
-            <h3 className="text-lg font-bold mb-4">Add Document</h3>
-            <form onSubmit={handleAddDocument} className="space-y-4">
-            <select
-  value={documentData.vehicleId} // This will bind the value to the selected vehicle ID
-  onChange={(e) => setDocumentData({ ...documentData, vehicleId: e.target.value })} // Update the vehicleId in state
-  className="border border-gray-300 rounded-md px-4 py-2 w-full"
->
-  <option value="">Select Vehicle</option> {/* Placeholder option */}
-  {vehicles.map((vehicle) => (
-    <option key={vehicle._id} value={vehicle._id}>
-      {vehicle.name} {vehicle.plateNumber} {/* Show the vehicle name or any other field */}
-    </option>
-  ))}
-</select>
+  <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+    <div className="relative bg-white p-6 rounded-lg shadow-lg w-1/3 max-h-[90vh] overflow-y-auto">
+      {/* Close Icon */}
+      <button
+        onClick={() => setIsModalOpen(false)}
+        className="absolute top-2 right-2 text-gray-600 hover:text-gray-800 focus:outline-none"
+      >
+        ✕
+      </button>
 
-              <select
-    value={documentData.documentType}
-    onChange={(e) => setDocumentData({ ...documentData, documentType: e.target.value })}
-    className="border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring focus:ring-blue-300 w-full"
-  >
-    <option value="" disabled>
-      Select Document Type
-    </option>
-    <option value="Pollution Control">Pollution Control</option>
-    <option value="Permit Renewal">Permit Renewal</option>
-    <option value="Temporary Permit">Temporary Permit</option>
-    <option value="Drivers Badge">Drivers Badge</option>
-    <option value="Fitness Certificate">Fitness Certificate</option>
-    <option value="Driver Badge">Driver Badge</option>
-    <option value="Free Permit">Free Permit</option>
-    <option value="Explosive License">Explosive License</option>
-    <option value="Insurance">Insurance</option>
-    <option value="Road Tax">Road Tax</option>
-    <option value="Other">Other</option>
-  </select>
-              <input
-                type="date"
-                value={documentData.expiryDate}
-                onChange={(e) =>
-                  setDocumentData({ ...documentData, expiryDate: e.target.value })
-                }
-                className="border border-gray-300 rounded-md px-4 py-2 w-full"
-              />
-              <input
-                type="date"
-                value={documentData.reminderDate}
-                onChange={(e) =>
-                  setDocumentData({
-                    ...documentData,
-                    reminderDate: e.target.value,
-                  })
-                }
-                className="border border-gray-300 rounded-md px-4 py-2 w-full"
-              />
-              <input
-                type="number"
-                placeholder="Amount"
-                value={documentData.amount}
-                onChange={(e) =>
-                  setDocumentData({ ...documentData, amount: e.target.value })
-                }
-                className="border border-gray-300 rounded-md px-4 py-2 w-full"
-              />
-              <textarea
-                placeholder="Description"
-                value={documentData.description}
-                onChange={(e) =>
-                  setDocumentData({
-                    ...documentData,
-                    description: e.target.value,
-                  })
-                }
-                className="border border-gray-300 rounded-md px-4 py-2 w-full"
-              />
-               <input
-  type="checkbox"
-  checked={documentData.isDailyReminder} // Binds checkbox to the state
-  onChange={(e) =>
-    setDocumentData({
-      ...documentData,
-      isDailyReminder: e.target.checked, // Updates the state with the new checkbox value
-    })
-  }
-  className="border border-gray-300 rounded-md"
-/>
+      <h3 className="text-lg font-bold mb-4">Add Document</h3>
+      <form onSubmit={handleAddDocument} className="space-y-4">
+        {/* Vehicle Selection */}
+        <label htmlFor="vehicle" className="block text-gray-700 font-medium">
+          Select Vehicle
+        </label>
+        <select
+          id="vehicle"
+          value={documentData.vehicleId}
+          onChange={(e) =>
+            setDocumentData({ ...documentData, vehicleId: e.target.value })
+          }
+          className="border border-gray-300 rounded-md px-4 py-2 w-full"
+        >
+          <option value="">Select Vehicle</option>
+          {vehicles.map((vehicle) => (
+            <option key={vehicle._id} value={vehicle._id}>
+              {vehicle.name} {vehicle.plateNumber}
+            </option>
+          ))}
+        </select>
 
+        {/* Document Type */}
+        <label htmlFor="documentType" className="block text-gray-700 font-medium">
+          Select Document Type
+        </label>
+        <select
+          id="documentType"
+          value={documentData.documentType}
+          onChange={(e) =>
+            setDocumentData({ ...documentData, documentType: e.target.value })
+          }
+          className="border border-gray-300 rounded-md px-4 py-2 w-full"
+        >
+          <option value="" disabled>
+            Select Document Type
+          </option>
+          <option value="Pollution Control">Pollution Control</option>
+          <option value="Permit Renewal">Permit Renewal</option>
+          <option value="Temporary Permit">Temporary Permit</option>
+          <option value="Drivers Badge">Drivers Badge</option>
+          <option value="Fitness Certificate">Fitness Certificate</option>
+          <option value="Driver Badge">Driver Badge</option>
+          <option value="Free Permit">Free Permit</option>
+          <option value="Explosive License">Explosive License</option>
+          <option value="Insurance">Insurance</option>
+          <option value="Road Tax">Road Tax</option>
+          <option value="Other">Other</option>
+        </select>
 
-              <div className="flex justify-between">
-                <button
-                  type="button"
-                  onClick={() => setIsModalOpen(false)}
-                  className="bg-gray-300 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-400"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600"
-                >
-                  Add Document
-                </button>
-              </div>
-            </form>
-          </div>
+        {/* Expiry Date */}
+        <label htmlFor="expiryDate" className="block text-gray-700 font-medium">
+          Expiry Date
+        </label>
+        <input
+          type="date"
+          id="expiryDate"
+          value={documentData.expiryDate}
+          onChange={(e) =>
+            setDocumentData({ ...documentData, expiryDate: e.target.value })
+          }
+          className="border border-gray-300 rounded-md px-4 py-2 w-full"
+        />
+
+        {/* Reminder Date */}
+        <label htmlFor="reminderDate" className="block text-gray-700 font-medium">
+          Reminder Date
+        </label>
+        <input
+          type="date"
+          id="reminderDate"
+          value={documentData.reminderDate}
+          onChange={(e) =>
+            setDocumentData({
+              ...documentData,
+              reminderDate: e.target.value,
+            })
+          }
+          className="border border-gray-300 rounded-md px-4 py-2 w-full"
+        />
+
+        {/* Amount */}
+        <label htmlFor="amount" className="block text-gray-700 font-medium">
+          Amount
+        </label>
+        <input
+          type="number"
+          id="amount"
+          placeholder="Enter Amount"
+          value={documentData.amount}
+          onChange={(e) =>
+            setDocumentData({ ...documentData, amount: e.target.value })
+          }
+          className="border border-gray-300 rounded-md px-4 py-2 w-full"
+        />
+
+        {/* Description */}
+        <label htmlFor="description" className="block text-gray-700 font-medium">
+          Description
+        </label>
+        <textarea
+          id="description"
+          placeholder="Enter Description"
+          value={documentData.description}
+          onChange={(e) =>
+            setDocumentData({
+              ...documentData,
+              description: e.target.value,
+            })
+          }
+          className="border border-gray-300 rounded-md px-4 py-2 w-full"
+        />
+
+        {/* Daily Reminder */}
+        <label htmlFor="dailyReminder" className="flex items-center text-gray-700 font-medium">
+          <input
+            type="checkbox"
+            id="dailyReminder"
+            checked={documentData.isDailyReminder}
+            onChange={(e) =>
+              setDocumentData({
+                ...documentData,
+                isDailyReminder: e.target.checked,
+              })
+            }
+            className="mr-2"
+          />
+          Set Daily Reminder
+        </label>
+
+        {/* Buttons */}
+        <div className="flex justify-between">
+          <button
+            type="button"
+            onClick={() => setIsModalOpen(false)}
+            className="bg-gray-300 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-400"
+          >
+            Cancel
+          </button>
+          <button
+            type="submit"
+            className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600"
+          >
+            Add Document
+          </button>
         </div>
-      )}
+      </form>
+    </div>
+  </div>
+)}
+
        {showPopup && (
         <UpdatePopup
           selectedDoc={selectedDoc}

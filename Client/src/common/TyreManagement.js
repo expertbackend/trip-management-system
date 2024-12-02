@@ -209,172 +209,185 @@ const handleClickAction = (plateNumber,tyrePosition) => {
 
       {/* Create Tyre Form */}
       {isCreateTyreModalOpen && (
-        <div className="fixed inset-0 bg-gray-500 bg-opacity-75 flex justify-center items-center z-50">
-          <div className="bg-white p-6 shadow-lg rounded-lg w-full md:w-1/2 lg:w-1/3">
-            <form className="space-y-6" onSubmit={handleRegister}>
-              <h3 className="text-xl font-semibold text-gray-700">Register Tyre</h3>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                <input
-                  type="text"
-                  placeholder="Tyre Brand"
-                  value={tyreData.tyreBrand}
-                  onChange={(e) => setTyreData({ ...tyreData, tyreBrand: e.target.value })}
-                  className="border p-3 rounded-lg w-full focus:ring focus:ring-blue-300"
-                />
-                <input
-                  type="text"
-                  placeholder="Serial Number"
-                  value={tyreData.tyreSerielNo}
-                  onChange={(e) => setTyreData({ ...tyreData, tyreSerielNo: e.target.value })}
-                  className="border p-3 rounded-lg w-full focus:ring focus:ring-blue-300"
-                />
-                <input
-                  type="number"
-                  placeholder="Amount"
-                  value={tyreData.tyreAmount}
-                  onChange={(e) => setTyreData({ ...tyreData, tyreAmount: e.target.value })}
-                  className="border p-3 rounded-lg w-full focus:ring focus:ring-blue-300"
-                />
-                <input
-                  type="text"
-                  placeholder="Purchased From"
-                  value={tyreData.purchaseFrom}
-                  onChange={(e) => setTyreData({ ...tyreData, purchaseFrom: e.target.value })}
-                  className="border p-3 rounded-lg w-full focus:ring focus:ring-blue-300"
-                />
-
-                {/* Vehicle ID Dropdown */}
-                <select
-                  value={tyreData.vehicleId}
-                  onChange={(e) => setTyreData({ ...tyreData, vehicleId: e.target.value })}
-                  className="border p-3 rounded-lg w-full focus:ring focus:ring-blue-300"
-                >
-                  <option value="">Select Vehicle</option>
-                  {vehicles.map((vehicle) => (
-                    <option key={vehicle._id} value={vehicle._id}>
-                      {vehicle.name} ({vehicle.plateNumber})
-                    </option>
-                  ))}
-                </select>
-
-                <select
-  value={statusQuery.tyrePosition}
-  onChange={(e) => setStatusQuery({ ...statusQuery, tyrePosition: e.target.value })}
-  className="border p-3 rounded-lg w-full focus:ring focus:ring-green-300"
->
-  <option value="">Select Tyre Position</option>
-  <option value="front-left">Front Left</option>
-  <option value="front-right">Front Right</option>
-  <option value="rear-left-1">Rear Left 1</option>
-  <option value="rear-right-1">Rear Right 1</option>
-  <option value="rear-left-2">Rear Left 2</option>
-  <option value="rear-right-2">Rear Right 2</option>
-  <option value="rear-left-3">Rear Left 3</option>
-  <option value="rear-right-3">Rear Right 3</option>
-  <option value="rear-left-4">Rear Left 4</option>
-  <option value="rear-right-4">Rear Right 4</option>
-  <option value="rear-left-5">Rear Left 5</option>
-  <option value="rear-right-5">Rear Right 5</option>
-  <option value="spare">Spare</option>
-</select>
-
-                <input
-                  type="number"
-                  placeholder="Mileage"
-                  value={tyreData.tyreMileage}
-                  onChange={(e) => setTyreData({ ...tyreData, tyreMileage: e.target.value })}
-                  className="border p-3 rounded-lg w-full focus:ring focus:ring-blue-300"
-                />
-                <input
-                  type="number"
-                  placeholder="Installed at KM"
-                  value={tyreData.installedAtKm}
-                  onChange={(e) => setTyreData({ ...tyreData, installedAtKm: e.target.value })}
-                  className="border p-3 rounded-lg w-full focus:ring focus:ring-blue-300"
-                />
-              </div>
-
-              <button
-                type="submit"
-                className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 focus:ring focus:ring-blue-300 transition-all"
-              >
-                Register Tyre
-              </button>
-            </form>
-
-            <button
-              onClick={() => setIsCreateTyreModalOpen(false)}
-              className="absolute top-2 right-2 text-gray-600 hover:text-gray-800"
-            >
-              ✕
-            </button>
-          </div>
+  <div className="fixed inset-0 bg-gray-500 bg-opacity-75 flex justify-center items-center z-50">
+    <div className="bg-white p-6 shadow-lg rounded-lg w-full md:w-3/4 lg:w-2/3 xl:w-1/2 relative">
+      <button
+        onClick={() => setIsCreateTyreModalOpen(false)}
+        className="absolute top-4 right-4 text-gray-600 hover:text-gray-800 text-lg"
+        aria-label="Close"
+      >
+        ✕
+      </button>
+      <form className="space-y-6" onSubmit={handleRegister}>
+        <h3 className="text-2xl font-semibold text-gray-700 mb-4">Register Tyre</h3>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <input
+            type="text"
+            placeholder="Tyre Brand"
+            value={tyreData.tyreBrand}
+            onChange={(e) => setTyreData({ ...tyreData, tyreBrand: e.target.value })}
+            className="border p-3 rounded-lg w-full focus:ring focus:ring-blue-300"
+          />
+          <input
+            type="text"
+            placeholder="Serial Number"
+            value={tyreData.tyreSerielNo}
+            onChange={(e) => setTyreData({ ...tyreData, tyreSerielNo: e.target.value })}
+            className="border p-3 rounded-lg w-full focus:ring focus:ring-blue-300"
+          />
+          <input
+            type="number"
+            placeholder="Amount"
+            value={tyreData.tyreAmount}
+            onChange={(e) => setTyreData({ ...tyreData, tyreAmount: e.target.value })}
+            className="border p-3 rounded-lg w-full focus:ring focus:ring-blue-300"
+          />
+          <input
+            type="text"
+            placeholder="Purchased From"
+            value={tyreData.purchaseFrom}
+            onChange={(e) => setTyreData({ ...tyreData, purchaseFrom: e.target.value })}
+            className="border p-3 rounded-lg w-full focus:ring focus:ring-blue-300"
+          />
+          <select
+            value={tyreData.vehicleId}
+            onChange={(e) => setTyreData({ ...tyreData, vehicleId: e.target.value })}
+            className="border p-3 rounded-lg w-full focus:ring focus:ring-blue-300"
+          >
+            <option value="">Select Vehicle</option>
+            {vehicles.map((vehicle) => (
+              <option key={vehicle._id} value={vehicle._id}>
+                {vehicle.name} ({vehicle.plateNumber})
+              </option>
+            ))}
+          </select>
+          <select
+            value={statusQuery.tyrePosition}
+            onChange={(e) => setStatusQuery({ ...statusQuery, tyrePosition: e.target.value })}
+            className="border p-3 rounded-lg w-full focus:ring focus:ring-green-300"
+          >
+            <option value="">Select Tyre Position</option>
+            <option value="front-left">Front Left</option>
+            <option value="front-right">Front Right</option>
+            <option value="rear-left-1">Rear Left 1</option>
+            <option value="rear-right-1">Rear Right 1</option>
+            <option value="rear-left-2">Rear Left 2</option>
+            <option value="rear-right-2">Rear Right 2</option>
+            <option value="rear-left-3">Rear Left 3</option>
+            <option value="rear-right-3">Rear Right 3</option>
+            <option value="rear-left-4">Rear Left 4</option>
+            <option value="rear-right-4">Rear Right 4</option>
+            <option value="rear-left-5">Rear Left 5</option>
+            <option value="rear-right-5">Rear Right 5</option>
+            <option value="spare">Spare</option>
+          </select>
+          <input
+            type="number"
+            placeholder="Mileage"
+            value={tyreData.tyreMileage}
+            onChange={(e) => setTyreData({ ...tyreData, tyreMileage: e.target.value })}
+            className="border p-3 rounded-lg w-full focus:ring focus:ring-blue-300"
+          />
+          <input
+            type="number"
+            placeholder="Installed at KM"
+            value={tyreData.installedAtKm}
+            onChange={(e) => setTyreData({ ...tyreData, installedAtKm: e.target.value })}
+            className="border p-3 rounded-lg w-full focus:ring focus:ring-blue-300"
+          />
         </div>
-      )}
-
-      {/* Check Tyre Status Form */}
-      {isCheckStatusModalOpen && (
-        <div className="fixed inset-0 bg-gray-500 bg-opacity-75 flex justify-center items-center z-50">
-          <div className="bg-white p-6 shadow-lg rounded-lg w-full md:w-1/2 lg:w-1/3">
-            <h3 className="text-xl font-semibold text-gray-700 mb-4">Check Tyre Status</h3>
-            <form className="space-y-6" onSubmit={(e) => { e.preventDefault(); checkTyreStatus(); }}>
-              <input
-                type="number"
-                placeholder="Enter Current KM"
-                value={statusQuery.currentKm}
-                onChange={(e) => setStatusQuery({ ...statusQuery, currentKm: e.target.value })}
-                className="border p-3 rounded-lg w-full focus:ring focus:ring-blue-300"
-              />
-              <button
-                type="submit"
-                className="w-full bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 focus:ring focus:ring-green-300 transition-all"
-              >
-                Check Status
-              </button>
-            </form>
-            {status && (
-  <div className="mt-6 max-w-md mx-auto bg-white shadow-lg rounded-lg p-6 space-y-4">
-    <h4 className="text-2xl font-semibold text-center text-gray-700">Tyre Status</h4>
-    <div className="flex justify-between text-gray-600">
-      <span className="font-medium">Tyre Name:</span>
-      <span>{status.tyreName}</span>
-    </div>
-    <div className="flex justify-between text-gray-600">
-      <span className="font-medium">Vehicle:</span>
-      <span>{status.vehicle}</span>
-    </div>
-    <div className="flex justify-between text-gray-600">
-      <span className="font-medium">Tyre Position:</span>
-      <span>{status.tyrePosition}</span>
-    </div>
-    <div className="flex justify-between text-gray-600">
-      <span className="font-medium">KM Driven:</span>
-      <span>{status.kmDriven} km</span>
-    </div>
-    <div className="flex justify-between text-gray-600">
-      <span className="font-medium"> Remaining KM :</span>
-      <span>{status.remainingLife} km</span>
-    </div>
-    <div className={`${status.remainingLife <25?'text-red-500 flex justify-between' : 'text-green-500 flex justify-between'}`}>
-      <span className="font-medium">Remaining Life:</span>
-      <span >{status.remainingLife}%</span>
-    </div>
-
-    {/* Optional: Add a progress bar for the remaining life */}
-    <div className="w-full bg-gray-200 rounded-full h-2.5 mt-4 flex justify-end">
-    <div
-  className={`${status.remainingLife < 25 ? 'bg-red-500' : 'bg-green-500'} h-2.5 rounded-full`}
-  style={{ width: `${status.remainingLife}%` }}
-></div>
-
+        <button
+          type="submit"
+          className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 focus:ring focus:ring-blue-300 transition-all"
+        >
+          Register Tyre
+        </button>
+      </form>
     </div>
   </div>
 )}
 
+
+      {/* Check Tyre Status Form */}
+      {isCheckStatusModalOpen && (
+  <div className="fixed inset-0 bg-gray-500 bg-opacity-75 flex justify-center items-center z-50">
+    <div className="relative bg-white p-6 shadow-lg rounded-lg w-full md:w-1/2 lg:w-1/3">
+      {/* Close Button */}
+      <button
+        onClick={() => setIsCheckStatusModalOpen(false)}
+        className="absolute top-2 right-2 text-gray-600 hover:text-gray-800 focus:outline-none"
+      >
+        ✕
+      </button>
+      <h3 className="text-xl font-semibold text-gray-700 mb-4">Check Tyre Status</h3>
+      <form
+        className="space-y-6"
+        onSubmit={(e) => {
+          e.preventDefault();
+          checkTyreStatus();
+        }}
+      >
+        <input
+          type="number"
+          placeholder="Enter Current KM"
+          value={statusQuery.currentKm}
+          onChange={(e) => setStatusQuery({ ...statusQuery, currentKm: e.target.value })}
+          className="border p-3 rounded-lg w-full focus:ring focus:ring-blue-300"
+        />
+        <button
+          type="submit"
+          className="w-full bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 focus:ring focus:ring-green-300 transition-all"
+        >
+          Check Status
+        </button>
+      </form>
+      {status && (
+        <div className="mt-6 max-w-md mx-auto bg-white shadow-lg rounded-lg p-6 space-y-4">
+          <h4 className="text-2xl font-semibold text-center text-gray-700">Tyre Status</h4>
+          <div className="flex justify-between text-gray-600">
+            <span className="font-medium">Tyre Name:</span>
+            <span>{status.tyreName}</span>
+          </div>
+          <div className="flex justify-between text-gray-600">
+            <span className="font-medium">Vehicle:</span>
+            <span>{status.vehicle}</span>
+          </div>
+          <div className="flex justify-between text-gray-600">
+            <span className="font-medium">Tyre Position:</span>
+            <span>{status.tyrePosition}</span>
+          </div>
+          <div className="flex justify-between text-gray-600">
+            <span className="font-medium">KM Driven:</span>
+            <span>{status.kmDriven} km</span>
+          </div>
+          <div className="flex justify-between text-gray-600">
+            <span className="font-medium">Remaining KM:</span>
+            <span>{status.remainingLife} km</span>
+          </div>
+          <div
+            className={`${
+              status.remainingLife < 25
+                ? 'text-red-500 flex justify-between'
+                : 'text-green-500 flex justify-between'
+            }`}
+          >
+            <span className="font-medium">Remaining Life:</span>
+            <span>{status.remainingLife}%</span>
+          </div>
+          <div className="w-full bg-gray-200 rounded-full h-2.5 mt-4 flex justify-end">
+            <div
+              className={`${
+                status.remainingLife < 25 ? 'bg-red-500' : 'bg-green-500'
+              } h-2.5 rounded-full`}
+              style={{ width: `${status.remainingLife}%` }}
+            ></div>
           </div>
         </div>
       )}
+    </div>
+  </div>
+)}
+
 
       {/* All Tyres */}
       <div className="bg-white p-6 shadow-lg rounded-lg">
