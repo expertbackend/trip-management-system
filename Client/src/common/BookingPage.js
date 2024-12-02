@@ -220,12 +220,12 @@ const BookingsPage = () => {
       <h1 className="text-3xl font-semibold mb-6">Bookings Overview</h1>
 
       {/* Search and Filter */}
-      <div className="flex items-center justify-between mb-6">
-        <div className="flex items-center gap-4 w-2/3">
+      <div className="flex flex-col sm:flex-row items-center justify-between mb-6 gap-4">
+        <div className="flex flex-col sm:flex-row items-center gap-4 ">
           <input
             type="text"
             placeholder="Search by Customer Name, Driver Name, or Vehicle Name"
-            className="w-full py-3 px-5 text-xl bg-gray-100 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500 placeholder-gray-500 placeholder-opacity-70 transition-all duration-300"
+            className="w-full py-3 px-5 text-sm bg-gray-100 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500 placeholder-gray-500 placeholder-opacity-70 transition-all duration-300 sm:w-auto"
             value={searchQuery}
             onChange={(e) => handleSearch(e.target.value)}
           // className="px-4 py-2 border border-gray-300 rounded-lg w-2/5"
@@ -233,7 +233,7 @@ const BookingsPage = () => {
           <select
             value={statusFilter}
             onChange={(e) => handleFilter(e.target.value)}
-            className="px-4 py-2 border border-gray-300 rounded-lg w-2/5"
+            className="px-4 py-2 border border-gray-300 rounded-lg  w-full sm:w-auto"
           >
             <option value="All">All</option>
             <option value="Completed">Completed</option>
@@ -244,7 +244,7 @@ const BookingsPage = () => {
         </div>
         <button
           onClick={() => handleDownload("all")}
-          className="bg-green-500 text-white px-4 py-2 rounded-lg"
+          className="bg-green-500 text-white px-4 py-2 rounded-lg w-full sm:w-auto"
         >
           Download All Bookings as PDF
         </button>

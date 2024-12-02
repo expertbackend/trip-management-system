@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { jsPDF } from 'jspdf';
 import 'jspdf-autotable';
 import Modal from './Modal'; // Assume Modal is a reusable component
-import { FaCar } from 'react-icons/fa';
+import { FaAlignRight, FaCar, FaCheck } from 'react-icons/fa';
 import axios from 'axios';
 import VehicleModal from '../common/VehicleModal';
 
@@ -243,18 +243,18 @@ const VehicleTable = () => {
 
 
   return (
-    <div className="w-full p-4 bg-white overflow-y-auto max-h-[90vh]">
+    <div className="w-full p-4 bg-white overflow-y-auto ">
       {/* Filter Inputs */}
 
       {/* Modal Buttons */}
-      <div className="flex justify-between items-center mb-4">
-        <button onClick={() => setIsVehicleModalOpen(true)} className="btn btn-primary flex items-center gap-2 p-3 rounded-lg">
+      <div className="flex flex-col gap-3 justify-normal sm:flex-row sm:justify-between items-center mb-4">
+        <button onClick={() => setIsVehicleModalOpen(true)} className="btn btn-primary flex items-center w-full bg-green-600 text-white sm:w-auto gap-2 p-3 rounded-lg">
           <FaCar /> Create Vehicle
         </button>
-        <button onClick={() => setIsVehicleModalOpen1(true)} className="btn btn-secondary flex items-center gap-2 p-3 rounded-lg">
-          Assign Vehicle
+        <button onClick={() => setIsVehicleModalOpen1(true)} className="btn btn-secondary flex items-center gap-2 bg-blue-600 text-white w-full sm:w-auto p-3 rounded-lg">
+          <FaCheck/>Assign Vehicle
         </button>
-        <button onClick={downloadPDF} className="bg-red-500 text-white px-4 py-2 rounded-lg flex items-center">
+        <button onClick={downloadPDF} className="bg-red-500 text-white w-full sm:w-auto px-4 py-2 rounded-lg flex items-center">
           <span className="mr-2">&#128196;</span> PDF
         </button>
       </div>
@@ -329,7 +329,7 @@ const VehicleTable = () => {
         </form>
       </Modal>
 
-      <div className="flex gap-4 mb-6">
+      <div className="flex flex-col sm:flex-row gap-4 mb-6">
         <div className="relative flex-1">
           <input
             type="text"
@@ -340,19 +340,19 @@ const VehicleTable = () => {
           />
           <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">&#128269;</span>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-col sm:flex-row items-center gap-2">
           <input
             type="date"
             value={startDate}
             onChange={(e) => setStartDate(e.target.value)}  // Updates the start date
-            className="border rounded-lg px-4 py-2 focus:outline-none"
+            className="border w-full sm:w-auto rounded-lg px-4 py-2 focus:outline-none bg-gray-50"
           />
           <span className="text-sm font-medium">TO</span>
           <input
             type="date"
             value={endDate}
             onChange={(e) => setEndDate(e.target.value)}  // Updates the end date
-            className="border rounded-lg px-4 py-2 focus:outline-none"
+            className="border rounded-lg px-4 py-2 focus:outline-none w-full sm:w-auto bg-gray-50"
           />
         </div>
       </div>
@@ -434,7 +434,7 @@ const VehicleTable = () => {
 
 
       {/* Pagination */}
-      <div className="flex justify-center mt-4">
+      <div className="flex flex-col sm:flex-row justify-center mt-4 gap-3">
         <button
           onClick={() => paginate(currentPage - 1)}
           disabled={currentPage === 1}

@@ -59,9 +59,9 @@ const TripReport = () => {
   }, []);
 
   return (
-    <div className="mx-auto bg-white shadow-md  rounded overflow-y-auto max-h-[90vh] p-6">
+    <div className=" p-4">
       <h1 className="text-2xl font-bold mb-4">Vehicle-Wise Trip Report</h1>
-      <div className="grid grid-cols-4 gap-4 mb-4">
+      <div className="grid  sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
         {/* Vehicle Selection */}
         <div>
           <label htmlFor="vehicleId" className="block text-sm font-medium text-gray-700">
@@ -71,7 +71,7 @@ const TripReport = () => {
             id="vehicleId"
             value={vehicleId}
             onChange={(e) => setVehicleId(e.target.value)}
-            className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+            className="mt-1 block w-full border border-1 border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 h-10 bg-gray-50"
           >
             <option value="">Select Vehicle</option>
             {vehicleLoading ? (
@@ -94,7 +94,7 @@ const TripReport = () => {
             id="period"
             value={period}
             onChange={(e) => setPeriod(e.target.value)}
-            className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+            className="mt-1 block w-full  border border-1 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 h-10 bg-gray-50 border-gray-300"
           >
             <option value="day">Day</option>
             <option value="week">Week</option>
@@ -111,7 +111,7 @@ const TripReport = () => {
             id="startDate"
             value={startDate}
             onChange={(e) => setStartDate(e.target.value)}
-            className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+            className="mt-1 block w-full border border-1 border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 h-10 bg-gray-50"
           />
         </div>
         {/* End Date */}
@@ -124,7 +124,7 @@ const TripReport = () => {
             id="endDate"
             value={endDate}
             onChange={(e) => setEndDate(e.target.value)}
-            className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+            className="mt-1 block w-full border border-1 border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 h-10 bg-gray-50"
           />
         </div>
       </div>
@@ -138,7 +138,8 @@ const TripReport = () => {
 
       {/* Report Table */}
       {report && (
-        <div className="mt-6">
+        <div className="mt-6 overflow-hidden">
+          <div className="overflow-x-auto">
           <h2 className="text-xl font-semibold mb-4">Report Summary</h2>
           <table className="min-w-full bg-white">
             <thead className="bg-gray-50">
@@ -168,6 +169,8 @@ const TripReport = () => {
               </tr>
             </tbody>
           </table>
+          </div>
+          <div className="overflow-x-auto">
 
           <h2 className="text-xl font-semibold mt-6 mb-4">Trip Details</h2>
           <table className="min-w-full bg-white">
@@ -198,8 +201,12 @@ const TripReport = () => {
               ))}
             </tbody>
           </table>
-        </div>
+          </div>
+      </div>
+          
+        
       )}
+      
     </div>
   );
 };

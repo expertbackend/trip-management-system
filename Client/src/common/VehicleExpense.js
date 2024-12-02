@@ -132,7 +132,7 @@ const ExpenseManagement = () => {
     {error && <p className="text-xl text-red-500 text-center">{error}</p>}
   
     {/* Filter Section */}
-    <div className="filter-section mb-6 flex justify-between items-center">
+    <div className="filter-section mb-6 flex flex-col sm:flex-row gap-4 justify-between items-center">
       <label className="text-lg font-medium text-gray-600">Filter by:</label>
       <select
         value={dateRange}
@@ -171,24 +171,24 @@ const ExpenseManagement = () => {
     </div>
   
     {/* Summary Cards */}
-    <div className="summary-cards grid grid-cols-3 gap-6 mb-8">
+    <div className="summary-cards grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
       {/* Total Expenses Card */}
-      <div className="card bg-gradient-to-r from-teal-400 via-blue-500 to-indigo-600 text-white p-6 rounded-lg shadow-lg text-center transition-all transform hover:scale-105 hover:shadow-xl">
+      <div className="card bg-green-500 text-white p-6 rounded-lg shadow-lg text-center transition-all transform hover:scale-105 hover:shadow-xl">
         <h3 className="text-xl font-semibold mb-3">Total Expenses</h3>
         <p className="text-3xl font-bold">₹ {totalExpense}</p>
       </div>
-      <div className="card bg-gradient-to-r from-teal-400 via-blue-500 to-indigo-600 text-white p-6 rounded-lg shadow-lg text-center transition-all transform hover:scale-105 hover:shadow-xl">
+      <div className="card bg-yellow-600 text-white p-6 rounded-lg shadow-lg text-center transition-all transform hover:scale-105 hover:shadow-xl">
         <h3 className="text-xl font-semibold mb-3">Total Recieved Amount</h3>
         <p className="text-3xl font-bold">₹ {totalReceivedAmount}</p>
       </div>
       {/* Total Profit Card */}
-      <div className="card bg-gradient-to-r from-green-400 to-blue-500 text-white p-6 rounded-lg shadow-lg text-center transition-all transform hover:scale-105 hover:shadow-xl">
+      <div className="card bg-blue-900 text-white p-6 rounded-lg shadow-lg text-center transition-all transform hover:scale-105 hover:shadow-xl">
         <h3 className="text-xl font-semibold mb-3">Total Profit By Bookings</h3>
         <p className="text-3xl font-bold">₹ {totalProfit}</p>
       </div>
   
       {/* Final Profit Card */}
-      <div className="card bg-gradient-to-r from-purple-700 to-pink-500 text-white p-6 rounded-lg shadow-lg text-center transition-all transform hover:scale-105 hover:shadow-xl">
+      <div className="card bg-purple-700 text-white p-6 rounded-lg shadow-lg text-center transition-all transform hover:scale-105 hover:shadow-xl">
         <h3 className="text-xl font-semibold mb-3">Final Profit After Expense</h3>
         <p className="text-3xl font-bold">₹ {finalProfit}</p>
       </div>
@@ -197,16 +197,16 @@ const ExpenseManagement = () => {
     {/* Chart Section */}
     <div className="charts grid grid-cols-1 sm:grid-cols-2 gap-6">
       {/* Pie Chart */}
-      <div className="bg-gradient-to-r from-pink-500 via-red-500 to-orange-500 p-4 border rounded-lg shadow-2xl transition-all transform hover:scale-105 hover:shadow-xl w-full h-[300px] flex flex-col justify-between">
-        <h3 className="text-2xl font-semibold text-white mb-4">Expenses by Category (Pie Chart)</h3>
+      <div className=" p-4 border rounded-lg shadow-2xl transition-all transform hover:scale-105 hover:shadow-xl w-full h-[300px] flex flex-col justify-between">
+        <h3 className="text-2xl font-semibold text-black mb-4 text-center">Expenses by Category (Pie Chart)</h3>
         <div className="relative w-full h-full">
           <Pie data={pieChartData} options={{ responsive: true, maintainAspectRatio: false }} />
         </div>
       </div>
   
       {/* Bar Chart */}
-      <div className="bg-gradient-to-r from-indigo-600 via-blue-500 to-teal-400 p-4 border rounded-lg shadow-2xl transition-all transform hover:scale-105 hover:shadow-xl w-full h-[300px] flex flex-col justify-between">
-        <h3 className="text-2xl font-semibold text-white mb-4">Expenses by Category (Bar Chart)</h3>
+      <div className=" p-4 border rounded-lg shadow-2xl transition-all transform hover:scale-105 hover:shadow-xl w-full h-[300px] flex flex-col justify-between">
+        <h3 className="text-2xl font-semibold text-black text-center mb-4">Expenses by Category (Bar Chart)</h3>
         <div className="relative w-full h-full">
           <Bar data={barChartData} options={{ responsive: true, maintainAspectRatio: false }} />
         </div>

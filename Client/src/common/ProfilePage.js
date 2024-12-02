@@ -153,7 +153,7 @@ const ProfilePage = () => {
   }
 
   return (
-    <div className="p-6 overflow-y-auto max-h-[90vh]">
+    <div className="p-6 overflow-y-scroll min-h-[100vh]">
       <div className="flex flex-col items-center">
         <Avatar name={profileData.name} size="100" round className="shadow-md" />
         <h1 className="text-2xl font-bold mt-4">{profileData.name}</h1>

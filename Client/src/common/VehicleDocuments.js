@@ -147,30 +147,32 @@ const VehicleDocuments = () => {
   };
 
   return (
-    <div className="max-w-4xl mx-auto p-6 bg-white rounded-lg shadow-md">
+    <div className=" p-3 bg-white rounded-lg shadow-md ">
       <h2 className="text-2xl font-bold text-gray-800 mb-4">
         Vehicle Documents
       </h2>
 
       {/* Search and Download Buttons */}
-      <div className="flex justify-between items-center mb-4">
+      <div className="flex flex-col sm:flex-row justify-between items-center mb-4 gap-4">
         <input
           type="text"
           placeholder="Search documents..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          className="border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring focus:ring-blue-300"
+          className=" w-full sm:w-auto border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring focus:ring-blue-300"
         />
         <button
           onClick={handleDownloadPDF}
-          className="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600"
+          className="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600 w-full sm:w-auto"
         >
           Download PDF
         </button>
       </div>
 
       {/* Document Table */}
-      <table className="w-full border-collapse border border-gray-300">
+      <div className="w-full overflow-hidden">
+        <div className="overflow-scroll">
+      <table className="w-full border-collapse border border-gray-300 ">
         <thead>
           <tr className="bg-gray-100">
           <th className="border border-gray-300 px-4 py-2">Sl.NO</th>
@@ -225,6 +227,8 @@ const VehicleDocuments = () => {
           ))}
         </tbody>
       </table>
+      </div>
+      </div>
 
       {/* Pagination */}
       <div className="flex justify-between mt-4">

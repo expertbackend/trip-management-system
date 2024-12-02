@@ -140,11 +140,11 @@ const tokenId = localStorage.getItem('tokenId')
   const unreadRemindersCount = reminders.filter((reminder) => !reminder.read).length;
 
   return (
-    <div className="w-full h-16 bg-gray-900 text-white flex items-center justify-end px-4 shadow-md relative">
+    <div className="w-full h-16 bg-gray-50 text-black flex items-center justify-end px-4 shadow-md  relative">
       {/* Notification Icon */}
       <div className="relative">
         <button onClick={toggleNotifications} className="relative">
-          <FaBell className="text-2xl sm:text-xl text-white cursor-pointer" />
+          <FaBell className="text-2xl sm:text-xl text-black cursor-pointer" />
           {unreadNotificationsCount > 0 && (
             <span className="absolute top-0 right-0 inline-flex items-center justify-center w-4 h-4 text-xs font-bold leading-none text-red-100 bg-red-600 rounded-full">
               {unreadNotificationsCount}
