@@ -53,7 +53,7 @@ const Announcements = () => {
     }
 
     // Initialize WebSocket connection
-    const ws = new WebSocket('wss://tms.tripchallanbook.in/:8080'); // Use your WebSocket server URL
+    const ws = new WebSocket('wss://trip-management-system-1.onrender.com');
 
     // On connection open
     ws.onopen = () => {

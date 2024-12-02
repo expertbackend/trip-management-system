@@ -1,11 +1,22 @@
-const WebSocket = require("ws");
-const mongoose = require("mongoose");
-const cron = require("node-cron");
-const vehicleDocument = require("./models/vehicleDocument"); // Assuming this file exists in your project
-const Reminder = require("./models/Remainder");
+const WebSocket = require('ws');  // Import WebSocket library
+const mongoose = require('mongoose');
+const cron = require('node-cron');
+const vehicleDocument = require('./models/vehicleDocument'); // Assuming this file exists in your project
+const Reminder = require('./models/Remainder');
 
-// Set up WebSocket server
-const wss = new WebSocket.Server({ port: 8080 });
+// Set up WebSocket server with origin check
+const wss = new WebSocket.Server({
+  port: 8080,
+  verifyClient: (info, done) => {
+    const origin = info.origin; // Extract the origin of the WebSocket request
+    // Allow connections only from your frontend domain
+    if (origin === 'https://tms.tripchallanbook.in') {
+      done(true);  // Accept the connection
+    } else {
+      done(false, 401, 'Unauthorized');  // Reject the connection if the origin is not allowed
+    }
+  }
+});
 
 // Store WebSocket clients and their tokenId
 const clients = new Map();
@@ -42,7 +53,7 @@ wss.on('connection', (ws) => {
   });
 });
 
-// Cron job to send reminders every 5 seconds
+// Cron job to send reminders every 10 seconds
 cron.schedule("*/10 * * * * *", async () => {
   const today = new Date();
   console.log("Running cron job at:", today);
@@ -63,19 +74,13 @@ cron.schedule("*/10 * * * * *", async () => {
         // Create a stylish reminder message
         const reminderData = {
           type: "reminder",
-          message: `
-            🚗 **Reminder for Your Vehicle!** 🚗
-
-            **Vehicle Number:** ${reminder.vehicleId.plateNumber}
-            **Document Type:** ${reminder.documentType}
-            **Reminder Date:** ${reminder.reminderDate.toLocaleDateString()}
-
-            ⚠️ Your ${reminder.documentType} will expire soon! Please make sure to renew it before the expiration date.
-
-            📅 **Expiry Date:** ${reminder.expiryDate.toLocaleDateString()}
-
-            🔧 Stay Safe on the Road! 🛠️
-          `
+          message: `🚗 **Reminder for Your Vehicle!** 🚗\n
+            **Vehicle Number:** ${reminder.vehicleId.plateNumber}\n
+            **Document Type:** ${reminder.documentType}\n
+            **Reminder Date:** ${reminder.reminderDate.toLocaleDateString()}\n
+            ⚠️ Your ${reminder.documentType} will expire soon! Please make sure to renew it before the expiration date.\n
+            📅 **Expiry Date:** ${reminder.expiryDate.toLocaleDateString()}\n
+            🔧 Stay Safe on the Road! 🛠️`
         };
 
         // Check if the WebSocket client is still open and send the reminder

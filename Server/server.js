@@ -149,6 +149,7 @@ app.use('/api/firebase',fireBaseRoutes)
 //     })
 // })
 // Start the server
+
 const PORT =  4001;
 server.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);

@@ -47,7 +47,11 @@ function App() {
       auth: { token },
     })
   ).current;
+  socket.on('reminder', (data) => {
+    console.log('New reminder received:', data);
 
+    
+  });
   // Fetch FCM Token
   useEffect(() => {
     const fetchToken = async () => {
