@@ -63,6 +63,7 @@ const UserModal = ({ isOpen, onClose, user, mode }) => {
 
       if (response.status === 200) {
         alert("User updated successfully!");
+        window.location.reload();
         onClose();
       }
     } catch (error) {

@@ -44,7 +44,7 @@ const VehicleDocuments = () => {
   }, []);
 
   useEffect(() => {
-    const filtered = documents?.filter((doc) =>
+    const filtered = (Array.isArray(documents) ? documents : []).filter((doc) =>
       doc.documentType?.toLowerCase().includes(searchQuery.toLowerCase()) ||
     doc.vehicleId.plateNumber?.toLowerCase().includes(searchQuery.toLocaleLowerCase())
     );
@@ -117,10 +117,11 @@ const VehicleDocuments = () => {
     }
   };
 
-  const paginatedDocuments = filteredDocuments?.slice(
+  const paginatedDocuments = (Array.isArray(filteredDocuments) ? filteredDocuments : []).slice(
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
   );
+  
   const openUpdatePopup = (doc) => {
     setSelectedDoc(doc);
     setShowPopup(true);

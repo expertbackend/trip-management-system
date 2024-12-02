@@ -23,6 +23,7 @@ const tyreSchema = new mongoose.Schema({
     purchaseFrom: { type: String, required: true },
     createdAt: { type: Date, default: Date.now },
     updatedAt: { type: Date, default: Date.now },
+    ownerId:{type:mongoose.Schema.Types.ObjectId,ref:'User'}
 });
 
 module.exports = mongoose.model('Tyre', tyreSchema);

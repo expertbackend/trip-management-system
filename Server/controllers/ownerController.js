@@ -131,12 +131,14 @@ exports.getPlans = async (req, res) => {
 
         // Check if the owner has reached the max vehicle limit for their plan
         if (owner.vehicleCount >= owner.maxVehicles) {
-            return res.status(400).json({ message: `You can only add up to ${owner.maxVehicles} vehicles with your current plan.` });
-        }
+            return res.status(400).json({
+                message: `You’ve reached the vehicle limit for your current plan. You can add up to ${owner.maxVehicles} vehicles. To add more, please consider upgrading to a higher plan.`
+              });
+                      }
 
         // Add vehicle logic
         const { name, plateNumber } = req.body;
-        const vehicle = new Vehicle({ name, plateNumber, owner: owner._id, status: "created" });
+        const vehicle = new Vehicle({ name, plateNumber, owner: owner._id, status: "created" ,createdAt1:new Date()});
         await vehicle.save();
 
         // Increment vehicle count for the owner
@@ -273,7 +275,8 @@ exports.getAllVehicles = async (req, res) => {
 // Get all drivers
 exports.findDrivers = async (req, res) => {
     try {
-        const drivers = await User.find({ role: 'driver',status:'active' }).select('name email vehicle');
+        const userId = req.user._id;
+        const drivers = await User.find({ role: 'driver',status:'active',ownerId:userId }).select('name email vehicle');
 
         if (!drivers || drivers.length === 0) {
             return res.status(404).json({ message: 'No drivers found.' });

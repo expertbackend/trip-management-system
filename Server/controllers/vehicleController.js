@@ -10,7 +10,7 @@ exports.addVehicle = async (req, res) => {
     if (!subscription || !subscription.isActive || subscription.vehicleLimit <= 0)
       return res.status(400).json({ message: "Subscription not active or vehicle limit reached" });
 
-    const newVehicle = new Vehicle({ owner: ownerId, registrationNumber, model });
+    const newVehicle = new Vehicle({ owner: ownerId, registrationNumber, model,createdAt: new Date() });
     await newVehicle.save();
 
     subscription.vehicleLimit -= 1;

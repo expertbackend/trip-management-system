@@ -190,13 +190,13 @@ return <Navigate to ="/login"/>
   }
 
   return (
-    <div className="app flex max-h-[100vh] overflow-scroll ">
+    <div className="w-screen h-screen flex overflow-hidden ">
       {permissionDenied ? (
         <div>Please allow location permission to use this website.</div>
       ) : (
         <>
           {!isAuthPage && <Sidebar role={role} notifications={notifications} username={name}/>}
-          <div className="content flex-grow overflow-scroll">
+          <div className="w-full overflow-scroll">
             {!isAuthPage && (
               <Header notifications={notifications} clearNotifications={clearNotifications} />
             )}

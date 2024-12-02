@@ -10,7 +10,12 @@ const vehicleService = require("../models/vehicleService");
 // Register a new tyre
 exports.registerTyre = async (req, res) => {
     const { tyreBrand,tyreSerielNo,tyreAmount,purchaseFrom, vehicleId, tyrePosition, tyreMileage, installedAtKm } = req.body;
-
+let ownerId;
+if (req.user.role === 'owner') {
+  ownerId = req.user._id;
+} else {
+  ownerId = req.user.ownerId;
+}
     try {
         // Check if the vehicle exists
         const vehicle = await Vehicle.findById(vehicleId);
@@ -27,13 +32,14 @@ exports.registerTyre = async (req, res) => {
             installedAtKm,
             tyreSerielNo,
             tyreAmount,
-            purchaseFrom
+            purchaseFrom,
+            ownerId:ownerId
         });
 
         await tyre.save();
         res.status(201).json({ message: 'Tyre registered successfully', tyre });
     } catch (error) {
-
+console.log('error',error.message)
         res.status(500).json({ error: 'Error registering tyre', details: error.message });
     }
 };
@@ -73,8 +79,14 @@ exports.checkTyreStatus = async (req, res) => {
 
 exports.getAllTyres = async (req, res) => {
     try {
+      let ownerId;
+      if (req.user.role === 'owner') {
+        ownerId = req.user._id;
+      } else {
+        ownerId = req.user.ownerId;
+      }
         // Fetch all tyres with vehicle information
-        const tyres = await Tyre.find()
+        const tyres = await Tyre.find({ownerId:ownerId})
             .populate('vehicle', 'plateNumber') // Populates vehicle plate number
             .sort({ createdAt: -1 }); // Optional: Sort by most recently created
 
@@ -90,7 +102,12 @@ exports.getAllTyres = async (req, res) => {
 
 exports.createVehicleDocument = async (req, res) => {
     try {
-      const userId = req.user._id;
+      let userId;
+      if (req.user.role === 'owner') {
+        userId = req.user._id;
+      } else {
+        userId = req.user.ownerId;
+      }
       const { vehicleId, documentType, expiryDate, reminderDate, description,amount,isDailyReminder } = req.body;
       const document = new vehicleDocument({
         vehicleId,
@@ -112,10 +129,27 @@ exports.createVehicleDocument = async (req, res) => {
   exports.getVehicleDocuments = async (req, res) => {
     try {
       const { vehicleId } = req.query; // Optional filter by vehicleId
-      const query = vehicleId ? { vehicleId } : {}; // Filter if vehicleId is provided
-  
+      let userId;
+      
+      // Determine the userId based on role
+      if (req.user.role === 'owner') {
+        userId = req.user._id;
+      } else {
+        userId = req.user.ownerId;
+      }
+      
+      // Build the query
+      const query = { userId: userId }; // Include userId in the query
+      if (vehicleId) {
+        query.vehicleId = vehicleId; // Add vehicleId filter if provided
+      }
+      console.log('query',query)
+      // Fetch documents and populate vehicleId
       const documents = await vehicleDocument.find(query).populate('vehicleId');
-      res.status(200).json(documents);
+      console.log('doc',documents)
+      // Return the response
+      res.status(200).json( documents );
+      
     } catch (error) {
       res.status(500).json({ error: error.message });
     }
@@ -155,6 +189,12 @@ exports.createVehicleDocument = async (req, res) => {
 
 exports.createVehicleService = async (req, res) => {
   try {
+    let userId;
+      if (req.user.role === 'owner') {
+        userId = req.user._id;
+      } else {
+        userId = req.user.ownerId;
+      }
     const { vehicleId, serviceType, serviceDate, odometerReading, amount, companyName, description,servicingMileage
     } = req.body;
     const service = new vehicleService({
@@ -165,7 +205,8 @@ exports.createVehicleService = async (req, res) => {
       amount,
       companyName,
       description,
-      servicingMileage
+      servicingMileage,
+      userId
 
     });
     await service.save();
@@ -177,7 +218,13 @@ exports.createVehicleService = async (req, res) => {
 
 exports.getAllVehicleServices = async (req, res) => {
   try {
-    const services = await vehicleService.find().populate('vehicleId'); // Retrieve all services from the vehicleService collection
+    let userId;
+    if (req.user.role === 'owner') {
+      userId = req.user._id;
+    } else {
+      userId = req.user.ownerId;
+    }
+    const services = await vehicleService.find({userId:userId}).populate('vehicleId'); // Retrieve all services from the vehicleService collection
     res.status(200).json(services); // Send the services as the response
   } catch (error) {
     res.status(400).json({ error: error.message }); // If an error occurs, return a 400 response
@@ -324,13 +371,12 @@ exports.calculateProfit = async (req, res) => {
 
 exports.getReminders = async (req, res) => {
   try {
-    const { userId, status } = req.query;  // You can filter by userId or status
 
+const userId = req.user._id
     // Build query object based on filters
     const query = {};
     if (userId) query.userId = userId;  // Filter reminders by user ID
-    if (status) query.status = status;  // Filter reminders by status
-
+console.log('query',query)
     // Fetch all reminders matching the query
     const reminders = await Reminder.find(query)
      

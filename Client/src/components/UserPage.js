@@ -290,7 +290,7 @@ const filteredUsers = users.filter((user) =>
     className="w-full mt-2 p-2 border border-gray-300 rounded-md"
   />
   <p className="text-red-500 text-sm mt-1">
-    {newUser.phoneNumber && !/^[789]\d{9}$/.test(newUser.phoneNumber) && "Please enter a valid Indian phone number starting with 7, 8, or 9."}
+    {newUser.phoneNumber && !/^[6789]\d{9}$/.test(newUser.phoneNumber) && "Please enter a valid Indian phone number starting with 7, 8, or 9."}
   </p>
 </div>
 

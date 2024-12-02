@@ -140,6 +140,9 @@ const VehicleTable = () => {
   };
   function formatDateTime(dateString) {
     const date = new Date(dateString);
+    if (isNaN(date)) {
+      return "Not Given Date"; // Fallback if date is invalid
+  }
     const options = {
       year: 'numeric',
       month: 'short', // Use 'long' for full month name or '2-digit' for numeric
@@ -405,7 +408,7 @@ const VehicleTable = () => {
                   </div>
                 </td>
                 <td className="px-4 py-2 text-sm text-gray-900">
-                  {formatDateTime(vehicle.createdAt)}
+                  {formatDateTime(vehicle.createdAt1||"Not Given Date ")||"Not Given Date "}
                 </td>
                 <td className="px-4 py-2">
                   <div className="flex gap-2">

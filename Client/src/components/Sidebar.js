@@ -73,19 +73,20 @@ function Sidebar({ role, notifications,username }) {
   return (
     <div
     className={`${
-      isOpen ? "w-64" : "w-16"
-    } h-full bg-gradient-to-b from-indigo-600 to-purple-700 text-white transition-all duration-300 ease-in-out flex flex-col shadow-lg`}
+      isOpen ? "w-64" : "w-20"
+    } h-full bg-white text-white transition-all duration-300 ease-in-out flex flex-col shadow-lg overflow-hidden border-r-2`}
   >
+    <div className='h-full overflow-y-auto p-1'>
     {/* Header Section */}
-    <div className="flex justify-between items-center p-4">
+    <div className="absolute top-0 left-0 right-0 bg-white flex justify-between items-center p-4">
       <button
         onClick={toggleSidebar}
-        className="text-2xl text-[#ffffff] p-2 rounded-full shadow-md transition-transform transform hover:scale-110"
+        className="text-2xl text-blue-800 p-2 rounded-full shadow-md transition-transform transform hover:scale-110"
       >
         {isOpen ? <FaTimes /> : <FaBars />}
       </button>
 
-      <div className="relative">
+      <div className="relative overflow-y-auto">
         {/* <button
           onClick={toggleNotifications}
           className="flex items-center p-3 rounded-lg transition-colors hover:bg-white hover:text-black"
@@ -121,7 +122,7 @@ function Sidebar({ role, notifications,username }) {
     </div>
 
     {/* Navigation Links */}
-    <ul className="flex flex-col space-y-2 mt-4">
+    <ul className="flex flex-col space-y-2 mt-20">
     {(role === 'owner' || role === 'operator') && (
         <>
       <li>
@@ -129,8 +130,8 @@ function Sidebar({ role, notifications,username }) {
           to="/details"
           className={`flex items-center p-3 rounded-lg transition-colors ${
             activeLink === "home"
-              ? "bg-white text-black"
-              : "text-white hover:bg-white hover:text-black"
+              ? "bg-blue-600 text-white"
+              : "text-black hover:bg-gray-300 hover:text-black"
           }`}
           onClick={() => handleLinkClick("home")}
         >
@@ -148,8 +149,8 @@ function Sidebar({ role, notifications,username }) {
               to="/announcement"
               className={`flex items-center p-3 rounded-lg transition-colors ${
                 activeLink === "announcement"
-                  ? "bg-white text-black"
-                  : "text-white hover:bg-white hover:text-black"
+                  ? "bg-blue-600 text-white"
+              : "text-black hover:bg-gray-300 hover:text-black"
               }`}
               onClick={() => handleLinkClick("announcement")}
             >
@@ -162,8 +163,8 @@ function Sidebar({ role, notifications,username }) {
               to="/fms"
               className={`flex items-center p-3 rounded-lg transition-colors ${
                 activeLink === "fms"
-                  ? "bg-white text-black"
-                  : "text-white hover:bg-white hover:text-black"
+                  ? "bg-blue-600 text-white"
+              : "text-black hover:bg-gray-300 hover:text-black"
               }`}
               onClick={() => handleLinkClick("fms")}
             >
@@ -177,8 +178,8 @@ function Sidebar({ role, notifications,username }) {
               to="/owner-dashboard"
               className={`flex items-center p-3 rounded-lg transition-colors ${
                 activeLink === "owner"
-                  ? "bg-white text-black"
-                  : "text-white hover:bg-white hover:text-black"
+                 ? "bg-blue-600 text-white"
+              : "text-black hover:bg-gray-300 hover:text-black"
               }`}
               onClick={() => handleLinkClick("owner")}
             >
@@ -191,8 +192,8 @@ function Sidebar({ role, notifications,username }) {
               to="/trip-report"
               className={`flex items-center p-3 rounded-lg transition-colors ${
                 activeLink === "trip-report"
-                  ? "bg-white text-black"
-                  : "text-white hover:bg-white hover:text-black"
+                  ? "bg-blue-600 text-white"
+              : "text-black hover:bg-gray-300 hover:text-black"
               }`}
               onClick={() => handleLinkClick("trip-report")}
             >
@@ -205,8 +206,8 @@ function Sidebar({ role, notifications,username }) {
               to="/vehicle"
               className={`flex items-center p-3 rounded-lg transition-colors ${
                 activeLink === "vehicle"
-                  ? "bg-white text-black"
-                  : "text-white hover:bg-white hover:text-black"
+                  ? "bg-blue-600 text-white"
+              : "text-black hover:bg-gray-300 hover:text-black"
               }`}
               onClick={() => handleLinkClick("vehicle")}
             >
@@ -219,8 +220,8 @@ function Sidebar({ role, notifications,username }) {
               to="/user"
               className={`flex items-center p-3 rounded-lg transition-colors ${
                 activeLink === "user"
-                  ? "bg-white text-black"
-                  : "text-white hover:bg-white hover:text-black"
+                  ? "bg-blue-600 text-white"
+              : "text-black hover:bg-gray-300 hover:text-black"
               }`}
               onClick={() => handleLinkClick("user")}
             >
@@ -263,8 +264,8 @@ function Sidebar({ role, notifications,username }) {
                   to="/add-expense"
                   className={`flex items-center p-3 rounded-lg transition-colors ${
                     activeLink === "create-expense"
-                      ? "bg-white text-black"
-                      : "text-white hover:bg-white hover:text-black"
+                      ? "bg-blue-600 text-white"
+              : "text-black hover:bg-gray-300 hover:text-black"
                   }`}
                   onClick={() => handleLinkClick("create-expense")}
                 >
@@ -277,8 +278,8 @@ function Sidebar({ role, notifications,username }) {
                   to="/view-expense"
                   className={`flex items-center p-3 rounded-lg transition-colors ${
                     activeLink === "view-expense"
-                      ? "bg-white text-black"
-                      : "text-white hover:bg-white hover:text-black"
+                      ? "bg-blue-600 text-white"
+              : "text-black hover:bg-gray-300 hover:text-black"
                   }`}
                   onClick={() => handleLinkClick("view-expense")}
                 >
@@ -297,8 +298,8 @@ function Sidebar({ role, notifications,username }) {
             to="/driver-dashboard"
             className={`flex items-center p-3 rounded-lg transition-colors ${
               activeLink === "driver-dashboard"
-                ? "bg-white text-black"
-                : "text-white hover:bg-white hover:text-black"
+                ? "bg-blue-600 text-white"
+              : "text-black hover:bg-gray-300 hover:text-black"
             }`}
             onClick={() => handleLinkClick("driver-dashboard")}
           >
@@ -313,8 +314,8 @@ function Sidebar({ role, notifications,username }) {
             to="/SuperAdmin"
             className={`flex items-center p-3 rounded-lg transition-colors ${
               activeLink === "SuperAdmin"
-                ? "bg-white text-black"
-                : "text-white hover:bg-white hover:text-black"
+                ? "bg-blue-600 text-white"
+              : "text-black hover:bg-gray-300 hover:text-black"
             }`}
             onClick={() => handleLinkClick("SuperAdmin")}
           >
@@ -355,8 +356,8 @@ function Sidebar({ role, notifications,username }) {
                   to="/create-booking"
                   className={`flex items-center p-3 rounded-lg transition-colors ${
                     activeLink === "create-booking"
-                      ? "bg-white text-black"
-                      : "text-white hover:bg-white hover:text-black"
+                     ? "bg-blue-600 text-white"
+              : "text-black hover:bg-gray-300 hover:text-black"
                   }`}
                   onClick={() => handleLinkClick("create-booking")}
                 >
@@ -369,8 +370,8 @@ function Sidebar({ role, notifications,username }) {
                   to="/view-booking"
                   className={`flex items-center p-3 rounded-lg transition-colors ${
                     activeLink === "view-booking"
-                      ? "bg-white text-black"
-                      : "text-white hover:bg-white hover:text-black"
+                     ? "bg-blue-600 text-white"
+              : "text-black hover:bg-gray-300 hover:text-black"
                   }`}
                   onClick={() => handleLinkClick("view-booking")}
                 >
@@ -383,8 +384,8 @@ function Sidebar({ role, notifications,username }) {
                   to="/assign-booking"
                   className={`flex items-center p-3 rounded-lg transition-colors ${
                     activeLink === "assign-booking"
-                      ? "bg-white text-black"
-                      : "text-white hover:bg-white hover:text-black"
+                      ? "bg-blue-600 text-white"
+              : "text-black hover:bg-gray-300 hover:text-black"
                   }`}
                   onClick={() => handleLinkClick("assign-booking")}
                 >
@@ -431,13 +432,14 @@ onClick={handleProfileClick}
       <li>
         <button
           onClick={handleLogout}
-          className="flex items-center p-3 rounded-lg transition-colors hover:bg-white hover:text-black w-full"
+          className="flex items-center p-3 rounded-lg transition-colors text-black hover:bg-gray-300 hover:text-black w-full"
         >
           <FaSignOutAlt className="text-xl" />
           {isOpen && <span className="ml-4">Logout</span>}
         </button>
       </li>
     </ul>
+    </div>
   </div>
   );
 }
