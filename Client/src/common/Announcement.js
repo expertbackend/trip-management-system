@@ -124,7 +124,7 @@ const Announcements = () => {
 
   return (
     <div className="announcement-page bg-gradient-to-b from-white to-blue-100 min-h-screen p-8 flex flex-col items-center">
-    <h1 className="text-4xl font-extrabold text-center mb-10 text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600 animate-fade-in">
+    <h1 className="text-3xl font-extrabold text-center mb-10 text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600 animate-fade-in">
       🚀 Real-Time Announcements
     </h1>
   
@@ -159,22 +159,22 @@ const Announcements = () => {
             </div>
   
             {/* Pagination Controls */}
-            <div className="pagination mt-10 flex justify-center items-center space-x-4">
+            <div className="pagination mt-10 flex flex-col sm:flex-row justify-center items-center ">
               <button
                 onClick={() => handlePageChange(currentPage - 1)}
                 disabled={currentPage === 1}
-                className="px-6 py-2 bg-blue-500 text-white rounded-l-lg shadow-md hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
+                className="px-6 py-2 bg-blue-500 text-white rounded-lg shadow-md hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
               >
                 Previous
               </button>
-              <span className="px-4 py-2 text-gray-700 text-lg">
+              <span className="px-4 py-2 text-gray-700 text-sm">
                 Page <span className="font-bold text-gray-800">{currentPage}</span> of{' '}
                 <span className="font-bold text-gray-800">{totalPages}</span>
               </span>
               <button
                 onClick={() => handlePageChange(currentPage + 1)}
                 disabled={currentPage === totalPages}
-                className="px-6 py-2 bg-blue-500 text-white rounded-r-lg shadow-md hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
+                className="px-6 py-2 bg-blue-500 text-white rounded-lg shadow-md hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
               >
                 Next
               </button>

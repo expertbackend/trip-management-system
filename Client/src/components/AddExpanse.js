@@ -65,8 +65,8 @@ function AddExpenses() {
   };
 
   return (
-    <div className="flex justify-center items-center bg-gray-100 py-8 px-4 overflow-y-auto max-h-[90vh]">
-      <div className="bg-white shadow-lg rounded-lg p-8 w-full max-w-lg">
+    <div className="flex justify-center items-center bg-gray-100 py-8 px-4 overflow-y-auto ">
+      <div className="bg-white shadow-lg rounded-lg p-8 w-full max-w-lg mt-5 ">
         <h2 className="text-2xl font-semibold text-center text-gray-800 mb-6">Add Daily Expenses</h2>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>

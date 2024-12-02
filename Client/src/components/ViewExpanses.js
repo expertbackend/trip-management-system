@@ -174,14 +174,14 @@ function ViewExpenses() {
       <h2 className="text-2xl font-bold mb-6 text-gray-800">Driver-wise Expenses</h2>
 
       {/* Filter Inputs */}
-      <div className="mb-4 flex justify-between items-center gap-4">
+      <div className="mb-4 flex flex-col sm:flex-row justify-between items-center gap-4">
         {/* Driver name filter */}
         <input
           type="text"
           placeholder="Filter by driver name"
           value={driverFilter}
           onChange={(e) => setDriverFilter(e.target.value)}
-          className="border p-2 rounded"
+          className="border p-2 rounded "
         />
 
         {/* Start date filter */}
@@ -189,7 +189,7 @@ function ViewExpenses() {
           type="date"
           value={startDateFilter}
           onChange={(e) => setStartDateFilter(e.target.value)}
-          className="border p-2 rounded"
+          className="border p-2 rounded w-full sm:w-auto bg-gray-50"
         />
 
         {/* End date filter */}
@@ -197,7 +197,7 @@ function ViewExpenses() {
           type="date"
           value={endDateFilter}
           onChange={(e) => setEndDateFilter(e.target.value)}
-          className="border p-2 rounded"
+          className="border p-2 rounded w-full sm:w-auto bg-gray-50"
         />
 
         {/* Download All Expenses PDF button */}

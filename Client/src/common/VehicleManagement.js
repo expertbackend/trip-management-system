@@ -9,7 +9,7 @@ const VehicleManagement = () => {
 
   return (
     <div className="vehicle-management">
-      <div className="tabs flex space-x-4 border-b-2 border-gray-300 pb-2 mb-4">
+      <div className="tabs flex flex-col sm:flex-row space-x-4 shadow-lg sm:shadow-none border-gray-300 pb-2 mb-4 justify-center">
         <button
           onClick={() => setActiveTab('tyres')}
           className={`${
