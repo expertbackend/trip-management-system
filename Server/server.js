@@ -1,7 +1,7 @@
 // server.js
 require('dotenv').config(); // Load environment variables
 const express = require('express');
-const https = require('https');
+const http = require('http');
 const { Server } = require('socket.io');
 const cors = require('cors');
 const mongoose = require('mongoose');
@@ -12,7 +12,7 @@ const ownerRoutes = require('./routes/ownerRoutes');
 const bookingRoute = require('./routes/bookingRoutes');
 const app = express();
 const { initializeIo } = require('./socket'); 
-const server = https.createServer(app);
+const server = http.createServer(app);
 const activeSockets = require('./socketStorage');
 const io = initializeIo(server);
 const tyreRoute = require('./routes/tyreRoutes');
