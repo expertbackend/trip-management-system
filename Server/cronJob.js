@@ -1,75 +1,27 @@
-const WebSocket = require('ws');  // Import WebSocket library
-const mongoose = require('mongoose');
 const cron = require('node-cron');
-const vehicleDocument = require('./models/vehicleDocument'); // Assuming this file exists in your project
-const Reminder = require('./models/Remainder');
-
-// Set up WebSocket server with origin check
-const wss = new WebSocket.Server({
-  port: 8080,
-  verifyClient: (info, done) => {
-    const origin = info.origin; // Extract the origin of the WebSocket request
-    // Allow connections only from your frontend domain
-    if (origin === 'https://tms.tripchallanbook.in') {
-      done(true);  // Accept the connection
-    } else {
-      done(false, 401, 'Unauthorized');  // Reject the connection if the origin is not allowed
-    }
-  }
-});
-
-// Store WebSocket clients and their tokenId
-const clients = new Map();
-
-// Handle WebSocket connection
-wss.on('connection', (ws) => {
-  console.log("Client connected");
-
-  // Handle 'register' event from the client
-  ws.on('message', (message) => {
-    const data = JSON.parse(message);
-
-    if (data.type === 'register' && data.tokenId) {
-      // Store the tokenId in the WebSocket connection object
-      ws.tokenId = data.tokenId;
-      
-      // Store the WebSocket client with their tokenId
-      clients.set(ws.tokenId, ws);
-
-      // Log client tokenId (clientId) when the 'register' event is triggered
-      console.log(`Client registered with tokenId: ${data.tokenId}`);
-
-      // You can send a confirmation message back to the client (optional)
-      ws.send(JSON.stringify({ type: 'register', message: 'Token registered successfully' }));
-    }
-  });
-
-  // Handle WebSocket disconnections
-  ws.on('close', () => {
-    if (ws.tokenId) {
-      clients.delete(ws.tokenId); // Remove the client from the map when disconnected
-      console.log(`Client with tokenId ${ws.tokenId} disconnected`);
-    }
-  });
-});
-
-// Cron job to send reminders every 10 seconds
+const Reminder = require('./models/Remainder'); // Assuming Reminder model is imported
+const vehicleDocument = require('./models/vehicleDocument'); // Assuming vehicleDocument model is imported
+const activeSockets = require('./socketStorage'); // Assuming activeSockets keeps track of connected clients
+const { getIo } = require('./socket');
+const io = getIo();
+     
+// Schedule cron job every 10 seconds for demonstration, you can adjust the cron time accordingly
 cron.schedule("*/10 * * * * *", async () => {
   const today = new Date();
   console.log("Running cron job at:", today);
 
   try {
-    // Iterate through the clients map to send reminders to each user
-    for (const [userId, client] of clients) {
+    // Iterate through the active sockets to send reminders to each connected user
+    for (const [userId, socketId] of activeSockets.entries()) {
       // Fetch reminders from the database where reminderDate is less than or equal to today and userId matches
       const reminders = await vehicleDocument.find({
         reminderDate: { $lte: today },
-        userId: userId, // Use the tokenId as userId
+        userId: userId, // Use the userId to get reminders specific to the user
       }).populate('vehicleId');
 
-      console.log('Fetched reminders:', reminders);
+      console.log('Fetched reminders for user:', userId, reminders);
 
-      // Send reminders to the client
+      // Send reminders to the client via Socket.IO
       reminders.forEach(async (reminder) => {
         // Create a stylish reminder message
         const reminderData = {
@@ -82,11 +34,11 @@ cron.schedule("*/10 * * * * *", async () => {
             📅 **Expiry Date:** ${reminder.expiryDate.toLocaleDateString()}\n
             🔧 Stay Safe on the Road! 🛠️`
         };
-
-        // Check if the WebSocket client is still open and send the reminder
-        if (client.readyState === WebSocket.OPEN) {
-          client.send(JSON.stringify(reminderData));
-          console.log(`Sent reminder to client with tokenId: ${userId}`);
+        const socketId = activeSockets.get(userId.toString());
+        // Send the reminder message via Socket.IO
+        if (socketId) {
+          io.to(socketId).emit('reminder', reminderData); // Send the message
+          console.log(`Sent reminder to client with userId: ${userId}`);
         }
 
         // Now save the reminder to the database for the Announcement page
@@ -108,6 +60,3 @@ cron.schedule("*/10 * * * * *", async () => {
     console.error("Error broadcasting reminders:", error);
   }
 });
-
-// Log the WebSocket server is running
-console.log("WebSocket server running on ws://localhost:8080");

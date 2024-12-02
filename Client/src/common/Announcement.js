@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import { io } from 'socket.io-client';
 
 const Announcements = () => {
   const [reminders, setReminders] = useState([]); // State to store reminders
@@ -51,55 +52,56 @@ const Announcements = () => {
       console.log('No tokenId found in localStorage');
       return; // Do not create WebSocket connection if token is missing
     }
+    const token = localStorage.getItem('token');
 
-    // Initialize WebSocket connection
-    const ws = new WebSocket('wss://trip-management-system-1.onrender.com');
-
+    // Initialize Socket.IO connection
+    const socket = io('https://trip-management-system-1.onrender.com', {
+      auth: {
+        token: token, // Send tokenId with the connection
+      },
+    });
+  
     // On connection open
-    ws.onopen = () => {
-      console.log('Connected to WebSocket server');
-      ws.send(JSON.stringify({ type: 'register', tokenId })); // Send tokenId to register with WebSocket server
-      console.log('Token ID sent:', tokenId);
-    };
-
-    // On receiving a message
-    ws.onmessage = (event) => {
-        const data = JSON.parse(event.data);
-        if (data.type === 'reminder') {
-          console.log('New reminder received:', data);
-      
-          // Create a reminder object matching the expected structure
-          const newReminder = {
-            _id: new Date().toISOString(), // Generate a unique ID (or use a real one if provided)
-            reminderMessage: data.message,
-            // Add other default properties if necessary
-          };
-      
-          // Add the new reminder to the state
-          setReminders((prevReminders) => {
-            const updatedReminders = [newReminder, ...prevReminders];
-            // Update total pages after updating the reminders state
-            setTotalPages(Math.ceil(updatedReminders.length / remindersPerPage));
-            return updatedReminders;
-          });
-        }
+    socket.on('connect', () => {
+      console.log('Connected to Socket.IO server');
+      console.log('Socket ID:', socket.id);
+    });
+  
+    // Listen for 'reminder' events from the server
+    socket.on('reminder', (data) => {
+      console.log('New reminder received:', data);
+  
+      // Create a reminder object matching the expected structure
+      const newReminder = {
+        _id: new Date().toISOString(), // Generate a unique ID (or use a real one if provided)
+        reminderMessage: data.message,
+        // Add other default properties if necessary
       };
-
-    // On WebSocket error
-    ws.onerror = (error) => {
-      console.error('WebSocket error:', error);
-    };
-
-    // On WebSocket close
-    ws.onclose = () => {
-      console.log('WebSocket connection closed');
-    };
-
-    // Cleanup WebSocket connection when component unmounts
+  
+      // Add the new reminder to the state
+      setReminders((prevReminders) => {
+        const updatedReminders = [newReminder, ...prevReminders];
+        // Update total pages after updating the reminders state
+        setTotalPages(Math.ceil(updatedReminders.length / remindersPerPage));
+        return updatedReminders;
+      });
+    });
+  
+    // On Socket.IO error
+    socket.on('connect_error', (error) => {
+      console.error('Socket.IO connection error:', error);
+    });
+  
+    // On Socket.IO disconnect
+    socket.on('disconnect', () => {
+      console.log('Socket.IO connection closed');
+    });
+  
+    // Cleanup Socket.IO connection when component unmounts
     return () => {
-      ws.close();
+      socket.disconnect();
     };
-  }, [tokenId]); // Only run effect when tokenId changes
+  }, [tokenId]);
 
   // Paginate reminders based on the current page
   const paginateReminders = () => {
