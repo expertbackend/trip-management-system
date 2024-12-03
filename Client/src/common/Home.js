@@ -390,7 +390,7 @@ const Home = () => {
                 </table>
 
                 {/* Vehicle Pagination */}
-                <div className="flex justify-center space-x-2 mt-4">
+                <div className="flex justify-center space-x-2 mt-4 ">
                   {vehiclePageNumbers.map((number) => (
                     <button
                       key={number}
