@@ -255,7 +255,7 @@ const UserPage = () => {
         <Modal
           isOpen={isUserModalOpen}
           onClose={() => setIsUserModalOpen(false)}
-          className="modal max-w-lg mx-auto p-8 bg-white rounded-lg shadow-lg"
+          className="modal min-w-lg mx-auto p-8 bg-white rounded-lg shadow-lg"
           overlayClassName="modal-overlay"
           animationEnter="zoomIn"
           animationExit="zoomOut"
@@ -272,7 +272,7 @@ const UserPage = () => {
                 onChange={(e) =>
                   setNewUser({ ...newUser, name: e.target.value })
                 }
-                className="w-full mt-2 p-2 border border-gray-300 rounded-md"
+                className="w-full mt-2 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-300 focus:border-blue-300"
               />
             </div>
             <div className="mb-4">
@@ -285,7 +285,7 @@ const UserPage = () => {
                 onChange={(e) =>
                   setNewUser({ ...newUser, email: e.target.value })
                 }
-                className="w-full mt-2 p-2 border border-gray-300 rounded-md"
+                className="w-full mt-2 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-300 focus:border-blue-300"
               />
             </div>
             <div className="mb-4">
@@ -304,7 +304,7 @@ const UserPage = () => {
                     setNewUser({ ...newUser, phoneNumber: phone });
                   }
                 }}
-                className="w-full mt-2 p-2 border border-gray-300 rounded-md"
+                className="w-full mt-2 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-300 focus:border-blue-300"
               />
               <p className="text-red-500 text-sm mt-1">
                 {newUser.phoneNumber &&
@@ -323,7 +323,7 @@ const UserPage = () => {
                 onChange={(e) =>
                   setNewUser({ ...newUser, password: e.target.value })
                 }
-                className="w-full mt-2 p-2 border border-gray-300 rounded-md"
+                className="w-full mt-2 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-300 focus:border-blue-300"
               />
             </div>
             <div className="mb-4">
@@ -334,7 +334,7 @@ const UserPage = () => {
                 onChange={(e) =>
                   setNewUser({ ...newUser, role: e.target.value })
                 }
-                className="w-full mt-2 p-2 border border-gray-300 rounded-md"
+                className="w-full mt-2 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-300 focus:border-blue-300"
               >
                 <option value="">Select role</option>
                 <option value="operator">Operator</option>
@@ -427,7 +427,7 @@ const UserPage = () => {
             placeholder="Search by username or email"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 bg-[#FFF0F0] rounded-lg focus:outline-none"
+            className="w-full pl-10 pr-4 py-2 bg-gray-100 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-300 focus:border-blue-300"
           />
           <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
             &#128269;

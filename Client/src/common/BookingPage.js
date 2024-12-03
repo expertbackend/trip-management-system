@@ -225,7 +225,7 @@ const BookingsPage = () => {
           <input
             type="text"
             placeholder="Search by Customer Name, Driver Name, or Vehicle Name"
-            className="w-full py-3 px-5 text-sm bg-gray-100 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500 placeholder-gray-500 placeholder-opacity-70 transition-all duration-300 sm:w-auto"
+            className="w-full py-3 px-5 text-sm bg-gray-100 rounded-xl border border-gray-300 focus:outline-none focus:ring-1 focus:ring-blue-300 focus:border-blue-300 placeholder-gray-500 placeholder-opacity-70 transition-all duration-300 sm:w-auto"
             value={searchQuery}
             onChange={(e) => handleSearch(e.target.value)}
           // className="px-4 py-2 border border-gray-300 rounded-lg w-2/5"
@@ -233,7 +233,7 @@ const BookingsPage = () => {
           <select
             value={statusFilter}
             onChange={(e) => handleFilter(e.target.value)}
-            className="px-4 py-2 border border-gray-300 rounded-lg  w-full sm:w-auto"
+            className="px-4 py-2 border border-gray-300 rounded-lg  w-full sm:w-auto focus:outline-none focus:ring-1 focus:ring-blue-300 focus:border-blue-300"
           >
             <option value="All">All</option>
             <option value="Completed">Completed</option>
@@ -255,7 +255,7 @@ const BookingsPage = () => {
       <div className="overflow-x-auto min-w-full">
         <table className="table-auto w-full border border-gray-200 shadow-lg rounded-lg text-base">
           <thead>
-            <tr className="bg-blue-300 text-gray-700 font-semibold">
+            <tr className="bg-sky-700 text-white font-semibold">
               <th className="px-4 py-2">SL No.</th> {/* Serial Number Column */}
               <th className="px-4 py-2">Customer Name</th>
               <th className="px-4 py-2">Vehicle</th>

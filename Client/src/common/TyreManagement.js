@@ -250,7 +250,7 @@ const TyreManagement = () => {
             onChange={(e) =>
                     setTyreData({ ...tyreData, tyreBrand: e.target.value })
                   }
-            className="border p-3 rounded-lg w-full focus:ring focus:ring-blue-300"
+            className="border border-gray-400 p-3 rounded-lg w-full focus:outline-none focus:ring-1 focus:ring-blue-300"
           />
           <input
             type="text"
@@ -259,7 +259,7 @@ const TyreManagement = () => {
             onChange={(e) =>
                     setTyreData({ ...tyreData, tyreSerielNo: e.target.value })
                   }
-            className="border p-3 rounded-lg w-full focus:ring focus:ring-blue-300"
+            className="border border-gray-400 p-3 rounded-lg w-full focus:outline-none focus:ring-1 focus:ring-blue-300"
           />
           <input
             type="number"
@@ -268,7 +268,7 @@ const TyreManagement = () => {
             onChange={(e) =>
                     setTyreData({ ...tyreData, tyreAmount: e.target.value })
                   }
-            className="border p-3 rounded-lg w-full focus:ring focus:ring-blue-300"
+            className="border border-gray-400 p-3 rounded-lg w-full focus:outline-none focus:ring-1 focus:ring-blue-300"
           />
           <input
             type="text"
@@ -277,14 +277,14 @@ const TyreManagement = () => {
             onChange={(e) =>
                     setTyreData({ ...tyreData, purchaseFrom: e.target.value })
                   }
-            className="border p-3 rounded-lg w-full focus:ring focus:ring-blue-300"
+            className="border border-gray-400 p-3 rounded-lg w-full focus:outline-none focus:ring-1 focus:ring-blue-300"
           />
           <select
             value={tyreData.vehicleId}
             onChange={(e) =>
                     setTyreData({ ...tyreData, vehicleId: e.target.value })
                   }
-            className="border p-3 rounded-lg w-full focus:ring focus:ring-blue-300"
+            className="border border-gray-400 p-3 rounded-lg w-full focus:outline-none focus:ring-1 focus:ring-blue-300"
           >
             <option value="">Select Vehicle</option>
             {vehicles.map((vehicle) => (
@@ -301,7 +301,7 @@ const TyreManagement = () => {
                       tyrePosition: e.target.value,
                     })
                   }
-                            className="border p-3 rounded-lg w-full focus:ring focus:ring-green-300"
+                            className="border border-gray-400 p-3 rounded-lg w-full focus:outline-none focus:ring focus:ring-blue-300"
                           >
                             <option value="">Select Tyre Position</option>
                             <option value="front-left">Front Left</option>
@@ -325,7 +325,7 @@ const TyreManagement = () => {
             onChange={(e) =>
                     setTyreData({ ...tyreData, tyreMileage: e.target.value })
                   }
-            className="border p-3 rounded-lg w-full focus:ring focus:ring-blue-300"
+            className="border border-gray-400 p-3 rounded-lg w-full focus:outline-none focus:ring-1 focus:ring-blue-300"
           />
           <input
             type="number"
@@ -334,7 +334,7 @@ const TyreManagement = () => {
             onChange={(e) =>
                     setTyreData({ ...tyreData, installedAtKm: e.target.value })
                   }
-            className="border p-3 rounded-lg w-full focus:ring focus:ring-blue-300"
+            className="border border-gray-400 p-3 rounded-lg w-full focus:outline-none focus:ring-1 focus:ring-blue-300"
           />
         </div>
         <button
@@ -351,16 +351,14 @@ const TyreManagement = () => {
 
       {/* Check Tyre Status Form */}
       {isCheckStatusModalOpen && (
-       <div className="fixed inset-0 bg-gray-500 bg-opacity-75 flex justify-center items-center z-50">
+        <div className="fixed inset-0 bg-gray-500 bg-opacity-75 flex justify-center items-center z-50">
     <div className="bg-white p-6  rounded-lg w-full md:w-3/4 lg:w-2/3 xl:w-1/2 relative">
-          <button
-  onClick={() => setIsCheckStatusModalOpen(false)}
-  className="absolute top-4 right-4 text-gray-600 hover:text-gray-800 text-lg"
-  aria-label="Close Modal"
->
-  ✕
-</button>
-
+      <button
+        onClick={() => setIsCheckStatusModalOpen(false)}
+        className="absolute top-4 right-4 text-gray-600 hover:text-gray-800 text-lg"
+        aria-label="Close"
+      >
+        ✕</button>
             <h3 className="text-xl font-semibold text-gray-700 mb-4">
               Check Tyre Status
             </h3>
@@ -447,38 +445,38 @@ const TyreManagement = () => {
             placeholder="Search by Vehicle Number"
             value={searchQuery}
             onChange={handleSearchChange}
-            className="border p-3 w-full sm:w-auto  rounded-lg  md:w-1/2 lg:w-1/3"
+            className="border border-gray-300 p-3 w-full sm:w-auto  rounded-lg  md:w-1/2 lg:w-1/3 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-400"
           />
           <div className="flex space-x-4">
           <button
             onClick={() => generatePDF(filteredTyres)}
-            className="w-full sm:w-auto px-4 py-2 bg-green-500 text-white rounded-lg shadow hover:bg-blue-600 focus:outline-none"
+            className="w-full sm:w-auto px-4 py-2 bg-green-500 text-white rounded-lg shadow hover:bg-green-600 focus:outline-none"
           >
             Download PDF
           </button>
           <button
             onClick={() => setIsCreateTyreModalOpen(true)}
-            className="w-full sm:w-auto px-4 py-2 bg-blue-700 text-white rounded-lg shadow hover:bg-blue-600 focus:outline-none"
+            className="w-full sm:w-auto px-4 py-2 bg-blue-700 text-white rounded-lg shadow hover:bg-blue-800 focus:outline-none"
           >
             Create Tyre
           </button>
           </div>
         </div>
 
-        <div className="overflow-x-auto">
-          <table className="min-w-full table-auto border-collapse border border-gray-300 text-sm">
-            <thead>
-              <tr className="bg-gray-200">
-                <th className="border p-3">Serial No.</th>
-                <th className="border p-3">Brand</th>
-                <th className="border p-3">Vehicle Plate</th>
-                <th className="border p-3">Position</th>
-                <th className="border p-3">Mileage</th>
-                <th className="border p-3">Installed at KM</th>
-                <th className="border p-3">Amount</th>
-                <th className="border p-3">Purchased From</th>
-                <th className="border p-3">Created At</th>
-                <th className="border p-3">Action</th>
+        <div className="overflow-x-auto rounded-md">
+          <table className="min-w-full table-auto border-collapse border border-gray-300  text-sm">
+            <thead className=" rounded-lg">
+              <tr className="bg-sky-800 text-white ">
+                <th className="border border-white p-3">Serial No.</th>
+                <th className="border border-white p-3">Brand</th>
+                <th className="border border-white p-3">Vehicle Plate</th>
+                <th className="border border-white p-3">Position</th>
+                <th className="border border-white p-3">Mileage</th>
+                <th className="border border-white p-3">Installed at KM</th>
+                <th className="border border-white p-3">Amount</th>
+                <th className="border border-white p-3">Purchased From</th>
+                <th className="border border-white p-3">Created At</th>
+                <th className="border border-white p-3">Action</th>
               </tr>
             </thead>
             <tbody>

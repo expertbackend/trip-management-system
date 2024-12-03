@@ -71,7 +71,7 @@ const TripReport = () => {
             id="vehicleId"
             value={vehicleId}
             onChange={(e) => setVehicleId(e.target.value)}
-            className="mt-1 block w-full border border-1 border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 h-10 bg-gray-50"
+            className="mt-1 block w-full border border-1 border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 h-10 bg-gray-50"
           >
             <option value="">Select Vehicle</option>
             {vehicleLoading ? (
@@ -94,7 +94,7 @@ const TripReport = () => {
             id="period"
             value={period}
             onChange={(e) => setPeriod(e.target.value)}
-            className="mt-1 block w-full  border border-1 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 h-10 bg-gray-50 border-gray-300"
+            className="mt-1 block w-full  border border-1 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 h-10 bg-gray-50 border-gray-300"
           >
             <option value="day">Day</option>
             <option value="week">Week</option>
@@ -111,7 +111,7 @@ const TripReport = () => {
             id="startDate"
             value={startDate}
             onChange={(e) => setStartDate(e.target.value)}
-            className="mt-1 block w-full border border-1 border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 h-10 bg-gray-50"
+            className="mt-1 block w-full border border-1 border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 h-10 bg-gray-50"
           />
         </div>
         {/* End Date */}
@@ -124,7 +124,7 @@ const TripReport = () => {
             id="endDate"
             value={endDate}
             onChange={(e) => setEndDate(e.target.value)}
-            className="mt-1 block w-full border border-1 border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 h-10 bg-gray-50"
+            className="mt-1 block w-full border border-1 border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500  h-10 bg-gray-50"
           />
         </div>
       </div>
@@ -139,11 +139,11 @@ const TripReport = () => {
       {/* Report Table */}
       {report && (
         <div className="mt-6 overflow-hidden">
-          <div className="overflow-x-auto">
+          <div className="overflow-x-auto rounded-md">
           <h2 className="text-xl font-semibold mb-4">Report Summary</h2>
           <table className="min-w-full bg-white">
-            <thead className="bg-gray-50">
-              <tr>
+            <thead className="bg-sky-700 text-white">
+              <tr className="text-left">
                 <th className="py-2 px-4 border-b">Period</th>
                 <th className="py-2 px-4 border-b">Vehicle Name</th>
                 <th className="py-2 px-4 border-b">Plate Number</th>
@@ -170,11 +170,11 @@ const TripReport = () => {
             </tbody>
           </table>
           </div>
-          <div className="overflow-x-auto">
 
+          <div className="overflow-x-auto rounded-md">
           <h2 className="text-xl font-semibold mt-6 mb-4">Trip Details</h2>
-          <table className="min-w-full bg-white">
-            <thead className="bg-gray-50">
+          <table className="min-w-full bg-white rounded-md">
+            <thead className="bg-sky-700 text-white text-left">
               <tr>
                 <th className="py-2 px-4 border-b">Booking ID</th>
                 <th className="py-2 px-4 border-b">Driver Name</th>

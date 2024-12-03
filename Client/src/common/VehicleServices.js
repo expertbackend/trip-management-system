@@ -288,7 +288,7 @@ const VehicleServices = () => {
           placeholder="Search services..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          className="border border-gray-300 rounded-md px-4 py-2 w-full  sm:w-auto"
+          className="border border-gray-300 rounded-md px-4 py-2 w-full  sm:w-auto focus:outline-none focus:ring-1 focus:ring-blue-400 focus:border-blue-400"
         />
         <button
           onClick={handleDownloadPDF}
@@ -298,38 +298,38 @@ const VehicleServices = () => {
         </button>
       </div>
       {/* Service Table */}
-      <div className="w-full overflow-hidden">
+      <div className="w-full overflow-hidden rounded-md">
         <div className="overflow-scroll">
           <table className="w-full border-collapse border border-gray-300 mb-6">
-            <thead>
-              <tr className="bg-gray-100">
-                <th className="border border-gray-300 px-4 py-2">Sl. No</th>
-                <th className="border border-gray-300 px-4 py-2">
+            <thead >
+              <tr className="bg-sky-700 text-white">
+                <th className="border border-white px-4 py-2">Sl. No</th>
+                <th className="border border-white px-4 py-2">
                   Vehicle Number
                 </th>
-                <th className="border border-gray-300 px-4 py-2">
+                <th className="border border-white px-4 py-2">
                   Vehicle Model
                 </th>
-                <th className="border border-gray-300 px-4 py-2">
+                <th className="border border-white px-4 py-2">
                   Service Type
                 </th>
-                <th className="border border-gray-300 px-4 py-2">
+                <th className="border border-white px-4 py-2">
                   Service Date
                 </th>
-                <th className="border border-gray-300 px-4 py-2">
+                <th className="border border-white px-4 py-2">
                   Odometer Reading
                 </th>
-                <th className="border border-gray-300 px-4 py-2">
+                <th className="border border-white px-4 py-2">
                   Servicing Mileage
                 </th>
-                <th className="border border-gray-300 px-4 py-2">
+                <th className="border border-white px-4 py-2">
                   Remaining KM
                 </th>
-                <th className="border border-gray-300 px-4 py-2">Amount</th>
-                <th className="border border-gray-300 px-4 py-2">
+                <th className="border border-white px-4 py-2">Amount</th>
+                <th className="border border-white px-4 py-2">
                   Company Name
                 </th>
-                <th className="border border-gray-300 px-4 py-2">
+                <th className="border border-white px-4 py-2">
                   Description
                 </th>
               </tr>
@@ -403,8 +403,8 @@ const VehicleServices = () => {
 
       {/* Modal for Creating Service */}
       {isModalOpen && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="bg-white p-6 rounded-lg shadow-lg w-1/3">
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 overflow-hidden">
+          <div className="bg-white p-4 rounded-lg shadow-lg w-1/2 sm:overflow-y-scroll">
             <h3 className="text-lg font-bold mb-4">Add Service</h3>
             <form onSubmit={handleAddService} className="space-y-4">
               {/* Select Vehicle */}
@@ -413,7 +413,7 @@ const VehicleServices = () => {
                 onChange={(e) =>
                   setServiceData({ ...serviceData, vehicleId: e.target.value })
                 }
-                className="border border-gray-300 rounded-md px-4 py-2 w-full"
+                className="border border-gray-400 rounded-md px-4 py-2 w-full focus:outline-none focus:ring-1 focus:ring-blue-400 focus:border-blue-400"
               >
                 <option value="" disabled>
                   Select Vehicle
@@ -434,7 +434,7 @@ const VehicleServices = () => {
                     serviceType: e.target.value,
                   })
                 }
-                className="border border-gray-300 rounded-md px-4 py-2 w-full"
+                className="border border-gray-400 rounded-md px-4 py-2 w-full focus:outline-none focus:ring-1 focus:ring-blue-400 focus:border-blue-400"
               >
                 <option value="" disabled>
                   Select Service Type
@@ -457,7 +457,7 @@ const VehicleServices = () => {
                     serviceDate: e.target.value,
                   })
                 }
-                className="border border-gray-300 rounded-md px-4 py-2 w-full"
+                className="border border-gray-400 rounded-md px-4 py-2 w-full focus:outline-none focus:ring-1 focus:ring-blue-400 focus:border-blue-400"
               />
 
               {/* Odometer Reading */}
@@ -471,7 +471,7 @@ const VehicleServices = () => {
                     odometerReading: e.target.value,
                   })
                 }
-                className="border border-gray-300 rounded-md px-4 py-2 w-full"
+                className="border border-gray-400 rounded-md px-4 py-2 w-full focus:outline-none focus:ring-1 focus:ring-blue-400 focus:border-blue-400"
               />
 
               {/* Servicing Mileage */}
@@ -485,7 +485,7 @@ const VehicleServices = () => {
                     servicingMileage: e.target.value,
                   })
                 }
-                className="border border-gray-300 rounded-md px-4 py-2 w-full"
+                className="border border-gray-400 rounded-md px-4 py-2 w-full focus:outline-none focus:ring-1 focus:ring-blue-400 focus:border-blue-400"
               />
 
               {/* Amount */}
@@ -496,7 +496,7 @@ const VehicleServices = () => {
                 onChange={(e) =>
                   setServiceData({ ...serviceData, amount: e.target.value })
                 }
-                className="border border-gray-300 rounded-md px-4 py-2 w-full"
+                className="border border-gray-400 rounded-md px-4 py-2 w-full focus:outline-none focus:ring-1 focus:ring-blue-400 focus:border-blue-400"
               />
 
               {/* Company Name */}
@@ -510,7 +510,7 @@ const VehicleServices = () => {
                     companyName: e.target.value,
                   })
                 }
-                className="border border-gray-300 rounded-md px-4 py-2 w-full"
+                className="border border-gray-400 rounded-md px-4 py-2 w-full focus:outline-none focus:ring-1 focus:ring-blue-400 focus:border-blue-400"
               />
 
               {/* Description */}
@@ -523,11 +523,11 @@ const VehicleServices = () => {
                     description: e.target.value,
                   })
                 }
-                className="border border-gray-300 rounded-md px-4 py-2 w-full"
+                className="border border-gray-400 rounded-md px-4 py-2 w-full focus:outline-none focus:ring-1 focus:ring-blue-400 focus:border-blue-400"
               />
 
               {/* Actions */}
-              <div className="flex justify-between">
+              <div className="flex flex-col sm:flex-row justify-normal lg:justify-between gap-4">
                 <button
                   type="button"
                   onClick={() => setIsModalOpen(false)}

@@ -264,7 +264,7 @@ India`;
                 <input
                   {...getInputProps({
                     placeholder: 'Pickup Location',
-                    className: 'p-3 border border-gray-300 rounded-md w-full',
+                    className: 'p-3 border border-gray-300 rounded-md w-full focus:outline-none focus:ring-1 focus:ring-blue-300 focus:border-blue-300',
                   })}
                   required
                 />
@@ -296,7 +296,7 @@ India`;
                 <input
                   {...getInputProps({
                     placeholder: 'Dropoff Location',
-                    className: 'p-3 border border-gray-300 rounded-md w-full',
+                    className: 'p-3 border border-gray-300 rounded-md w-full focus:outline-none focus:ring-1 focus:ring-blue-300 focus:border-blue-300',
                   })}
                   required
                 />
@@ -326,7 +326,7 @@ India`;
             name="startDate"
             value={formData.startDate}
             onChange={handleChange}
-            className="p-3 border border-gray-300 rounded-md"
+            className="p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-300 focus:border-blue-300"
             required
           />
           <input
@@ -334,7 +334,7 @@ India`;
             name="endDate"
             value={formData.endDate}
             onChange={handleChange}
-            className="p-3 border border-gray-300 rounded-md"
+            className="p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-300 focus:border-blue-300"
             required
           />
         </div>
@@ -346,7 +346,7 @@ India`;
               name="vehicleId"
               value={formData.vehicleId}
               onChange={handleChange}
-              className="w-full p-3 border border-gray-300 rounded-md"
+              className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-300 focus:border-blue-300"
               required
             >
               <option value="">Select Vehicle</option>
@@ -367,7 +367,7 @@ India`;
             placeholder="Customer Name"
             value={formData.customerName}
             onChange={handleChange}
-            className="w-full p-3 border border-gray-300 rounded-md"
+            className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-300 focus:border-blue-300"
             required
           />
           <input
@@ -376,7 +376,7 @@ India`;
             placeholder="Customer Phone Number"
             value={formData.custPhNo}
             onChange={handleChange}
-            className="w-full p-3 border border-gray-300 rounded-md"
+            className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-300 focus:border-blue-300"
             required
           />
           <input
@@ -385,7 +385,7 @@ India`;
             placeholder="Customer Email"
             value={formData.custEmailId}
             onChange={handleChange}
-            className="w-full p-3 border border-gray-300 rounded-md"
+            className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-300 focus:border-blue-300"
             required
           />
           <input
@@ -394,7 +394,7 @@ India`;
             placeholder="Customer Address"
             value={formData.custAddress}
             onChange={handleChange}
-            className="w-full p-3 border border-gray-300 rounded-md"
+            className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-300 focus:border-blue-300"
             required
           />
         
@@ -404,7 +404,7 @@ India`;
             placeholder="Enter km driven"
             value={formData.kmDriven}
             onChange={handleChange}
-            className="w-full mt-2 p-2 border border-gray-300 rounded-md"
+            className="w-full mt-2 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-300 focus:border-blue-300"
           />
       
         </div>
@@ -417,7 +417,7 @@ India`;
             placeholder="Base Pay"
             value={formData.basePay}
             onChange={handleChange}
-            className="w-full p-3 border border-gray-300 rounded-md"
+            className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-300 focus:border-blue-300"
             required
           />
           <input
@@ -426,7 +426,7 @@ India`;
             placeholder="Per KM Charge"
             value={formData.perKmCharge}
             onChange={handleChange}
-            className="w-full p-3 border border-gray-300 rounded-md"
+            className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-300 focus:border-blue-300"
             required
           />
           
@@ -436,7 +436,7 @@ India`;
             placeholder="Halt"
             value={formData.halt}
             onChange={handleChange}
-            className="w-full p-3 border border-gray-300 rounded-md"
+            className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-300 focus:border-blue-300"
             required
           />
           <input
@@ -445,7 +445,7 @@ India`;
             placeholder="Tax"
             value={formData.tax}
             onChange={handleChange}
-            className="w-full p-3 border border-gray-300 rounded-md"
+            className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-300 focus:border-blue-300"
             required
           />
           <input
@@ -454,7 +454,7 @@ India`;
             placeholder="Toll"
             value={formData.toll}
             onChange={handleChange}
-            className="w-full p-3 border border-gray-300 rounded-md"
+            className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-300 focus:border-blue-300"
             required
           />
           <input
@@ -463,7 +463,7 @@ India`;
             placeholder="Discount"
             value={formData.discount}
             onChange={handleChange}
-            className="w-full p-3 border border-gray-300 rounded-md"
+            className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-300 focus:border-blue-300"
             required
           />
         </div>

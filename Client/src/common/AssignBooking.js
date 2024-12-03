@@ -97,7 +97,7 @@ const AssignDriverPage = () => {
       value={selectedBooking1}
       onChange={(e) => setSelectedBooking1(e.target.value)}
       required
-      className="w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm sm:text-base"
+      className="w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 text-sm sm:text-base"
     >
       <option value="">Select Booking</option>
       {loadingBookings ? (
@@ -124,7 +124,7 @@ const AssignDriverPage = () => {
         type="date"
         value={selectedDate}
         onChange={(e) => setSelectedDate(e.target.value)} // Update selected date
-        className="w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+        className="w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
       />
     </div>
   )}
@@ -138,7 +138,7 @@ const AssignDriverPage = () => {
         onChange={(e) => setSelectedDriver1(e.target.value)}
         required
         disabled={loadingDrivers || !selectedBooking1}
-        className="w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+        className="w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
       >
         <option value="">Select Driver</option>
         {loadingDrivers ? (
