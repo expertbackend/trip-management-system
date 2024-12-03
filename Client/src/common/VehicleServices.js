@@ -94,20 +94,143 @@ const VehicleServices = () => {
     }
   };
 
-  const handleDownloadPDF = () => {
-    const doc = new jsPDF();
-    doc.text("Vehicle Services", 10, 10);
-    let y = 20;
-    filteredServices.forEach((service) => {
-      doc.text(
-        `Type: ${service.serviceType}, Date: ${service.serviceDate}, Company: ${service.companyName}, Amount: ${service.amount}`,
-        10,
-        y
-      );
-      y += 10;
+  const handleDownloadPDF = async () => {
+    const token = localStorage.getItem("token");
+  
+    const axiosInstance = axios.create({
+      baseURL: `${process.env.REACT_APP_API_URL}/api/owner`,
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
     });
+  
+    const response = await axiosInstance.get("/getProfile");
+    const companyData = response.data.profile;
+    console.log("getData", response.data);
+  
+    const companyName = companyData.name || "Your Company Name";
+    const companyAddress = companyData.address || "Goutam Nagar";
+    const companyPhone = companyData.phoneNumber || "1234567890";
+  
+    const doc = new jsPDF();
+    const primaryColor = "#343A40";
+    const accentColor = "#007BFF";
+    const lightGray = "#F8F9FA";
+  
+    // Title Section with Logo
+    const logoWidth = 30;
+    const logoHeight = 15;
+    // Add placeholder for logo (replace with actual logo path if needed)
+    doc.setFillColor(lightGray);
+    doc.rect(14, 14, 30, 20, "F"); // Placeholder for logo background
+    doc.setFontSize(18);
+    doc.setFont("helvetica", "bold");
+    doc.setTextColor(primaryColor);
+    doc.text("Vehicle Services Report", 50, 25);
+  
+    // Add a line under the title
+    doc.setDrawColor(0, 0, 0);
+    doc.setLineWidth(0.5);
+    doc.line(14, 35, 196, 35);
+  
+    // Company Information Section
+    doc.setFontSize(10);
+    doc.setFont("helvetica", "normal");
+    doc.setTextColor(100, 100, 100);
+    doc.text(`Company Name: ${companyName}`, 14, 40);
+    doc.text(`Address: ${companyAddress}`, 14, 45);
+    doc.text(`Contact: ${companyPhone}`, 14, 50);
+  
+    // Invoice Date and Number
+    doc.setFont("helvetica", "bold");
+    doc.setTextColor(primaryColor);
+    const currentDate = new Date().toLocaleDateString();
+    doc.text(`Date: ${currentDate}`, 150, 40);
+    doc.text("Invoice #: 00123", 150, 45);
+  
+    // Table Headers with Background
+    doc.setFontSize(11);
+    doc.setFont("helvetica", "bold");
+    doc.setTextColor(255, 255, 255);
+    doc.setFillColor(primaryColor);
+    doc.rect(14, 60, 182, 10, "F");
+    doc.text("Type", 16, 67);
+    doc.text("Service Date", 50, 67);
+    doc.text("Company", 100, 67);
+    doc.text("Amount", 150, 67);
+    doc.text("Plate Number", 180, 67);
+  
+    // Table Rows with Alternating Colors
+    let y = 75;
+    doc.setFontSize(10);
+    doc.setFont("helvetica", "normal");
+    doc.setTextColor(primaryColor);
+  
+    filteredServices.forEach((service, index) => {
+      // Alternate row background
+      if (index % 2 === 0) {
+        doc.setFillColor(lightGray);
+        doc.rect(14, y - 7, 182, 8, "F");
+      }
+  
+      doc.text(service.serviceType, 16, y);
+      doc.text(formatDate(service.serviceDate), 50, y);
+      doc.text(service.companyName, 100, y);
+      doc.text(`$${service.amount.toFixed(2)}`, 150, y);
+      doc.text(service.vehicleId?.plateNumber || "Not Provided", 180, y);
+  
+      y += 8;
+  
+      // Page break if content exceeds page
+      if (y > 270) {
+        doc.addPage();
+        y = 20;
+  
+        // Repeat headers on new page
+        doc.setFillColor(primaryColor);
+        doc.rect(14, y, 182, 10, "F");
+        doc.setTextColor(255, 255, 255);
+        doc.text("Type", 16, y + 7);
+        doc.text("Service Date", 50, y + 7);
+        doc.text("Company", 100, y + 7);
+        doc.text("Amount", 150, y + 7);
+        doc.text("Plate Number", 180, y + 7);
+        y += 15;
+      }
+    });
+  
+    // Summary Section
+    const totalAmount = filteredServices.reduce((sum, service) => sum + service.amount, 0);
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(12);
+    doc.setFillColor(lightGray);
+    doc.rect(14, y, 182, 10, "F");
+    doc.text(`Total Amount: $${totalAmount.toFixed(2)}`, 150, y + 7);
+  
+    // Footer Section
+    doc.setFontSize(9);
+    doc.setFont("helvetica", "italic");
+    doc.setTextColor(100, 100, 100);
+    y += 20;
+    doc.text("Thank you for choosing our services!", 14, y);
+    doc.text("For inquiries, contact support@company.com", 14, y + 5);
+  
+    // Save the PDF
     doc.save("VehicleServices.pdf");
   };
+  
+ 
+  
+  
+  // Helper function to format date
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    const options = { year: "numeric", month: "2-digit", day: "2-digit" };
+    return new Intl.DateTimeFormat("en-GB", options).format(date);
+  };
+  
+  
+  
 
   const filteredServices = services
     ?.filter(

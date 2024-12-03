@@ -91,20 +91,157 @@ const VehicleDocuments = () => {
     }
   };
 
-  const handleDownloadPDF = () => {
-    const doc = new jsPDF();
-    doc.text("Vehicle Documents", 10, 10);
-    let y = 20;
-    filteredDocuments.forEach((document) => {
-      doc.text(
-        `Type: ${document.documentType}, Expiry: ${document.expiryDate}, Reminder: ${document.reminderDate}, Desc: ${document.description}, Amount: ${document.amount}`,
-        10,
-        y
-      );
-      y += 10;
-    });
-    doc.save("VehicleDocuments.pdf");
+ // Function to format date in DD/MM/YYYY format
+const formatDate = (dateString) => {
+  const date = new Date(dateString);
+
+  const options = {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
   };
+
+  return new Intl.DateTimeFormat('en-GB', options).format(date); // en-GB format for DD/MM/YYYY
+};
+
+// Example Usage in handleDownloadPDF
+const handleDownloadPDF = async () => {
+  const token = localStorage.getItem("token");
+
+  const axiosInstance = axios.create({
+    baseURL: `${process.env.REACT_APP_API_URL}/api/owner`,
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  try {
+    // Fetch company profile
+    const profileResponse = await axiosInstance.get("/getProfile");
+    const profile = profileResponse.data.profile;
+    const companyName = profile.name || "Your Company Name";
+    const companyPhone = profile.phoneNumber || "1234567890";
+    const companyLogo = profile.logo; // Assuming this is a base64 or URL string
+    const companyAddress = profile.address || "Goutam Nagar";
+
+    // Initialize jsPDF
+    const doc = new jsPDF();
+
+    // Add Header with Logo (if available)
+    const logoWidth = 30;
+    const logoHeight = 30;
+    const logoX = 14;
+    const logoY = 10;
+
+    if (companyLogo) {
+      doc.addImage(companyLogo, "JPEG", logoX, logoY, logoWidth, logoHeight);
+    }
+
+    // Company Info (Name, Address, Phone) aligned to the left
+    doc.setFontSize(14);
+    doc.setFont("helvetica", "bold");
+    doc.text(companyName, 14, 20); // Company name on the left
+    doc.setFontSize(10);
+    doc.setFont("helvetica", "normal");
+
+    // Address and Phone also aligned to the left
+    doc.text(`Address: ${companyAddress}`, 14, 25); // Address on the left
+    doc.text(`Phone: ${companyPhone}`, 14, 30); // Phone on the left
+
+    // Title Section (Invoice Type)
+    doc.setFont("helvetica", "italic");
+    doc.setTextColor(100, 100, 100);
+    doc.text("Tax Invoice / Bill of Supply", 160, 15);
+
+    // Invoice Details (Invoice No and Date)
+    doc.setFontSize(12);
+    doc.setFont("helvetica", "bold");
+    doc.setTextColor(0, 0, 0);
+    doc.text("Invoice No:", 160, 40);
+    doc.setFont("helvetica", "normal");
+    doc.text("INV-123456", 185, 40); // Replace with actual invoice number
+
+    doc.setFont("helvetica", "bold");
+    doc.text("Date:", 160, 45);
+    doc.setFont("helvetica", "normal");
+    doc.text(new Date().toLocaleDateString(), 185, 45);
+
+    // Table Headers with Vehicle No
+    doc.setFontSize(12);
+    doc.setFont("helvetica", "bold");
+    const headers = ["Sl No.", "Vehicle No", "Type", "Expiry Date", "Reminder Date", "Description", "Amount"];
+    const headerXPositions = [14, 30, 70, 100, 130, 160, 190]; // Adjust column widths
+
+    // Add Table Header
+    headers.forEach((header, index) => {
+      doc.text(header, headerXPositions[index], 65);
+    });
+
+    // Draw table header line
+    doc.setLineWidth(0.5);
+    doc.line(14, 67, 200, 67);
+
+    // Table Content (Fill the rows with document data)
+    let y = 75;
+    filteredDocuments.forEach((document, index) => {
+      doc.setFontSize(10);
+      doc.setFont("helvetica", "normal");
+
+      const vehicleNo = document.vehicleId?.plateNumber || "N/A"; // Fetching Vehicle No
+      const data = [
+        (index + 1).toString(),
+        vehicleNo,
+        document.documentType || "N/A",
+        formatDate(document.expiryDate) || "N/A",
+        formatDate(document.reminderDate) || "N/A",
+        document.description || "N/A",
+        document.amount?.toString() || "0",
+      ];
+
+      // Draw table rows with the exact alignment and styling
+      data.forEach((value, i) => {
+        doc.text(value, headerXPositions[i], y, { align: "left" }); // Align to left for better readability
+      });
+
+      y += 8;
+
+      if (y > 270) {
+        doc.addPage();
+        y = 20;
+
+        // Repeat table headers
+        headers.forEach((header, i) => {
+          doc.text(header, headerXPositions[i], y);
+        });
+
+        doc.line(14, y + 2, 200, y + 2);
+        y += 10;
+      }
+    });
+
+    // Summary Section: Total Amount (Add this at the end of the document)
+    const totalAmount = filteredDocuments.reduce((sum, document) => sum + (document.amount || 0), 0);
+    y += 10; // Adjust y for summary section
+    doc.setFontSize(12);
+    doc.setFont("helvetica", "bold");
+    doc.text("Total Amount:", 140, y); // Total Amount positioned slightly to the left
+    doc.setFont("helvetica", "normal");
+    doc.text(`${totalAmount.toFixed(2)}`, 180, y); // Right aligned Total amount
+
+    // Footer Section
+    y += 10;
+    doc.setFontSize(9);
+    doc.setFont("helvetica", "italic");
+    doc.setTextColor(100, 100, 100);
+    doc.text("Thank you for your business!", 14, y);
+
+    // Save PDF
+    doc.save("Invoice.pdf");
+  } catch (error) {
+    console.error("Error generating PDF:", error);
+    alert("Failed to generate PDF. Please try again.");
+  }
+};
 
   const handlePagination = (direction) => {
     if (direction === "prev" && currentPage > 1) {

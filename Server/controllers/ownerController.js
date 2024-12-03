@@ -391,7 +391,9 @@ exports.getProfile = async (req, res) => {
                 email: user.email,
                 maxVehicles: user.maxVehicles,
                 vehicleCount: user.vehicleCount,
-                role:user.role
+                role:user.role,
+                phoneNumber:user.phoneNumber,
+                address:user.address || ""
             };
         } else if (user.role === 'operator' || user.role === 'driver' || user.role === 'superadmin') {
             profileData = {

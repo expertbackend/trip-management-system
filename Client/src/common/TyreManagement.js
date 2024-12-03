@@ -351,8 +351,16 @@ const TyreManagement = () => {
 
       {/* Check Tyre Status Form */}
       {isCheckStatusModalOpen && (
-        <div className="fixed inset-0 bg-gray-500 bg-opacity-75 flex justify-center items-center z-50">
-          <div className="bg-white p-6 shadow-lg rounded-lg w-full md:w-1/2 lg:w-1/3">
+       <div className="fixed inset-0 bg-gray-500 bg-opacity-75 flex justify-center items-center z-50">
+    <div className="bg-white p-6  rounded-lg w-full md:w-3/4 lg:w-2/3 xl:w-1/2 relative">
+          <button
+  onClick={() => setIsCheckStatusModalOpen(false)}
+  className="absolute top-4 right-4 text-gray-600 hover:text-gray-800 text-lg"
+  aria-label="Close Modal"
+>
+  ✕
+</button>
+
             <h3 className="text-xl font-semibold text-gray-700 mb-4">
               Check Tyre Status
             </h3>
