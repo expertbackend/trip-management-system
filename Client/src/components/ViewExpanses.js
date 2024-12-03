@@ -174,14 +174,14 @@ function ViewExpenses() {
       <h2 className="text-2xl font-bold mb-6 text-gray-800">Driver-wise Expenses</h2>
 
       {/* Filter Inputs */}
-      <div className="mb-4 flex flex-col sm:flex-row justify-between items-center gap-4">
+      <div className="mb-4 flex flex-col sm:flex-row justify-between items-center gap-4 ">
         {/* Driver name filter */}
         <input
           type="text"
           placeholder="Filter by driver name"
           value={driverFilter}
           onChange={(e) => setDriverFilter(e.target.value)}
-          className="border p-2 rounded "
+          className="border p-2 rounded w-full  focus:outline-none focus:ring-1 focus:ring-blue-300 focus:border-blue-300"
         />
 
         {/* Start date filter */}
@@ -189,7 +189,7 @@ function ViewExpenses() {
           type="date"
           value={startDateFilter}
           onChange={(e) => setStartDateFilter(e.target.value)}
-          className="border p-2 rounded w-full sm:w-auto bg-gray-50"
+          className="border p-2 rounded w-full sm:w-auto bg-gray-50 focus:outline-none focus:ring-1 focus:ring-blue-300 focus:border-blue-300"
         />
 
         {/* End date filter */}
@@ -197,13 +197,13 @@ function ViewExpenses() {
           type="date"
           value={endDateFilter}
           onChange={(e) => setEndDateFilter(e.target.value)}
-          className="border p-2 rounded w-full sm:w-auto bg-gray-50"
+          className="border p-2 rounded w-full sm:w-auto bg-gray-50 focus:outline-none focus:ring-1 focus:ring-blue-300 focus:border-blue-300"
         />
 
         {/* Download All Expenses PDF button */}
         <button
           onClick={() => generatePDF(true)}
-          className="bg-blue-500 text-white p-2 rounded"
+          className="bg-blue-500 hover:bg-blue-600 text-white p-2 rounded w-full sm:w-auto"
         >
           Download All Expenses PDF
         </button>
@@ -214,10 +214,10 @@ function ViewExpenses() {
       ) : filteredExpenses.length === 0 ? (
         <p className="text-gray-500">No expenses available for the selected filters.</p>
       ) : (
-        <div className="overflow-x-auto">
+        <div className="overflow-x-auto rounded-md ">
           <table className="w-full border border-gray-300">
             <thead>
-              <tr className="bg-gray-100">
+              <tr className="bg-sky-700 text-white">
                 <th className="border border-gray-300 p-3 text-left">Sl No.</th>
                 <th className="border border-gray-300 p-3 text-left">Driver Name</th>
                 <th className="border border-gray-300 p-3 text-left">Expense Type</th>

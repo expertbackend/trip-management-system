@@ -76,7 +76,7 @@ function AddExpenses() {
               id="fuelExpanse"
               value={fuelExpanse}
               onChange={(e) => setFuelExpanse(e.target.value)}
-              className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md"
+              className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-300 focus:border-blue-300"
               placeholder="Enter fuel expense"
             />
           </div>
@@ -87,7 +87,7 @@ function AddExpenses() {
               id="driverExpanse"
               value={driverExpanse}
               onChange={(e) => setDriverExpanse(e.target.value)}
-              className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md"
+              className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-300 focus:border-blue-300"
               placeholder="Enter driver expense"
             />
           </div>
@@ -98,7 +98,7 @@ function AddExpenses() {
               id="vehicleExpanse"
               value={vehicleExpanse}
               onChange={(e) => setVehicleExpanse(e.target.value)}
-              className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md"
+              className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-300 focus:border-blue-300"
               placeholder="Enter vehicle expense"
             />
           </div>
@@ -109,7 +109,7 @@ function AddExpenses() {
               id="vehicleExpanse"
               value={vehicleExpanseDescription}
               onChange={(e) => setVehicleExpanseDescription(e.target.value)}
-              className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md"
+              className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-300 focus:border-blue-300"
               placeholder="Enter vehicle expense"
             />
           </div>
@@ -119,7 +119,7 @@ function AddExpenses() {
               id="driver"
               value={selectedDriver}
               onChange={(e) => setSelectedDriver(e.target.value)}
-              className="mt-2 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+              className="mt-2 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-300 focus:border-blue-300"
             >
               <option value="">Select Driver</option>
               {drivers.map(driver => (
@@ -136,7 +136,7 @@ function AddExpenses() {
               id="date"
               value={date}
               onChange={(e) => setDate(e.target.value)}
-              className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md"
+              className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-300 focus:border-blue-300"
             />
           </div>
           <button

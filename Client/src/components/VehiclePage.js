@@ -269,7 +269,7 @@ const VehicleTable = () => {
               type="text"
               value={newVehicleData.name}
               onChange={(e) => setNewVehicleData({ ...newVehicleData, name: e.target.value })}
-              className="w-full mt-2 p-2 border border-gray-300 rounded-md"
+              className="w-full mt-2 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-300 focus:border-blue-300"
             />
           </div>
           <div className="mb-4">
@@ -278,7 +278,7 @@ const VehicleTable = () => {
               type="text"
               value={newVehicleData.plateNumber}
               onChange={(e) => setNewVehicleData({ ...newVehicleData, plateNumber: e.target.value })}
-              className="w-full mt-2 p-2 border border-gray-300 rounded-md"
+              className="w-full mt-2 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-300 focus:border-blue-300"
             />
           </div>
           <div className="mb-6">
@@ -286,7 +286,7 @@ const VehicleTable = () => {
             <select
               value={newVehicleData.type}
               onChange={(e) => setNewVehicleData({ ...newVehicleData, type: e.target.value })}
-              className="w-full mt-2 p-2 border border-gray-300 rounded-md"
+              className="w-full mt-2 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-300 focus:border-blue-300"
             >
               <option value="car">Car</option>
               <option value="truck">Truck</option>
@@ -305,7 +305,7 @@ const VehicleTable = () => {
             <label className="block text-gray-700">Select Vehicle</label>
             <select
               onChange={(e) => setSelectedVehicleId(e.target.value)}
-              className="w-full mt-2 p-2 border border-gray-300 rounded-md"
+              className="w-full mt-2 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-300 focus:border-blue-300"
             >
               <option value="">Select Vehicle</option>
               {vehicles.map((vehicle) => (
@@ -317,7 +317,7 @@ const VehicleTable = () => {
             <label className="block text-gray-700">Select Driver</label>
             <select
               onChange={(e) => setSelectedDriver(e.target.value)}
-              className="w-full mt-2 p-2 border border-gray-300 rounded-md"
+              className="w-full mt-2 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-300 focus:border-blue-300"
             >
               <option value="">Select Driver</option>
               {drivers.map((driver) => (
@@ -336,7 +336,7 @@ const VehicleTable = () => {
             placeholder="VEHICLE NO."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 bg-[#FFF0F0] rounded-lg focus:outline-none"
+            className="w-full pl-10 pr-4 py-2 bg-gray-100 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-300 focus:border-blue-300"
           />
           <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">&#128269;</span>
         </div>

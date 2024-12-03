@@ -296,7 +296,7 @@ const handleDownloadPDF = async () => {
           placeholder="Search documents..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          className=" w-full sm:w-auto border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring focus:ring-blue-300"
+          className=" w-full sm:w-auto border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-1 focus:ring-blue-400 focus:border-blue-400"
         />
         <button
           onClick={handleDownloadPDF}
@@ -307,11 +307,11 @@ const handleDownloadPDF = async () => {
       </div>
 
       {/* Document Table */}
-      <div className="w-full overflow-hidden">
+      <div className="w-full overflow-hidden rounded-md">
         <div className="overflow-scroll">
       <table className="w-full border-collapse border border-gray-300 ">
         <thead>
-          <tr className="bg-gray-100">
+          <tr className="bg-sky-700 text-white">
           <th className="border border-gray-300 px-4 py-2">Sl.NO</th>
 
           <th className="border border-gray-300 px-4 py-2">Vehicle Number</th>
@@ -415,7 +415,7 @@ const handleDownloadPDF = async () => {
           onChange={(e) =>
             setDocumentData({ ...documentData, vehicleId: e.target.value })
           }
-          className="border border-gray-300 rounded-md px-4 py-2 w-full"
+          className="border border-gray-300 rounded-md px-4 py-2 w-full focus:outline-none focus:ring-1 focus:ring-blue-400 focus:border-blue-400"
         >
           <option value="">Select Vehicle</option>
           {vehicles.map((vehicle) => (
@@ -435,7 +435,7 @@ const handleDownloadPDF = async () => {
           onChange={(e) =>
             setDocumentData({ ...documentData, documentType: e.target.value })
           }
-          className="border border-gray-300 rounded-md px-4 py-2 w-full"
+          className="border border-gray-300 rounded-md px-4 py-2 w-full focus:outline-none focus:ring-1 focus:ring-blue-400 focus:border-blue-400"
         >
           <option value="" disabled>
             Select Document Type
@@ -464,7 +464,7 @@ const handleDownloadPDF = async () => {
           onChange={(e) =>
             setDocumentData({ ...documentData, expiryDate: e.target.value })
           }
-          className="border border-gray-300 rounded-md px-4 py-2 w-full"
+          className="border border-gray-300 rounded-md px-4 py-2 w-full focus:outline-none focus:ring-1 focus:ring-blue-400 focus:border-blue-400"
         />
 
         {/* Reminder Date */}
@@ -481,7 +481,7 @@ const handleDownloadPDF = async () => {
               reminderDate: e.target.value,
             })
           }
-          className="border border-gray-300 rounded-md px-4 py-2 w-full"
+          className="border border-gray-300 rounded-md px-4 py-2 w-full focus:outline-none focus:ring-1 focus:ring-blue-400 focus:border-blue-400"
         />
 
         {/* Amount */}
@@ -496,7 +496,7 @@ const handleDownloadPDF = async () => {
           onChange={(e) =>
             setDocumentData({ ...documentData, amount: e.target.value })
           }
-          className="border border-gray-300 rounded-md px-4 py-2 w-full"
+          className="border border-gray-300 rounded-md px-4 py-2 w-full focus:outline-none focus:ring-1 focus:ring-blue-400 focus:border-blue-400"
         />
 
         {/* Description */}
@@ -513,7 +513,7 @@ const handleDownloadPDF = async () => {
               description: e.target.value,
             })
           }
-          className="border border-gray-300 rounded-md px-4 py-2 w-full"
+          className="border border-gray-300 rounded-md px-4 py-2 w-full focus:outline-none focus:ring-1 focus:ring-blue-400 focus:border-blue-400"
         />
 
         {/* Daily Reminder */}
@@ -534,7 +534,7 @@ const handleDownloadPDF = async () => {
         </label>
 
         {/* Buttons */}
-        <div className="flex justify-between">
+        <div className="flex flex-col sm:flex-row justify-normal lg:justify-between gap-4">
           <button
             type="button"
             onClick={() => setIsModalOpen(false)}

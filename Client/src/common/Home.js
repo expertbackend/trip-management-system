@@ -2,7 +2,9 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { Line } from "react-chartjs-2";
 import Chart from "chart.js/auto";
-
+import { FaCar, FaChartLine, FaMoneyBill, FaRupeeSign } from "react-icons/fa";
+import { FiTruck } from "react-icons/fi";
+import { MdAttachMoney } from "react-icons/md"; 
 const Home = () => {
   const token = localStorage.getItem("token");
 
@@ -159,7 +161,7 @@ const Home = () => {
           key={vehicle._id}
           className={`${
             index % 2 === 0 ? "bg-gray-50" : "bg-white"
-          } hover:bg-gray-100 transition-all duration-300 ease-in-out transform hover:scale-105`}
+          } hover:bg-gray-200 transition-all duration-300 ease-in-out transform `}
         >
           <td className="p-4 text-sm font-medium text-gray-900">
             {vehicle.name}
@@ -216,7 +218,7 @@ const Home = () => {
           key={driver._id}
           className={`${
             index % 2 === 0 ? "bg-gray-50" : "bg-white"
-          } hover:bg-gray-100 transition-all duration-300 ease-in-out transform hover:scale-105`}
+          } hover:bg-gray-200 transition-all duration-300 ease-in-out transform `}
         >
           <td className="p-4 text-sm font-medium text-gray-900">
             {driver.name}
@@ -290,39 +292,47 @@ const Home = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {financialData && (
           <>
-            <div className="p-4 bg-white rounded-lg shadow-md">
-              <h3 className="text-xl font-semibold">Total Fare</h3>
-              <p className="text-2xl text-green-600">{totalFare.toFixed(2)}</p>
+            <div className="p-4 bg-green-700 text-white rounded-lg shadow-md hover:shadow-lg hover:shadow-green-300 hover:bg-green-800 transition-all ease-in-out flex justify-between items-center">
+              <span>
+                <h3 className="text-3xl font-semibold">Total Fare</h3>
+                <p className="text-2xl">{totalFare.toFixed(2)}</p>
+              </span>
+              <FaRupeeSign className="text-4xl"/>
             </div>
-            <div className="p-4 bg-white rounded-lg shadow-md">
-              <h3 className="text-xl font-semibold">Total Tax</h3>
-              <p className="text-2xl text-yellow-600">
-                {totalTaxAmount.toFixed(2)}
-              </p>
+            <div className="p-4 bg-yellow-600 text-white rounded-lg shadow-md hover:shadow-lg hover:shadow-yellow-600 hover:bg-yellow-700 transition-all ease-in-out flex justify-between items-center">
+              <span>
+                <h3 className="text-3xl font-semibold">Total Tax</h3>
+                <p className="text-2xl">{totalTaxAmount.toFixed(2)}</p>
+              </span>
+              <FaCar className="text-4xl"/>
             </div>
-            <div className="p-4 bg-white rounded-lg shadow-md">
-              <h3 className="text-xl font-semibold">Total Toll</h3>
-              <p className="text-2xl text-blue-600">
-                {totalTollAmount.toFixed(2)}
-              </p>
+            <div className="p-4 bg-blue-700 text-white rounded-lg shadow-md hover:shadow-lg hover:shadow-blue-600 hover:bg-blue-800 transition-all ease-in-out flex justify-between items-center">
+              <span>
+                <h3 className="text-3xl font-semibold">Total Toll</h3>
+                <p className="text-2xl">{totalTollAmount.toFixed(2)}</p>
+              </span>
+              <FiTruck className="text-4xl"/>
             </div>
-            <div className="p-4 bg-white rounded-lg shadow-md">
-              <h3 className="text-xl font-semibold">Total Discount</h3>
-              <p className="text-2xl text-red-600">
-                {totalDiscountAmount.toFixed(2)}
-              </p>
+            <div className="p-4 bg-purple-700 text-white rounded-lg shadow-md hover:shadow-lg hover:shadow-purple-500 hover:bg-purple-800 transition-all ease-in-out flex justify-between items-center">
+              <span>
+                <h3 className="text-3xl font-semibold">Total Discount</h3>
+                <p className="text-2xl">{totalDiscountAmount.toFixed(2)}</p>
+              </span>
+              <FaMoneyBill className="text-4xl"/>
             </div>
-            <div className="p-4 bg-white rounded-lg shadow-md">
-              <h3 className="text-xl font-semibold">Profit</h3>
-              <p className="text-2xl text-purple-600">
-                {totalProfit.toFixed(2)}
-              </p>
+            <div className="p-4 bg-sky-700 text-white rounded-lg shadow-md hover:shadow-lg hover:shadow-sky-300 hover:bg-sky-800 transition-all ease-in-out flex justify-between items-center">
+              <span>
+                <h3 className="text-3xl font-semibold">Profit</h3>
+                <p className="text-2xl">{totalProfit.toFixed(2)}</p>
+              </span>
+              <FaChartLine className="text-4xl" />
             </div>
-            <div className="p-4 bg-white rounded-lg shadow-md">
-              <h3 className="text-xl font-semibold">Extra Expense</h3>
-              <p className="text-2xl text-orange-600">
-                {totalExtraExpanse.toFixed(2)}
-              </p>
+            <div className="p-4 bg-red-700 text-white rounded-lg shadow-md hover:shadow-lg hover:shadow-red-500 hover:bg-red-800 transition-all ease-in-out flex justify-between items-center">
+              <span>
+                <h3 className="text-3xl font-semibold">Extra Expense</h3>
+                <p className="text-2xl">{totalExtraExpanse.toFixed(2)}</p>
+              </span>
+              <MdAttachMoney className="text-4xl"/>
             </div>
           </>
         )}
@@ -331,12 +341,12 @@ const Home = () => {
       {/* Layout for Tabs and Chart */}
       <div className="  mt-8">
         {/* Left: Tabs for Vehicle and Driver List */}
-        <div className="w-full  sm:w-auto px-6">
-          <div className="flex space-x-8 mb-4">
+        <div className="w-full  sm:w-auto ">
+          <div className="flex space-x-4 mb-4">
             <button
               className={`p-3 w-full text-center font-semibold text-lg rounded-lg transition-all duration-300 ease-in-out transform ${
                 activeTab === "vehicles"
-                  ? "bg-indigo-300 text-indigo-900 shadow-sm scale-105 border border-indigo-400"
+                  ? "bg-indigo-300 text-indigo-900 shadow-sm scale-100 border border-indigo-400"
                   : "bg-transparent text-indigo-600 hover:bg-indigo-100 hover:text-indigo-800 hover:shadow-md"
               }`}
               onClick={() => setActiveTab("vehicles")}
@@ -346,7 +356,7 @@ const Home = () => {
             <button
               className={`p-3 w-full text-center font-semibold text-lg rounded-lg transition-all duration-300 ease-in-out transform ${
                 activeTab === "drivers"
-                  ? "bg-teal-300 text-teal-900 shadow-sm scale-105 border border-teal-400"
+                  ? "bg-teal-300 text-teal-900 shadow-sm scale-100 border border-teal-400"
                   : "bg-transparent text-teal-600 hover:bg-teal-100 hover:text-teal-800 hover:shadow-md"
               }`}
               onClick={() => setActiveTab("drivers")}
@@ -360,7 +370,7 @@ const Home = () => {
             {activeTab === "vehicles" ? (
               <div>
                 <table className="min-w-full table-auto bg-white shadow-md rounded-lg overflow-hidden border border-gray-300">
-                  <thead className="bg-gradient-to-r from-blue-500 to-teal-500 text-white">
+                  <thead className="bg-blue-800 text-white">
                     <tr>
                       <th className="p-4 text-left font-semibold text-lg">
                         Name
@@ -397,7 +407,7 @@ const Home = () => {
             ) : (
               <div>
                 <table className="min-w-full table-auto bg-white shadow-md rounded-lg overflow-hidden border border-gray-300">
-                  <thead className="bg-gradient-to-r from-blue-500 to-teal-500 text-white">
+                  <thead className="bg-blue-800 text-white">
                     <tr>
                       <th className="p-4 text-left font-semibold text-lg">
                         Name

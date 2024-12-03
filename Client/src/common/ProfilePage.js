@@ -114,8 +114,10 @@ const ProfilePage = () => {
       {planHistory.length === 0 ? (
         <p className="text-gray-600">No plan history available.</p>
       ) : (
-        <table className="min-w-full bg-white border-collapse border border-gray-300 shadow-sm rounded-md">
-          <thead className="bg-gray-200">
+        <div className='overflow-hidden'>
+          <div className='overflow-x-scroll rounded-md '>
+        <table className="min-w-full bg-white border-collapse border border-gray-300 shadow-md shadow-gray-100 rounded-md ">
+          <thead className="bg-sky-700 text-white">
             <tr>
               <th className="py-2 px-4 border-b">Plan Name</th>
               <th className="py-2 px-4 border-b">Purchased At</th>
@@ -140,6 +142,8 @@ const ProfilePage = () => {
             ))}
           </tbody>
         </table>
+        </div>
+        </div>
       )}
     </div>
   );
