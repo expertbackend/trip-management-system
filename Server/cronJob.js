@@ -6,8 +6,8 @@ const { getIo } = require('./socket');
 const io = getIo();
      
 // Schedule cron job every 10 seconds for demonstration, you can adjust the cron time accordingly
-cron.schedule("*/10 * * * * *", async () => {
-  const today = new Date();
+cron.schedule("0 9 * * *", async () => {
+const today = new Date();
   console.log("Running cron job at:", today);
 
   try {
