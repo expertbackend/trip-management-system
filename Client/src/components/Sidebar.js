@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { FaBullhorn, FaSpeakerDeck, FaTruck, FaUserTie } from 'react-icons/fa';
+import { FaBullhorn, FaSpeakerDeck, FaTruck, FaUserTie } from "react-icons/fa";
 import {
   FaBars,
   FaTimes,
@@ -95,13 +95,16 @@ function Sidebar({ role, notifications, username }) {
   const toggleNotifications = () => {
     setShowNotifications(!showNotifications);
   };
- 
+  const [isSettingOpen,setSettingOpen] = useState(false)
+  const handleSetting = () => {
+    setSettingOpen(!isSettingOpen)
+  }
 
   return (
     <div
       className={`${
         isOpen ? "w-64" : "w-20"
-      } relative z-10 h-full bg-white text-white transition-all duration-300 ease-in-out flex flex-col shadow-lg overflow-hidden border-r-2 `}
+      } relative z-10 h-full bg-white text-white transition-all duration-300 ease-in-out flex flex-col shadow-lg  overflow-x-visible border-r-2 `}
     >
       {/* Header Section */}
       <div className="h-full overflow-y-auto p-1">
@@ -149,9 +152,10 @@ function Sidebar({ role, notifications, username }) {
             )}
           </div>
         </div>
+        
 
         {/* Navigation Links */}
-        <ul className="flex flex-col space-y-2 mt-4 overflow-hidden ">
+        <ul className=" flex flex-col space-y-2 mt-4 overflow-hidden overflow-x-visible">
           {/* Owner */}
           <li
             className={`relative flex items-center p-3 rounded-lg transition-colors ${
@@ -162,7 +166,7 @@ function Sidebar({ role, notifications, username }) {
             onClick={handleProfileClick}
           >
             {/* Profile Section */}
-            <div className="flex items-center mt-11">
+            <div className="flex items-center mt-11  overflow-hidden">
               {/* Avatar Image */}
               <Avatar
                 name={username}
@@ -190,13 +194,10 @@ function Sidebar({ role, notifications, username }) {
                   }`}
                   onClick={() => handleLinkClick("home")}
                 >
-
                   <FaHome className="text-xl" />
                   {isOpen && <span className="ml-4">Home</span>}
                 </Link>
-                
               </li>
-              
             </>
           )}
           {/* Role-specific Links */}
@@ -247,33 +248,41 @@ function Sidebar({ role, notifications, username }) {
               {/* Expenses Section - Visible for owner/operator */}
               {(role === "owner" || role === "operator") && (
                 <div className="mt-4 border-b-2">
-                  <h3
+                  <div
                     onClick={toggleExpenses} // Toggle for "Expenses" submenu
-                    className={`flex items-center justify-between text-center  text-lg font-semibold text-black mb-2 cursor-pointer ${
-                      isExpensesOpen ? "bg-transparent" : "<p></p>"
+                    className={`flex items-center justify-between pb-2  text-black  cursor-pointer   ${
+                      isExpensesOpen ? "bg-transparent border-b-2 border-gray-300" : "<p></p>"
                     }`}
                   >
-                    <span className="p-2">
-                      {isOpen || isExpensesOpen ? (
-                        <span className=" text-xl">Expenses</span>
+                    <span className="p-2 ">
+                      {isOpen ? (
+                        isExpensesOpen ? (
+                          <span className="flex gap-2 text-base font-normal">
+                            <FaCoins className="text-2xl" /> Expenses
+                          </span>
+                        ) : (
+                          <span className="flex gap-2 text-base font-normal">
+                            <FaCoins className="text-2xl" /> Expenses
+                          </span>
+                        )
                       ) : (
                         <FaCoins className="text-2xl" />
                       )}
                     </span>
 
-                    <FaChevronUp
-                      className={`text-sm transition-all duration-300 ease-out ${
+                    <FaChevronDown
+                      className={`text-sm transition-all  duration-300 ease-out ${
                         isExpensesOpen ? "rotate-180" : ""
                       }`}
                     />
-                  </h3>
+                  </div>
 
                   {isExpensesOpen && (
-                    <ul className="space-y-2">
+                    <ul className=" overflow-hidden">
                       <li className="relative">
                         <Link
                           to="/add-expense"
-                          className={`flex items-center p-3 rounded-lg transition-colors ${
+                          className={`flex items-center p-3  transition-colors border-b-2 border- ${
                             activeLink === "create-expense"
                               ? "bg-blue-600 text-white"
                               : "text-black hover:bg-gray-300 hover:text-black"
@@ -289,7 +298,7 @@ function Sidebar({ role, notifications, username }) {
                       <li className="relative">
                         <Link
                           to="/view-expense"
-                          className={`flex items-center p-3 rounded-lg transition-colors ${
+                          className={`flex items-center p-3  transition-colors ${
                             activeLink === "view-expense"
                               ? "bg-blue-600 text-white"
                               : "text-black hover:bg-gray-300 hover:text-black"
@@ -314,13 +323,21 @@ function Sidebar({ role, notifications, username }) {
                     }`}
                   >
                     <span className="p-2">
-                      {isOpen || isBookingOpen ? (
-                        <span className=" text-xl">Booking</span>
+                      {isOpen ? (
+                        isBookingOpen ? (
+                          <span className=" flex text-base gap-2 font-normal">
+                            <FaTicketAlt className="text-2xl " /> Booking
+                          </span>
+                        ) : (
+                          <span className=" flex text-base gap-2 font-normal">
+                            <FaTicketAlt className="text-2xl " /> Booking
+                          </span>
+                        )
                       ) : (
                         <FaTicketAlt className="text-2xl " />
                       )}
                     </span>
-                    <FaChevronUp
+                    <FaChevronDown
                       className={`text-sm transition-all duration-300 ease-out ${
                         isBookingOpen ? "rotate-180" : ""
                       }`}
@@ -328,7 +345,7 @@ function Sidebar({ role, notifications, username }) {
                   </h3>
 
                   {isBookingOpen && (
-                    <ul className="space-y-2">
+                    <ul className="space-y-2 overflow-hidden">
                       <li className="relative">
                         <Link
                           to="/create-booking"
@@ -467,12 +484,26 @@ function Sidebar({ role, notifications, username }) {
               </Link>
             </li>
           )}
-          <li className="relative">
-            <button className="flex items-center p-3 rounded-lg transition-colors text-black hover:bg-gray-300 hover:text-black w-full">
+         
+        </ul>
+        <div className="">
+        
+            <button onClick={handleSetting} className="flex items-center p-3 rounded-lg transition-colors text-black hover:bg-gray-300 hover:text-black w-full">
               <AiFillSetting className="text-2xl fill-black" />
               {isOpen && <span className="ml-4">Setting</span>}
             </button>
-          </li>
+            <div className={`absolute  ${isSettingOpen ? 'flex':'hidden'} w-64 flex-col bottom-4 md:bottom-20 p-2 rounded-lg left-[calc(100%+8px)] z-50  bg-white shadow-md text-black text-sm font-medium `}>
+              <hi className=' flex items-center justify-between gap-2 p-3 font-semibold text-2xl '> Settings <FaTimes onClick={handleSetting} className="text-2xl fill-black cursor-pointer" /></hi>
+              <div className="p-3 border-b-2 hover:bg-gray-300">Privacy Policy</div>
+              <div className="p-3 border-b-2 hover:bg-gray-300">Terms and Condition</div>
+              <div className="p-3 border-b-2 hover:bg-gray-300">Help</div>
+              <div className="p-3  hover:bg-gray-300">About Us</div>
+
+            </div>
+          
+        </div>
+        <ul className="">
+        
 
           {/* Other Links */}
           <li className="relative group">
@@ -483,7 +514,6 @@ function Sidebar({ role, notifications, username }) {
               <FaSignOutAlt className="text-xl" />
               {isOpen && <span className="ml-4">Logout</span>}
             </button>
-            
           </li>
         </ul>
       </div>
