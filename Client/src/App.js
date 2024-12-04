@@ -25,6 +25,9 @@ import ProfilePage from './common/ProfilePage';
 import SuperAdminPage from './common/SuperAdmin';
 import VehicleManagement from './common/VehicleManagement';
 import Announcements from './common/Announcement';
+import PrivacyPolicy from './components/privacy-policy';
+import Help from './components/help';
+import Terms from './components/termandcondition';
 
 function App() {
   const [role, setRole] = useState(null);
@@ -220,7 +223,9 @@ return <Navigate to ="/login"/>
               <Route path="/SuperAdmin" element={<PrivateRoute component={SuperAdminPage} />} />
               <Route path="/fms" element={<PrivateRoute component={VehicleManagement} />} />
               <Route path="/announcement" element={<PrivateRoute component={Announcements} />} />
-
+              <Route path="/privacy-policy" element={<PrivateRoute component={PrivacyPolicy} />} />
+              <Route path="/help" element={<PrivateRoute component={Help} />} />
+              <Route path="/term" element={<PrivateRoute component={Terms} />} />
             </Routes>
           </div>
         </>

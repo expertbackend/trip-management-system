@@ -494,10 +494,24 @@ function Sidebar({ role, notifications, username }) {
             </button>
             <div className={`absolute  ${isSettingOpen ? 'flex':'hidden'} w-64 flex-col bottom-4 md:bottom-20 p-2 rounded-lg left-[calc(100%+8px)] z-50  bg-white shadow-md text-black text-sm font-medium `}>
               <hi className=' flex items-center justify-between gap-2 p-3 font-semibold text-2xl '> Settings <FaTimes onClick={handleSetting} className="text-2xl fill-black cursor-pointer" /></hi>
-              <div className="p-3 border-b-2 hover:bg-gray-300">Privacy Policy</div>
-              <div className="p-3 border-b-2 hover:bg-gray-300">Terms and Condition</div>
-              <div className="p-3 border-b-2 hover:bg-gray-300">Help</div>
-              <div className="p-3  hover:bg-gray-300">About Us</div>
+              <div className="p-3 border-b-2 hover:bg-gray-300">
+                <Link to="/privacy-policy">
+                Privacy Policy
+                </Link>
+                </div>
+              <div className="p-3 border-b-2 hover:bg-gray-300">
+                <Link to="/term">
+                Terms and Condition
+                </Link>
+                </div>
+              <div className="p-3 border-b-2 hover:bg-gray-300">
+              <Link to="/help">
+              Help
+              </Link>
+              </div>
+              <div className="p-3  hover:bg-gray-300">
+                About Us
+                </div>
 
             </div>
           
