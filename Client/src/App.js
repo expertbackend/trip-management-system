@@ -28,6 +28,7 @@ import Announcements from './common/Announcement';
 import PrivacyPolicy from './components/privacy-policy';
 import Help from './components/help';
 import Terms from './components/termandcondition';
+import EditProfile from './components/editprofile';
 
 function App() {
   const [role, setRole] = useState(null);
@@ -226,6 +227,7 @@ return <Navigate to ="/login"/>
               <Route path="/privacy-policy" element={<PrivateRoute component={PrivacyPolicy} />} />
               <Route path="/help" element={<PrivateRoute component={Help} />} />
               <Route path="/term" element={<PrivateRoute component={Terms} />} />
+              <Route path="/edit-profile" element={<PrivateRoute component={EditProfile} />} />
             </Routes>
           </div>
         </>

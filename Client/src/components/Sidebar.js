@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { FaBullhorn, FaSpeakerDeck, FaTruck, FaUserTie } from "react-icons/fa";
 import {
   FaBars,
@@ -95,10 +95,29 @@ function Sidebar({ role, notifications, username }) {
   const toggleNotifications = () => {
     setShowNotifications(!showNotifications);
   };
-  const [isSettingOpen,setSettingOpen] = useState(false)
+  // Setiting
+  const [isSettingOpen, setSettingOpen] = useState(false);
   const handleSetting = () => {
-    setSettingOpen(!isSettingOpen)
-  }
+    setSettingOpen(!isSettingOpen);
+  };
+  const dropdownRef = useRef(null);
+
+  // const handleSetting = () => {
+  //   setIsSettingOpen((prev) => !prev);
+  // };
+
+  const handleClickOutside = (event) => {
+    if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+      setSettingOpen(false);
+    }
+  };
+
+  useEffect(() => {
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   return (
     <div
@@ -152,7 +171,6 @@ function Sidebar({ role, notifications, username }) {
             )}
           </div>
         </div>
-        
 
         {/* Navigation Links */}
         <ul className=" flex flex-col space-y-2 mt-4 overflow-hidden overflow-x-visible">
@@ -251,7 +269,9 @@ function Sidebar({ role, notifications, username }) {
                   <div
                     onClick={toggleExpenses} // Toggle for "Expenses" submenu
                     className={`flex items-center justify-between pb-2  text-black  cursor-pointer   ${
-                      isExpensesOpen ? "bg-transparent border-b-2 border-gray-300" : "<p></p>"
+                      isExpensesOpen
+                        ? "bg-transparent border-b-2 border-gray-300"
+                        : "<p></p>"
                     }`}
                   >
                     <span className="p-2 ">
@@ -484,41 +504,46 @@ function Sidebar({ role, notifications, username }) {
               </Link>
             </li>
           )}
-         
         </ul>
-        <div className="">
-        
-            <button onClick={handleSetting} className="flex items-center p-3 rounded-lg transition-colors text-black hover:bg-gray-300 hover:text-black w-full">
-              <AiFillSetting className="text-2xl fill-black" />
-              {isOpen && <span className="ml-4">Setting</span>}
-            </button>
-            <div className={`absolute  ${isSettingOpen ? 'flex':'hidden'} w-64 flex-col bottom-4 md:bottom-20 p-2 rounded-lg left-[calc(100%+8px)] z-50  bg-white shadow-md text-black text-sm font-medium `}>
-              <hi className=' flex items-center justify-between gap-2 p-3 font-semibold text-2xl '> Settings <FaTimes onClick={handleSetting} className="text-2xl fill-black cursor-pointer" /></hi>
-              <div className="p-3 border-b-2 hover:bg-gray-300">
-                <Link to="/privacy-policy">
-                Privacy Policy
-                </Link>
-                </div>
-              <div className="p-3 border-b-2 hover:bg-gray-300">
-                <Link to="/term">
-                Terms and Condition
-                </Link>
-                </div>
-              <div className="p-3 border-b-2 hover:bg-gray-300">
-              <Link to="/help">
-              Help
-              </Link>
-              </div>
-              <div className="p-3  hover:bg-gray-300">
-                About Us
-                </div>
-
+        <div className="" ref={dropdownRef}>
+          <button
+            onClick={handleSetting}
+            className="flex items-center p-3 rounded-lg transition-colors text-black hover:bg-gray-300 hover:text-black w-full"
+          >
+            <AiFillSetting className="text-2xl fill-black" />
+          </button>
+          <div
+            className={`absolute ${
+              isSettingOpen ? "flex" : "hidden"
+            } w-64 flex-col bottom-4 md:bottom-20 p-2 rounded-lg left-[calc(100%+8px)] z-50 bg-white shadow-lg shadow-gray-500 text-black text-sm font-medium`}
+          >
+            {/* Dropdown Content */}
+            <Link to="/edit-profile">
+            <div className="p-3 border-b-2 hover:bg-gray-300 hover:rounded-lg">
+              Edit Profile
             </div>
-          
+            </Link>
+            <Link to="/privacy-policy">
+            <div className="p-3 border-b-2 hover:bg-gray-300 hover:rounded-lg">
+              Privacy Policy
+            </div>
+            </Link>
+            <Link to="/terms">
+            <div className="p-3 border-b-2 hover:bg-gray-300 hover:rounded-lg">
+             Terms and Conditions
+            </div>
+            </Link>
+            <Link to="/help">
+            <div className="p-3 border-b-2 hover:bg-gray-300 hover:rounded-lg">
+              Help
+            </div>
+            </Link>
+            <Link to="/about">
+            <div className="p-3 hover:bg-gray-300 hover:rounded-lg">About Us</div>
+            </Link>
+          </div>
         </div>
         <ul className="">
-        
-
           {/* Other Links */}
           <li className="relative group">
             <button
