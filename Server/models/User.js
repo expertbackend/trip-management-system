@@ -15,7 +15,7 @@ const userSchema = new mongoose.Schema({
     ownerId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
     status: { type: String, enum: ['active','inactive'] },
     bookingStatus: { type: String, enum: ['pending','assigned',"in-progress","completed"],default:"pending" },
-    bookings: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Booking1' }],
+    bookings: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Booking' }],
     fuelExpanse: [{ date: Date, amount: String }],
     driverExpanse: [{ date: Date, amount: String }],
     vehicleExpanse: [{ date: Date, amount: String }],
