@@ -5,10 +5,10 @@ function EditProfile() {
         const [formData, setFormData] = useState({
           name: "Admin",
           title: "Administrator",
-          organization: "Ingeniux",
-          workPhone: "(509)-123-4567",
-          mobilePhone: "(509)-123-4567",
-          email: "admin@ingeniux.com",
+          organization: "My Company",
+          workPhone: "8114868494",
+          mobilePhone: "8114868494",
+          email: "expertsolutionsbbsr@gmail.com",
         });
       
         const handleChange = (e) => {
@@ -20,10 +20,10 @@ function EditProfile() {
           console.log("Saved Data:", formData);
         };
   return (
-    <div className="flex justify-center items-center min-h-screen bg-gray-100">
-      <div className="bg-white w-full max-w-2xl rounded-lg shadow-lg p-6">
+    <div className="flex justify-center items-center  bg-gray-100">
+      <div className="bg-white w-full  rounded-lg  p-6">
         <div className="border-b pb-4 mb-4">
-          <h2 className="text-xl font-bold text-blue-600">Edit your Profile</h2>
+          <h2 className="text-3xl font-bold text-blue-600">Edit your Profile</h2>
         </div>
         <form onSubmit={handleSubmit}>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -43,7 +43,7 @@ function EditProfile() {
             </div>
 
             {/* Form Fields */}
-            <div className="md:col-span-2 grid gap-4">
+            <div className="sm:col-span-1 md:col-span-2 grid gap-4">
               <div className="flex flex-col">
                 <label className="font-medium text-gray-600">Name:</label>
                 <input
@@ -51,7 +51,7 @@ function EditProfile() {
                   name="name"
                   value={formData.name}
                   onChange={handleChange}
-                  className="mt-1 border rounded-md p-2 focus:ring focus:ring-blue-300 focus:outline-none"
+                  className=" w-full sm:w-auto mt-1 border rounded-md p-2 focus:ring focus:ring-blue-300 focus:outline-none"
                 />
               </div>
               <div className="flex flex-col">
@@ -61,7 +61,7 @@ function EditProfile() {
                   name="title"
                   value={formData.title}
                   onChange={handleChange}
-                  className="mt-1 border rounded-md p-2 focus:ring focus:ring-blue-300 focus:outline-none"
+                  className="w-full sm:w-auto mt-1 border rounded-md p-2 focus:ring focus:ring-blue-300 focus:outline-none"
                 />
               </div>
               <div className="flex flex-col">
@@ -71,7 +71,7 @@ function EditProfile() {
                   name="organization"
                   value={formData.organization}
                   onChange={handleChange}
-                  className="mt-1 border rounded-md p-2 focus:ring focus:ring-blue-300 focus:outline-none"
+                  className="w-full sm:w-auto mt-1 border rounded-md p-2 focus:ring focus:ring-blue-300 focus:outline-none"
                 />
               </div>
               <div className="flex flex-col">
@@ -81,7 +81,7 @@ function EditProfile() {
                   name="workPhone"
                   value={formData.workPhone}
                   onChange={handleChange}
-                  className="mt-1 border rounded-md p-2 focus:ring focus:ring-blue-300 focus:outline-none"
+                  className="w-full sm:w-auto mt-1 border rounded-md p-2 focus:ring focus:ring-blue-300 focus:outline-none"
                 />
               </div>
               <div className="flex flex-col">
@@ -91,7 +91,7 @@ function EditProfile() {
                   name="mobilePhone"
                   value={formData.mobilePhone}
                   onChange={handleChange}
-                  className="mt-1 border rounded-md p-2 focus:ring focus:ring-blue-300 focus:outline-none"
+                  className="w-full sm:w-auto mt-1 border rounded-md p-2 focus:ring focus:ring-blue-300 focus:outline-none"
                 />
               </div>
               <div className="flex flex-col">
@@ -101,7 +101,7 @@ function EditProfile() {
                   name="email"
                   value={formData.email}
                   onChange={handleChange}
-                  className="mt-1 border rounded-md p-2 focus:ring focus:ring-blue-300 focus:outline-none"
+                  className="w-full sm:w-auto mt-1 border rounded-md p-2 focus:ring focus:ring-blue-300 focus:outline-none"
                 />
               </div>
             </div>
