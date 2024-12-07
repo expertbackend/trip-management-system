@@ -228,7 +228,7 @@ function ViewExpenses() {
                 <th className="border border-gray-300 p-3 text-left">Actions</th>
               </tr>
             </thead>
-            <tbody>
+            <tbody className="whitespace-nowrap">
               {paginatedExpenses.map((driverExpense, index) => {
                 const hasExpenses = driverExpense.expenses.length > 0;
                 const expenseDate = hasExpenses ? formatDate(driverExpense.expenses[0].date) : "N/A"; // Get the first expense date
