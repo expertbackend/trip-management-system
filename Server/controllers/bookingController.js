@@ -9,13 +9,13 @@ const Notification = require('../tEst/NotificationService');
 const mongoose = require('mongoose');
 
 // Helper function to calculate the estimated price
-const calculateEstimate = ({ basePay, perKmCharge, kmDriven, halt, tax, toll, discount }) => {
+const calculateEstimate = ({ basePay, perKmCharge, kmDriven, halt, tax, toll, discount,totalNetMaterialWeight,perTonPrice }) => {
   console.log('basePay, perKmCharge, kmDriven, halt, tax, toll, discount', basePay, perKmCharge, kmDriven, halt, tax, toll, discount)
   let totalFare = basePay + (perKmCharge * kmDriven) + halt;
+  let finalWeightAmount = totalNetMaterialWeight*perTonPrice;
   let taxAmount = (totalFare * tax) / 100;
   let discountAmount = discount || 0;
-  let finalAmount = totalFare + taxAmount + toll - discountAmount;
-  console.log('testttttt', totalFare, taxAmount, discountAmount, finalAmount)
+  let finalAmount = totalFare + taxAmount + toll+finalWeightAmount - discountAmount;
   return {
     totalFare,
     taxAmount,
@@ -51,7 +51,10 @@ exports.createBooking = async (req, res) => {
       halt,
       tax,
       toll,
-      discount
+      discount,
+      totalNetMaterialWeight,
+      perTonPrice,
+      advance
     } = {
       ...req.body,
       kmDriven: Number(req.body.kmDriven),
@@ -61,10 +64,12 @@ exports.createBooking = async (req, res) => {
       tax: Number(req.body.tax),
       toll: Number(req.body.toll),
       discount: Number(req.body.discount),
-      custPhNo: Number(req.body.custPhNo)
+      custPhNo: Number(req.body.custPhNo),
+      totalNetMaterialWeight: Number(req.body.totalNetMaterialWeight),
+      perTonPrice:Number(req.body.perTonPrice),
+      
     };
 
-    console.log('req.body', req.body)
     // Convert startDate and endDate to IST
     const startDateIST = convertToIST(startDate);  // Convert to IST
     const endDateIST = convertToIST(endDate);      // Convert to IST
@@ -114,7 +119,7 @@ exports.createBooking = async (req, res) => {
     }
 
     // Calculate the estimated invoice
-    const invoice = calculateEstimate({ basePay, perKmCharge, kmDriven, halt, tax, toll, discount });
+    const invoice = calculateEstimate({ basePay, perKmCharge, kmDriven, halt, tax, toll, discount,totalNetMaterialWeight,perTonPrice,advance });
     console.log(basePay, perKmCharge, kmDriven, halt, tax, toll, discount)
     const invoiceId = `INV-${new Date().toISOString().replace(/[^0-9]/g, '').slice(0, 14)}`;
     const pickupLocationGeoJSON = {
@@ -132,6 +137,8 @@ exports.createBooking = async (req, res) => {
         coordinates: [dropoffLocation.lng, dropoffLocation.lat], // [longitude, latitude]
       },
     };
+    const remainingAmount = invoice.finalAmount - advance;
+    console.log('remain',invoice.finalAmount,advance)
     // Create a new booking with the estimated invoice
     const newBooking = new Booking({
       owner,
@@ -170,6 +177,10 @@ exports.createBooking = async (req, res) => {
         custAddress
 
       },
+      remainingAmount,
+      advance,
+      totalNetMaterialWeight,
+      perTonPrice,
       customerVerified: false,
     });
 
@@ -272,7 +283,61 @@ exports.getBookings = async (req, res) => {
   }
 };
 
+exports.getCompletedBookings = async (req, res) => {
+  try {
+    const userId = req.user._id; // Authenticated user ID (from middleware)
+    const user = await User.findById(userId);
 
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    // Fetch bookings based on the role of the user
+    let bookings;
+
+    if (user.role === 'owner') {
+      // Owners can see their own bookings and bookings of their operators or drivers
+      bookings = await Booking.find({
+        $or: [
+          { owner: userId },  // Bookings where the owner is the creator
+          { operator: userId },  // Bookings created by the operator for the owner
+          { driver: userId }  // Bookings assigned to the driver
+        ],
+        status: 'in-progress'
+      })
+        .populate('vehicle')   // Populate vehicle details
+        .populate('driver');   // Populate driver details
+    } else if (user.role === 'operator') {
+      // Operators can see bookings created by them (as operator) or bookings where they are a driver
+      bookings = await Booking.find({
+        $or: [
+          { operator: userId },  // Bookings created by the operator
+          { driver: userId }  // Bookings assigned to the operator as a driver
+        ]
+      })
+        .populate('vehicle')
+        .populate('driver');
+    } else if (user.role === 'driver') {
+      // Drivers can only see bookings where they are assigned
+      bookings = await Booking.find({
+        driver: userId
+      })
+        .populate('vehicle')
+        .populate('driver');
+    } else {
+      return res.status(403).json({ message: 'Unauthorized access' }); // Invalid role access
+    }
+
+    return res.status(200).json({
+      message: 'Bookings fetched successfully',
+      bookings: bookings
+    });
+
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: 'Error fetching bookings' });
+  }
+};
 // Get booking by ID
 exports.getBookingById = async (req, res) => {
   try {
@@ -452,7 +517,7 @@ exports.endBooking = async (req, res) => {
     const basePay = booking.basePay || 50;  // Use the base fare from booking, defaulting to 50 if not present
     const perKmCharge = booking.perKmCharge || 10;  // Use the per km charge from booking, defaulting to 10 if not present
     const halt = booking.halt || 0;  // Additional halt charge if any
-
+const loadingAmount = booking.loadingAmount || 0;
     // Calculate the total fare based on the updated distance and other charges
     let totalFare = basePay + (perKmCharge * distanceTraveled) + halt;
 
@@ -611,6 +676,7 @@ const moment = require('moment'); // For date formatting and manipulation
 const Tyre = require('../models/Tyre');
 const vehicleDocument = require('../models/vehicleDocument');
 const vehicleService = require('../models/vehicleService');
+const LoadingDetails1 = require('../models/LoadingDetails1');
 
 exports.myBookings = async (req, res) => {
   try {
@@ -1057,5 +1123,170 @@ exports.cancelBooking = async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Failed to cancel booking" });
+  }
+};
+
+
+
+
+exports.createLoadingDetails = async (req, res) => {
+  try {
+    const { id } = req.params; // Booking ID
+    const { advanceAmount, netMaterialWeight, perTonPrice } = req.body;
+
+    // Fetch booking
+    const booking = await Booking.findById(id);
+    if (!booking) return res.status(404).json({ message: 'Booking not found' });
+
+    // Check if loading details already exist
+    const existingLoadingDetails = await LoadingDetails1.findOne({ booking: id });
+    if (existingLoadingDetails) {
+      return res.status(400).json({ message: 'Loading details already exist for this booking' });
+    }
+
+    // Calculate total material cost
+    const totalMaterialCost = netMaterialWeight * perTonPrice;
+
+    // Calculate total estimated amount
+    const totalEstimateAmount =
+      totalMaterialCost+booking.invoice.finalAmount
+
+    // Create loading details
+    const loadingDetails = new LoadingDetails1({
+      booking: id,
+      advanceAmount,
+      netMaterialWeight,
+      perTonPrice,
+      remainingAmount: totalEstimateAmount - advanceAmount,
+    });
+
+    await loadingDetails.save();
+
+    res.status(201).json({
+      message: 'Loading details created successfully',
+      totalEstimateAmount,
+      remainingAmount: loadingDetails.remainingAmount,
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+exports.updateLoadingDetails = async (req, res) => {
+  try {
+    const { id } = req.params; // Booking ID
+    const { advanceAmount, netMaterialWeight, perTonPrice } = req.body;
+
+    // Fetch booking
+    const booking = await Booking.findById(id);
+    if (!booking) return res.status(404).json({ message: 'Booking not found' });
+
+    // Fetch existing loading details
+    const loadingDetails = await LoadingDetails1.findOne({ booking: id });
+    if (!loadingDetails) {
+      return res.status(404).json({ message: 'Loading details not found. Please create them first.' });
+    }
+
+    // Recalculate amounts
+    let totalMaterialCost = netMaterialWeight * perTonPrice;
+    const totalEstimateAmount =
+      totalMaterialCost + booking.halt + booking.tax + booking.toll + booking.basePay + booking.perKmCharge;
+
+    // Update loading details
+    loadingDetails.advanceAmount = advanceAmount;
+    loadingDetails.netMaterialWeight = netMaterialWeight;
+    loadingDetails.perTonPrice = perTonPrice;
+    loadingDetails.remainingAmount = totalEstimateAmount - advanceAmount;
+
+    await loadingDetails.save();
+
+    res.status(200).json({
+      message: 'Loading details updated successfully',
+      totalEstimateAmount,
+      remainingAmount: loadingDetails.remainingAmount,
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+
+exports.updateUnloadingDetails = async (req, res) => {
+  try {
+    const { id } = req.params; // Booking ID
+    const { shortageWeight, receivedRemainingAmount, extraExpanse } = req.body;
+    console.log(typeof shortageWeight, receivedRemainingAmount, extraExpanse);
+
+    // Fetch booking and loading details
+    const booking = await Booking.findById(id);
+if(booking.unloading){
+  return res.status(409).json({
+    message:"You have already unloaded this booking once"
+  })
+}else{
+  const shortageDeduction = shortageWeight * (booking.perTonPrice || 10);
+
+  // Update basePay based on shortage
+  const updatedBasePay = booking.basePay - shortageDeduction;
+  const totalNetMaterialWeight = booking.totalNetMaterialWeight -shortageWeight;
+  // Calculate final amount after shortage deduction
+  const finalAmount = booking.invoice.finalAmount - shortageDeduction;
+
+  // Calculate remaining amount after received payment
+  const remainingAmount = updatedBasePay-booking.advance;
+  console.log('remainingAmount', remainingAmount);
+  const recieveRemainingAmount = updatedBasePay- booking.advance;
+  // Calculate profit after accounting for extra expenses
+  const profit = updatedBasePay - booking.extraExpanse;
+  console.log('profit', profit);
+
+  // Update the booking with the new values
+  booking.basePay = updatedBasePay;
+  booking.invoice.finalAmount = finalAmount;
+  booking.remainingAmount = remainingAmount > 0 ? remainingAmount : 0;
+  booking.profit = profit;
+  booking.shortageDeduction = shortageDeduction;
+booking.totalNetMaterialWeight = totalNetMaterialWeight;
+booking.unloading = true;
+  // Save the updated booking
+  await booking.save();
+
+  // Return the response with updated values
+  res.status(200).json({
+    message: 'Unloading details updated successfully',
+    finalAmount,
+    shortageDeduction,
+    remainingAmount: recieveRemainingAmount,
+    profit: booking.profit,
+  });
+}
+    
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error: error.message });
+  }
+};
+
+
+exports.getRemainingAmount = async (req, res) => {
+  try {
+    const { bookingId } = req.params;
+
+    // Fetch the booking from the database
+    const booking = await Booking.findById(bookingId);
+
+    if (!booking) {
+      return res.status(404).json({ error: 'Booking not found' });
+    }
+
+    // Calculate the remaining amount (final amount - advance amount)
+    const remainingAmount = booking.remainingAmount ;
+const totalNetMaterialWeight = booking.totalNetMaterialWeight ;
+console.log('totalNet',totalNetMaterialWeight)
+    // Send the response with the remaining amount
+    res.status(200).json({ remainingAmount,totalNetMaterialWeight });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Server error' });
   }
 };

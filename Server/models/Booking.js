@@ -56,10 +56,16 @@ const bookingSchema = new mongoose.Schema({
     type: String,
     
   },
+  totalNetMaterialWeight:{type:Number},
+  perTonPrice:{type:Number},
+  advance:{type:Number},
+  shortageDeduction:{type:Number},
+  remainingAmount:{type:Number},
   endDashboardImage : {
     type: String,
    
   },
+  unloading:{type:Boolean,default:false}
 });
 
 module.exports = mongoose.model('Booking', bookingSchema);

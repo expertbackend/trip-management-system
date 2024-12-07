@@ -25,6 +25,7 @@ import ProfilePage from './common/ProfilePage';
 import SuperAdminPage from './common/SuperAdmin';
 import VehicleManagement from './common/VehicleManagement';
 import Announcements from './common/Announcement';
+import LoadingUnloadingPage from './common/LoadingUnloading';
 import PrivacyPolicy from './components/privacy-policy';
 import Help from './components/help';
 import Terms from './components/termandcondition';
@@ -224,6 +225,7 @@ return <Navigate to ="/login"/>
               <Route path="/SuperAdmin" element={<PrivateRoute component={SuperAdminPage} />} />
               <Route path="/fms" element={<PrivateRoute component={VehicleManagement} />} />
               <Route path="/announcement" element={<PrivateRoute component={Announcements} />} />
+              <Route path="/create-loading" element={<PrivateRoute component={LoadingUnloadingPage} />} />
               <Route path="/privacy-policy" element={<PrivateRoute component={PrivacyPolicy} />} />
               <Route path="/help" element={<PrivateRoute component={Help} />} />
               <Route path="/term" element={<PrivateRoute component={Terms} />} />

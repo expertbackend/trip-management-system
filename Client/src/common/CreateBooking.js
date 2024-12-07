@@ -21,7 +21,10 @@ const CreateBooking = () => {
     discount: '',
     startDate: '',
     endDate: '',
-    kmDriven: ''
+    kmDriven: '',
+    totalNetMaterialWeight:'',
+    perTonPrice:'',
+    advance:''
   });
   const [loading, setLoading] = useState(false);
   const [responseMessage, setResponseMessage] = useState(null);
@@ -467,7 +470,38 @@ India`;
             required
           />
         </div>
-
+        <div className="space-y-4">
+        <input
+            type="number"
+            name="totalNetMaterialWeight"
+            placeholder="Total NetMaterial Weight"
+            value={formData.totalNetMaterialWeight}
+            onChange={handleChange}
+            className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-300 focus:border-blue-300"
+            required
+            min={0}
+          />
+<input
+            type="number"
+            name="perTonPrice"
+            placeholder="Total NetMaterial Weight price per ton"
+            value={formData.perTonPrice}
+            onChange={handleChange}
+            className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-300 focus:border-blue-300"
+            required
+            min={0}
+          />
+          <input
+            type="number"
+            name="advance"
+            placeholder="Advance"
+            value={formData.advance}
+            onChange={handleChange}
+            className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-300 focus:border-blue-300"
+            required
+            min={0}
+          />
+        </div>
         {/* Submit Button */}
         <button
           type="submit"

@@ -59,59 +59,48 @@ const BookingsPage = () => {
       new Date(dateString)
     );
   };
-  const generatePDF = (tyresToDownload) => {
+  const generatePDF = (bookingsToDownload) => {
     const doc = new jsPDF();
-    
-    // Define table columns for tyre records
+
+    // Add a table for all bookings
     const tableColumns = [
-      "Serial No.",
-      "Brand",
-      "Vehicle Plate",
-      "Position",
-      "Mileage",
-      "Installed at KM",
-      "Amount",
-      "Purchased From",
-      "Created At"
+      "Customer Name",
+      "Vehicle Name",
+      "Vehicle Number",
+      "Driver",
+      "Pickup Location",
+      "Dropoff Location",
+      "Fare",
+      "Days",
+      "Status",
     ];
-  
-    if (!tyresToDownload.length) {
+    if (!bookingsToDownload.length) {
       alert("No data available to download.");
       return;
     }
-  
-    // Prepare data for the table
-    const tableData = tyresToDownload.map((tyre) => [
-      tyre.tyreSerielNo || "N/A",
-      tyre.tyreBrand || "N/A",
-      tyre.vehicle?.plateNumber || "N/A",
-      tyre.tyrePosition || "N/A",
-      tyre.tyreMileage || "N/A",
-      tyre.installedAtKm || "N/A",
-      `${tyre.tyreAmount?.toFixed(2) || "N/A"}`,
-      tyre.purchaseFrom || "N/A",
-      tyre.createdAt || "N/A"
+    const tableData = bookingsToDownload.map((booking) => [
+      booking.customerName || "N/A",
+      booking.vehicle?.name || "N/A",
+      booking.vehicle?.plateNumber || "N/A",
+      booking.driver?.name || "N/A",
+      booking.pickupLocation?.address || "N/A",
+      booking.dropoffLocation?.address || "N/A",
+      `${booking.fare?.toFixed(2) || "N/A"}`,
+      calculateDaysCount(booking.startDate, booking.endDate),
+      booking.status || "N/A",
     ]);
-  
-    // Add title to the PDF
-    doc.text("Tyre Records Overview", 10, 10);
-  
-    // Add table to the PDF
+    // Add title
+    doc.text("Bookings Overview", 10, 10);
+
+    // Add table for all bookings
     doc.autoTable({
       head: [tableColumns],
       body: tableData,
-      startY: 20, // Start table from Y position 20 to leave space for the title
-      theme: "grid", // Grid style for better visibility of data
-      headStyles: { fillColor: [0, 0, 0] }, // Black background for headers
-      styles: {
-        fontSize: 10,
-        cellPadding: 2,
-        valign: "middle",
-      },
+      startY: 20,
     });
-  
-    // Save the generated PDF
-    doc.save("tyre_records.pdf");
+
+    // Save PDF
+    doc.save("bookings.pdf");
   };
   // Handle Search
   const handleSearch = (query) => {
@@ -146,7 +135,9 @@ const BookingsPage = () => {
     if (type === "all") {
       generatePDF(filteredBookings); // Download all bookings
     } else if (type === "individual" && bookingId) {
-      const selectedBooking = filteredBookings.find((booking) => booking._id === bookingId);
+      const selectedBooking = filteredBookings.find(
+        (booking) => booking._id === bookingId
+      );
       if (selectedBooking) {
         generatePDF([selectedBooking]); // Download selected booking as a single PDF
       }
@@ -264,13 +255,16 @@ const BookingsPage = () => {
               <th className="px-4 py-2">Pickup Location</th>
               <th className="px-4 py-2">Dropoff Location</th>
               <th className="px-4 py-2">Fare</th>
+              <th className="px-4 py-2">Net Material Weight</th>
+              <th className="px-4 py-2">Per Ton Price</th>
+              <th className="px-4 py-2">Total Value</th>
               <th className="px-4 py-2">KM</th>
               <th className="px-4 py-2">Dates & Days</th> {/* Updated Column Name */}
               <th className="px-4 py-2">Status</th>
               <th className="px-4 py-2">Actions</th>
             </tr>
           </thead>
-          <tbody>
+          <tbody className="whitespace-nowrap">
             {currentBookings.map((booking, index) => (
               <tr key={booking._id} className="border-t hover:bg-gray-100 transition">
                 <td className="px-4 py-2">{index + 1}</td> {/* Serial Number for each row */}
@@ -280,7 +274,10 @@ const BookingsPage = () => {
                 <td className="px-4 py-2">{booking.driver?.name || "N/A"}</td>
                 <td className="px-4 py-2">{booking.pickupLocation?.address || "N/A"}</td>
                 <td className="px-4 py-2">{booking.dropoffLocation?.address || "N/A"}</td>
-                <td className="px-4 py-2">₹{booking.fare?.toFixed(2) || "N/A"}</td>
+                <td className="px-4 py-2">₹{booking.basePay?.toFixed(2) || "N/A"}</td>
+                <td className="px-4 py-2">{booking.totalNetMaterialWeight?.toFixed(2) || "N/A"}</td>
+                <td className="px-4 py-2">₹{booking.perTonPrice?.toFixed(2) || "N/A"}</td>
+                <td className="px-4 py-2">₹{(booking.perTonPrice?.toFixed(2) * booking.totalNetMaterialWeight?.toFixed(2)) || "N/A"}</td>
                 <td className="px-4 py-2">{booking.kmDriven || "N/A"}</td>
                 <td className="px-4 py-2">
                   {`Start: ${formatDate(booking.startDate)}\nEnd: ${formatDate(

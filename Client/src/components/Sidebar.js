@@ -384,6 +384,22 @@ function Sidebar({ role, notifications, username }) {
                       </li>
                       <li className="relative">
                         <Link
+                          to="/create-loading"
+                          className={`flex items-center p-3 rounded-lg transition-colors ${
+                            activeLink === "create-loading"
+                              ? "bg-blue-600 text-white"
+                              : "text-black hover:bg-gray-300 hover:text-black"
+                          }`}
+                          onClick={() => handleLinkClick("create-loading")}
+                        >
+                          <FaPlus className="text-xl" />
+                          {isOpen && (
+                            <span className="ml-4">Create Loading</span>
+                          )}
+                        </Link>
+                      </li>
+                      <li className="relative">
+                        <Link
                           to="/view-booking"
                           className={`flex items-center p-3 rounded-lg transition-colors ${
                             activeLink === "view-booking"

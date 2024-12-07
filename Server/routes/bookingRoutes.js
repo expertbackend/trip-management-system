@@ -1,5 +1,5 @@
 const express = require('express');
-const { createBooking, getBookings, getBookingById, assignDriver, startBooking, endBooking, getPendingBookings, getAvailableDrivers, myBookings, getFinancialSummary, getVehicleAndDriverList, addDailyExpenses, getExpensesByDriver, getAllDrivers, getTripReports, cancelBooking } = require('../controllers/bookingController');
+const { createBooking, getBookings, getBookingById, assignDriver, startBooking, endBooking, getPendingBookings, getAvailableDrivers, myBookings, getFinancialSummary, getVehicleAndDriverList, addDailyExpenses, getExpensesByDriver, getAllDrivers, getTripReports, cancelBooking, createLoadingDetails, updateLoadingDetails, updateUnloadingDetails, getRemainingAmount, getCompletedBookings } = require('../controllers/bookingController');
 const authMiddleware = require('../middlewares/authMiddleware');
 const  roleCheck = require('../middlewares/roleMiddleware'); // Import the roleCheck middleware
 const {hasPermission} = require('../middlewares/permissions'); // Import the hasPermission middleware
@@ -10,6 +10,8 @@ router.use(authMiddleware);
 
 // Create a new booking (only 'owner' and 'operator' can create bookings)
 router.post('/bookings', roleCheck(['owner', 'operator','driver']), hasPermission('create', 'booking'), createBooking);
+router.get('/completedbookings', roleCheck(['owner', 'operator','driver']), hasPermission('read', 'booking'), getCompletedBookings);
+
 router.get('/drivers', roleCheck(['owner', 'operator','driver']), hasPermission('read', 'user'), getAvailableDrivers);
 router.get('/pending-bookings', roleCheck(['owner', 'operator','driver']), hasPermission('read', 'booking'), getPendingBookings);
 
@@ -35,5 +37,13 @@ router.get('/view-expanse',roleCheck(['owner', 'operator','driver']), getExpense
 router.get('/alldrivers',roleCheck(['owner', 'operator','driver']), getAllDrivers);
 router.get('/reports/trips',roleCheck(['owner', 'operator','driver']), getTripReports);
 router.delete('/bookings/:id',roleCheck(['owner', 'operator','driver']), cancelBooking);
+// Create loading details
+router.post('/booking/:id/loading',roleCheck(['owner', 'operator','driver']), createLoadingDetails);
 
+// Update loading details
+router.put('/booking/:id/loading',roleCheck(['owner', 'operator','driver']), updateLoadingDetails);
+
+// Update unloading details
+router.post('/booking/:id/unloading',roleCheck(['owner', 'operator','driver']), updateUnloadingDetails);
+router.get('/booking/:bookingId',roleCheck(['owner', 'operator','driver']), getRemainingAmount);
 module.exports = router;
