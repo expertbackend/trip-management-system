@@ -90,6 +90,8 @@ function Sidebar({ role, notifications, username }) {
   const handleLinkClick = (link) => {
     setActiveLink(link);
     localStorage.setItem("activeLink", link);
+    setSettingOpen(false);  // Close settings
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const toggleNotifications = () => {
@@ -101,6 +103,13 @@ function Sidebar({ role, notifications, username }) {
     setSettingOpen(!isSettingOpen);
   };
   const dropdownRef = useRef(null);
+
+  const handlelinkclick=(e)=>{
+    
+    e.preventDefault(); 
+    setSettingOpen(false);
+    window.scrollTo({top:0,behavior:"smooth"})
+  }
 
   // const handleSetting = () => {
   //   setIsSettingOpen((prev) => !prev);
@@ -178,7 +187,7 @@ function Sidebar({ role, notifications, username }) {
           <li
             className={`relative flex items-center p-3 rounded-lg transition-colors ${
               activeLink === "profile"
-                ? "bg-blue-600 text-white"
+                ? "bg-blue-900 text-white"
                 : "text-black hover:bg-gray-300 hover:text-black"
             }`}
             onClick={handleProfileClick}
@@ -226,7 +235,7 @@ function Sidebar({ role, notifications, username }) {
                   to="/vehicle"
                   className={`flex items-center p-3 rounded-lg transition-colors ${
                     activeLink === "vehicle"
-                      ? "bg-blue-600 text-white"
+                      ? "bg-blue-900 text-white"
                       : "text-black hover:bg-gray-300 hover:text-black"
                   }`}
                   onClick={() => handleLinkClick("vehicle")}
@@ -240,7 +249,7 @@ function Sidebar({ role, notifications, username }) {
                   to="/user"
                   className={`flex items-center p-3 rounded-lg transition-colors ${
                     activeLink === "user"
-                      ? "bg-blue-600 text-white"
+                      ? "bg-blue-900 text-white"
                       : "text-black hover:bg-gray-300 hover:text-black"
                   }`}
                   onClick={() => handleLinkClick("user")}
@@ -254,7 +263,7 @@ function Sidebar({ role, notifications, username }) {
                   to="/fms"
                   className={`flex items-center p-3 rounded-lg transition-colors ${
                     activeLink === "fms"
-                      ? "bg-blue-600 text-white"
+                      ? "bg-blue-900 text-white"
                       : "text-black hover:bg-gray-300 hover:text-black"
                   }`}
                   onClick={() => handleLinkClick("fms")}
@@ -304,7 +313,7 @@ function Sidebar({ role, notifications, username }) {
                           to="/add-expense"
                           className={`flex items-center p-3  transition-colors border-b-2 border- ${
                             activeLink === "create-expense"
-                              ? "bg-blue-600 text-white"
+                              ? "bg-blue-900 text-white"
                               : "text-black hover:bg-gray-300 hover:text-black"
                           }`}
                           onClick={() => handleLinkClick("create-expense")}
@@ -320,7 +329,7 @@ function Sidebar({ role, notifications, username }) {
                           to="/view-expense"
                           className={`flex items-center p-3  transition-colors ${
                             activeLink === "view-expense"
-                              ? "bg-blue-600 text-white"
+                              ? "bg-blue-900 text-white"
                               : "text-black hover:bg-gray-300 hover:text-black"
                           }`}
                           onClick={() => handleLinkClick("view-expense")}
@@ -371,7 +380,7 @@ function Sidebar({ role, notifications, username }) {
                           to="/create-booking"
                           className={`flex items-center p-3 rounded-lg transition-colors ${
                             activeLink === "create-booking"
-                              ? "bg-blue-600 text-white"
+                              ? "bg-blue-900 text-white"
                               : "text-black hover:bg-gray-300 hover:text-black"
                           }`}
                           onClick={() => handleLinkClick("create-booking")}
@@ -403,7 +412,7 @@ function Sidebar({ role, notifications, username }) {
                           to="/view-booking"
                           className={`flex items-center p-3 rounded-lg transition-colors ${
                             activeLink === "view-booking"
-                              ? "bg-blue-600 text-white"
+                              ? "bg-blue-900 text-white"
                               : "text-black hover:bg-gray-300 hover:text-black"
                           }`}
                           onClick={() => handleLinkClick("view-booking")}
@@ -417,7 +426,7 @@ function Sidebar({ role, notifications, username }) {
                           to="/assign-booking"
                           className={`flex items-center p-3 rounded-lg transition-colors ${
                             activeLink === "assign-booking"
-                              ? "bg-blue-600 text-white"
+                              ? "bg-blue-900 text-white"
                               : "text-black hover:bg-gray-300 hover:text-black"
                           }`}
                           onClick={() => handleLinkClick("assign-booking")}
@@ -438,7 +447,7 @@ function Sidebar({ role, notifications, username }) {
                   to="/owner-dashboard"
                   className={`flex items-center p-3 rounded-lg transition-colors ${
                     activeLink === "owner"
-                      ? "bg-blue-600 text-white"
+                      ? "bg-blue-900 text-white"
                       : "text-black hover:bg-gray-300 hover:text-black"
                   }`}
                   onClick={() => handleLinkClick("owner")}
@@ -452,7 +461,7 @@ function Sidebar({ role, notifications, username }) {
                   to="/trip-report"
                   className={`flex items-center p-3 rounded-lg transition-colors ${
                     activeLink === "trip-report"
-                      ? "bg-blue-600 text-white"
+                      ? "bg-blue-900 text-white"
                       : "text-black hover:bg-gray-300 hover:text-black"
                   }`}
                   onClick={() => handleLinkClick("trip-report")}
@@ -467,7 +476,7 @@ function Sidebar({ role, notifications, username }) {
                   to="/announcement"
                   className={`flex items-center p-3 rounded-lg transition-colors ${
                     activeLink === "announcement"
-                      ? "bg-blue-600 text-white"
+                      ? "bg-blue-900 text-white"
                       : "text-black hover:bg-gray-300 hover:text-black"
                   }`}
                   onClick={() => handleLinkClick("announcement")}
@@ -485,7 +494,7 @@ function Sidebar({ role, notifications, username }) {
                 to="/driver-dashboard"
                 className={`flex items-center p-3 rounded-lg transition-colors ${
                   activeLink === "driver-dashboard"
-                    ? "bg-blue-600 text-white"
+                    ? "bg-blue-900 text-white"
                     : "text-black hover:bg-gray-300 hover:text-black"
                 }`}
                 onClick={() => handleLinkClick("driver-dashboard")}
@@ -501,7 +510,7 @@ function Sidebar({ role, notifications, username }) {
                 to="/SuperAdmin"
                 className={`flex items-center p-3 rounded-lg transition-colors ${
                   activeLink === "SuperAdmin"
-                    ? "bg-blue-600 text-white"
+                    ? "bg-blue-900 text-white"
                     : "text-black hover:bg-gray-300 hover:text-black"
                 }`}
                 onClick={() => handleLinkClick("SuperAdmin")}
@@ -521,7 +530,7 @@ function Sidebar({ role, notifications, username }) {
             </li>
           )}
         </ul>
-        <div className="" ref={dropdownRef}>
+        <div className="mt-2" ref={dropdownRef}>
           <button
             onClick={handleSetting}
             className="flex items-center p-3 rounded-lg transition-colors text-black hover:bg-gray-300 hover:text-black w-full"
@@ -534,27 +543,27 @@ function Sidebar({ role, notifications, username }) {
             } w-64 flex-col bottom-4 md:bottom-20 p-2 rounded-lg left-[calc(100%+8px)] z-50 bg-white shadow-lg shadow-gray-500 text-black text-sm font-medium`}
           >
             {/* Dropdown Content */}
-            <Link to="/edit-profile">
+            <Link to="/edit-profile" onClick={()=>handleLinkClick(null)}>
             <div className="p-3 border-b-2 hover:bg-gray-300 hover:rounded-lg">
               Edit Profile
             </div>
             </Link>
-            <Link to="/privacy-policy">
+            <Link to="/privacy-policy" onClick={()=>handleLinkClick(null)}>
             <div className="p-3 border-b-2 hover:bg-gray-300 hover:rounded-lg">
               Privacy Policy
             </div>
             </Link>
-            <Link to="/terms">
+            <Link to="/term" onClick={()=>handleLinkClick(null)}>
             <div className="p-3 border-b-2 hover:bg-gray-300 hover:rounded-lg">
              Terms and Conditions
             </div>
             </Link>
-            <Link to="/help">
+            <Link to="/help" onClick={()=>handleLinkClick('help')}>
             <div className="p-3 border-b-2 hover:bg-gray-300 hover:rounded-lg">
               Help
             </div>
             </Link>
-            <Link to="/about">
+            <Link to="/about" onClick={()=>handleLinkClick(null)}>
             <div className="p-3 hover:bg-gray-300 hover:rounded-lg">About Us</div>
             </Link>
           </div>
