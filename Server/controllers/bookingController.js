@@ -1215,7 +1215,7 @@ exports.updateUnloadingDetails = async (req, res) => {
   try {
     const { id } = req.params; // Booking ID
     const { shortageWeight, receivedRemainingAmount, extraExpanse } = req.body;
-    console.log(typeof shortageWeight, receivedRemainingAmount, extraExpanse);
+    console.log(typeof shortageWeight,shortageWeight, receivedRemainingAmount, extraExpanse);
 
     // Fetch booking and loading details
     const booking = await Booking.findById(id);
@@ -1248,6 +1248,7 @@ if(booking.unloading){
   booking.shortageDeduction = shortageDeduction;
 booking.totalNetMaterialWeight = totalNetMaterialWeight;
 booking.unloading = true;
+booking.shortageWeight = shortageWeight;
   // Save the updated booking
   await booking.save();
 

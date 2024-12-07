@@ -65,6 +65,7 @@ const bookingSchema = new mongoose.Schema({
     type: String,
    
   },
+  shortageWeight:{type:Number},
   unloading:{type:Boolean,default:false}
 });
 

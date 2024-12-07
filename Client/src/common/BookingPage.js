@@ -61,47 +61,72 @@ const BookingsPage = () => {
   };
   const generatePDF = (bookingsToDownload) => {
     const doc = new jsPDF();
-
-    // Add a table for all bookings
-    const tableColumns = [
-      "Customer Name",
-      "Vehicle Name",
-      "Vehicle Number",
-      "Driver",
-      "Pickup Location",
-      "Dropoff Location",
-      "Fare",
-      "Days",
-      "Status",
-    ];
+  
     if (!bookingsToDownload.length) {
       alert("No data available to download.");
       return;
     }
-    const tableData = bookingsToDownload.map((booking) => [
-      booking.customerName || "N/A",
-      booking.vehicle?.name || "N/A",
-      booking.vehicle?.plateNumber || "N/A",
-      booking.driver?.name || "N/A",
-      booking.pickupLocation?.address || "N/A",
-      booking.dropoffLocation?.address || "N/A",
-      `${booking.fare?.toFixed(2) || "N/A"}`,
-      calculateDaysCount(booking.startDate, booking.endDate),
-      booking.status || "N/A",
-    ]);
-    // Add title
-    doc.text("Bookings Overview", 10, 10);
+  
+    // Create PDF structure with customer, vehicle, and booking details
+    bookingsToDownload.forEach((booking) => {
+      // Add Title for the invoice
+      doc.text("Invoice for Booking", 10, 10);
+      doc.text(`Booking ID: ${booking._id}`, 10, 20);
+  
+      // Add customer details
+      doc.text(`Customer Name: ${booking.customerName}`, 10, 30);
+      doc.text(`Phone: ${booking.custPhNo}`, 10, 40);
+      doc.text(`Email: ${booking.custEmailId}`, 10, 50);
+      doc.text(`Customer Address: ${booking.custAddress}`, 10, 60);
+  
+      // Add booking details
+      doc.text(`Pickup Location: ${booking.pickupLocation?.address || "N/A"}`, 10, 70);
+      doc.text(`Dropoff Location: ${booking.dropoffLocation?.address || "N/A"}`, 10, 80);
+      doc.text(`Booking Status: ${booking.status}`, 10, 90);
+  
+      // Add vehicle details
+      doc.text(`Vehicle Name: ${booking.vehicle?.name || "N/A"}`, 10, 100);
+      doc.text(`Vehicle Plate Number: ${booking.vehicle?.plateNumber || "N/A"}`, 10, 110);
+      
+      // Add invoice details (fare, charges, etc.)
+      doc.text(`Base Pay: ₹${booking.basePay?.toFixed(2) || "N/A"}`, 10, 120);
+      doc.text(`Total Estimated Amount: ₹${booking.totalEstimatedAmount?.toFixed(2) || "N/A"}`, 10, 130);
+      doc.text(`Advance: ₹${booking.advance?.toFixed(2) || "N/A"}`, 10, 140);
+      doc.text(`Remaining Amount: ₹${booking.remainingAmount?.toFixed(2) || "N/A"}`, 10, 150);
+      
+      // Include per ton charges if applicable (calculated from the perTonPrice and totalNetMaterialWeight)
+      const perTonCharge = (booking.perTonPrice * booking.totalNetMaterialWeight).toFixed(2);
+      doc.text(`Per Ton Charge: ₹${booking.perTonPrice}`, 10, 160);
+      
+      // If there is extra expense or unloading fee, add it to the invoice
+      if (booking.unloading) {
+        doc.text(`Unloading Material Weight: ₹${booking.totalNetMaterialWeight?.toFixed(2) || "0.00"}`, 10, 170);
+        doc.text(`Unloading Shortage Material Weight: ₹${booking.shortageWeight?.toFixed(2) || "0.00"}`, 10, 170);
 
-    // Add table for all bookings
-    doc.autoTable({
-      head: [tableColumns],
-      body: tableData,
-      startY: 20,
+      }
+      doc.text(`Unloading Material Weight: ₹${booking.totalNetMaterialWeight?.toFixed(2) || "0.00"}`, 10, 170);
+
+      // Optional: Add tax or discount if applicable
+      doc.text(`Tax: ₹${booking.tax?.toFixed(2) || "0.00"}`, 10, 180);
+      doc.text(`Discount: ₹${booking.discount?.toFixed(2) || "0.00"}`, 10, 190);
+      
+      // Add the generated date for the invoice
+      const generatedAt = new Date(booking.invoice?.generatedAt).toLocaleDateString();
+      doc.text(`Invoice Generated On: ${generatedAt}`, 10, 200);
+  
+      // Adding a separator line after each booking's invoice details
+      doc.setLineWidth(0.5);
+      doc.line(10, 210, 200, 210);
+      doc.setLineWidth(0); // Reset the line width after the separator
+  
+      // Add some space between invoices
+      doc.addPage();
     });
-
-    // Save PDF
-    doc.save("bookings.pdf");
+  
+    // Save PDF with a custom filename
+    doc.save("invoice_bookings.pdf");
   };
+  
   // Handle Search
   const handleSearch = (query) => {
     setSearchQuery(query);
@@ -257,7 +282,7 @@ const BookingsPage = () => {
               <th className="px-4 py-2">Fare</th>
               <th className="px-4 py-2">Net Material Weight</th>
               <th className="px-4 py-2">Per Ton Price</th>
-              <th className="px-4 py-2">Total Value</th>
+              <th className="px-4 py-2">Total Value(Fare + Total Net Material Price)</th>
               <th className="px-4 py-2">KM</th>
               <th className="px-4 py-2">Dates & Days</th> {/* Updated Column Name */}
               <th className="px-4 py-2">Status</th>
@@ -277,7 +302,8 @@ const BookingsPage = () => {
                 <td className="px-4 py-2">₹{booking.basePay?.toFixed(2) || "N/A"}</td>
                 <td className="px-4 py-2">{booking.totalNetMaterialWeight?.toFixed(2) || "N/A"}</td>
                 <td className="px-4 py-2">₹{booking.perTonPrice?.toFixed(2) || "N/A"}</td>
-                <td className="px-4 py-2">₹{(booking.perTonPrice?.toFixed(2) * booking.totalNetMaterialWeight?.toFixed(2)) || "N/A"}</td>
+                <td className="px-4 py-2">₹{((parseFloat(booking.perTonPrice) * parseFloat(booking.totalNetMaterialWeight)) + parseFloat(booking.basePay)).toFixed(2)
+ || "N/A"}</td>
                 <td className="px-4 py-2">{booking.kmDriven || "N/A"}</td>
                 <td className="px-4 py-2">
                   {`Start: ${formatDate(booking.startDate)}\nEnd: ${formatDate(
