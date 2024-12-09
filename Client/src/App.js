@@ -105,23 +105,70 @@ function App() {
     startTracking();
   }, []);
   useEffect(() => {
-    const correctPassword = "developer"; // Replace with your desired password
+    const correctPassword = process.env.REACT_APP_PASSWORD; // "developer" from .env
     let isRightClickEnabled = false;
-  
+    
     const handleRightClick = (event) => {
       if (!isRightClickEnabled) {
         event.preventDefault(); // Disable right-click by default
-        const userPassword = prompt("Enter the password to enable right-click:");
-        if (userPassword === correctPassword) {
-          isRightClickEnabled = true;
-          alert("Right-click enabled!");
-        } else {
-          alert("Incorrect password! Right-click is disabled.");
-        }
+        promptPassword().then((userPassword) => {
+          if (userPassword === correctPassword) {
+            isRightClickEnabled = true;
+            alert("Right-click enabled!");
+          } else {
+            alert("Incorrect password! Right-click is disabled.");
+          }
+        });
       }
     };
-  
+    
+    // Function to create a custom password modal
+    const promptPassword = () => {
+      return new Promise((resolve) => {
+        // Create the password input element
+        const passwordInput = document.createElement("input");
+        passwordInput.type = "password"; // Set the input type to 'password' to hide text
+        passwordInput.placeholder = "Enter password";
+    
+        // Create the modal
+        const modal = document.createElement("div");
+        modal.style.position = "fixed";
+        modal.style.top = "0";
+        modal.style.left = "0";
+        modal.style.width = "100%";
+        modal.style.height = "100%";
+        modal.style.backgroundColor = "rgba(0, 0, 0, 0.5)";
+        modal.style.display = "flex";
+        modal.style.justifyContent = "center";
+        modal.style.alignItems = "center";
+        modal.style.zIndex = "1000";
+    
+        // Modal content
+        const modalContent = document.createElement("div");
+        modalContent.style.backgroundColor = "white";
+        modalContent.style.padding = "20px";
+        modalContent.style.borderRadius = "10px";
+    
+        // Add the input field and submit button to the modal
+        modalContent.appendChild(passwordInput);
+        const submitButton = document.createElement("button");
+        submitButton.innerText = "Submit";
+        modalContent.appendChild(submitButton);
+    
+        modal.appendChild(modalContent);
+        document.body.appendChild(modal);
+    
+        // Wait for the user to enter the password and submit
+        submitButton.addEventListener("click", () => {
+          const enteredPassword = passwordInput.value;
+          document.body.removeChild(modal); // Remove the modal after submission
+          resolve(enteredPassword);
+        });
+      });
+    };
+    
     document.addEventListener("contextmenu", handleRightClick);
+    
   
     // Cleanup the event listener when the component is unmounted
     return () => {
