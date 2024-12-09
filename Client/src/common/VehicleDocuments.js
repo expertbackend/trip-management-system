@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import jsPDF from "jspdf";
 import UpdatePopup from "./UpdatePopup";
-import { FaEdit } from "react-icons/fa";
+import { FaCheckCircle, FaEdit, FaTimesCircle } from "react-icons/fa";
 
 const VehicleDocuments = () => {
   const [documentData, setDocumentData] = useState({
@@ -17,6 +17,9 @@ const VehicleDocuments = () => {
   const token = localStorage.getItem("token");
   const [showPopup, setShowPopup] = useState(false);
   const [selectedDoc, setSelectedDoc] = useState(null); 
+  const [showSuccessPopup, setShowSuccessPopup] = useState(false);
+  const [showErrorPopup, setShowErrorPopup] = useState(false);
+  const [message, setMessage] = useState('');
   const axiosInstance = axios.create({
     baseURL: `${process.env.REACT_APP_API_URL}/api/tyre`,
     headers: {
@@ -277,9 +280,18 @@ const handleDownloadPDF = async () => {
       );
       console.log("Document updated successfully:", response.data);
       closeUpdatePopup();
+      console.log('status',response.status)
+      if (response) {
+        setMessage("Document updated successfully!");
+        setShowSuccessPopup(true); // Show success popup
+      } else {
+        throw new Error('Failed to update the document');
+      }
+   
       // Refresh the documents list here if needed
     } catch (error) {
-      console.error("Error updating document:", error);
+      setMessage("Error updating document: " + error.message);
+      setShowErrorPopup(true); // Show error popup
     }
   };
 
@@ -356,7 +368,7 @@ const handleDownloadPDF = async () => {
             onClick={() => openUpdatePopup(doc)}
             className="text-blue-500 hover:text-blue-700"
           >
-            <FaEdit/>
+            <FaEdit title="Edit Document"/>
           </button>
         </td>
 
@@ -550,6 +562,35 @@ const handleDownloadPDF = async () => {
           </button>
         </div>
       </form>
+    </div>
+  </div>
+)}
+{showSuccessPopup && (
+  <div className="fixed inset-0 flex justify-center items-center bg-black bg-opacity-50 z-50">
+    <div className="bg-white p-6 rounded-lg shadow-lg w-80 text-center">
+      <FaCheckCircle className="text-green-500 text-3xl mb-4" />
+      <p className="text-lg mb-4">{message}</p>
+      <button
+        onClick={() => setShowSuccessPopup(false)}
+        className="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 transition duration-300"
+      >
+        Close
+      </button>
+    </div>
+  </div>
+)}
+
+{showErrorPopup && (
+  <div className="fixed inset-0 flex justify-center items-center bg-black bg-opacity-50 z-50">
+    <div className="bg-white p-6 rounded-lg shadow-lg w-80 text-center">
+      <FaTimesCircle className="text-red-500 text-3xl mb-4" />
+      <p className="text-lg mb-4">{message}</p>
+      <button
+        onClick={() => setShowErrorPopup(false)}
+        className="bg-red-500 text-white py-2 px-4 rounded hover:bg-red-600 transition duration-300"
+      >
+        Close
+      </button>
     </div>
   </div>
 )}

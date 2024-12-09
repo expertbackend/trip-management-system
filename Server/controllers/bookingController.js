@@ -456,8 +456,8 @@ exports.assignDriver = async (req, res) => {
 exports.startBooking = async (req, res) => {
   try {
     const { startDashboardImage } = req.body;
-    console.log('hehehehhe', startDashboardImage)
-    // Find the booking by ID and populate the vehicle
+    
+    // Find the booking by ID and populate the vehicle and driver
     const booking = await Booking.findById(req.params.id).populate('vehicle').populate('driver');
 
     if (!booking) {
@@ -471,7 +471,7 @@ exports.startBooking = async (req, res) => {
 
     // Update the booking's status to 'in-progress'
     booking.status = 'in-progress';
-    booking.startDashboardImage = startDashboardImage;
+    booking.startDashboardImage = startDashboardImage || "";
     // Set the startDate to current time
     booking.startDate = new Date();
 
@@ -497,6 +497,29 @@ exports.startBooking = async (req, res) => {
   }
 };
 
+exports.updateBooking = async (req, res) => {
+  try {
+    const { bookingId } = req.params; // Get bookingId from the URL params
+    const updatedData = req.body; // The updated booking details from the request body
+
+    // Find the booking by ID and update it
+    const booking = await Booking.findByIdAndUpdate(bookingId, updatedData, { new: true });
+
+    // If the booking doesn't exist
+    if (!booking) {
+      return res.status(404).json({ message: 'Booking not found' });
+    }
+
+    // Return the updated booking details
+    res.status(200).json({
+      message: 'Booking updated successfully',
+      booking,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Server error', error });
+  }
+};
 
 exports.endBooking = async (req, res) => {
   try {

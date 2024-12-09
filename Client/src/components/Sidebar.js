@@ -269,7 +269,7 @@ function Sidebar({ role, notifications, username }) {
                   onClick={() => handleLinkClick("fms")}
                 >
                   <FaTruck className="text-xl" />
-                  {isOpen && <span className="ml-4">FMS</span>}
+                  {isOpen && <span className="ml-4">FMS + Expense Tracker</span>}
                 </Link>
               </li>
               {/* Expenses Section - Visible for owner/operator */}

@@ -23,7 +23,7 @@ router.post('/add-vehicle',roleCheck(['owner','operator']),hasPermission('create
 // router.post('/create-user',roleCheck(['owner','operator']),hasPermission('create', 'user'), ownerController.createUser);
 router.post('/assign-vehicle',roleCheck(['owner','operator']),hasPermission('create', 'vehicle'), ownerController.assignVehicleToDriver);
 router.post('/assign-permissions',roleCheck(['owner']), ownerController.assignPermissions);
-router.post('/createUser',roleCheck(['owner']), createUser);
+router.post('/createUser',roleCheck(['owner','operator']), createUser);
 router.get('/users',roleCheck(['owner','operator']),hasPermission('read', 'user'), getAllUsers);
 router.get('/getAllPermission',roleCheck(['owner']), ownerController.getAllPermission);
 router.get('/vehicles',roleCheck(['owner','operator','driver']),hasPermission('read', 'vehicle'), ownerController.getAllVehicles);

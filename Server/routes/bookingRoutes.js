@@ -1,5 +1,5 @@
 const express = require('express');
-const { createBooking, getBookings, getBookingById, assignDriver, startBooking, endBooking, getPendingBookings, getAvailableDrivers, myBookings, getFinancialSummary, getVehicleAndDriverList, addDailyExpenses, getExpensesByDriver, getAllDrivers, getTripReports, cancelBooking, createLoadingDetails, updateLoadingDetails, updateUnloadingDetails, getRemainingAmount, getCompletedBookings } = require('../controllers/bookingController');
+const { createBooking, getBookings, getBookingById, assignDriver, startBooking, endBooking, getPendingBookings, getAvailableDrivers, myBookings, getFinancialSummary, getVehicleAndDriverList, addDailyExpenses, getExpensesByDriver, getAllDrivers, getTripReports, cancelBooking, createLoadingDetails, updateLoadingDetails, updateUnloadingDetails, getRemainingAmount, getCompletedBookings, updateBooking } = require('../controllers/bookingController');
 const authMiddleware = require('../middlewares/authMiddleware');
 const  roleCheck = require('../middlewares/roleMiddleware'); // Import the roleCheck middleware
 const {hasPermission} = require('../middlewares/permissions'); // Import the hasPermission middleware
@@ -42,6 +42,7 @@ router.post('/booking/:id/loading',roleCheck(['owner', 'operator','driver']), cr
 
 // Update loading details
 router.put('/booking/:id/loading',roleCheck(['owner', 'operator','driver']), updateLoadingDetails);
+router.put('/bookings/:bookingId',roleCheck(['owner', 'operator','driver']), updateBooking);
 
 // Update unloading details
 router.post('/booking/:id/unloading',roleCheck(['owner', 'operator','driver']), updateUnloadingDetails);

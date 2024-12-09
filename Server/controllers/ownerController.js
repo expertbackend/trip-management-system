@@ -215,7 +215,7 @@ exports.assignPermissions = async (req, res) => {
         if (validPermissions.length !== permissions.length) {
             return res.status(400).json({ message: 'One or more permissions are invalid.' });
         }
-
+console.log('tarhetUser',targetUser.permissions)
         // Ensure that the user doesn't already have the same permission
         targetUser.permissions = [
             ...new Set([

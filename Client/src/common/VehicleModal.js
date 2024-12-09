@@ -15,7 +15,7 @@ const VehicleModal = ({ isOpen, onClose, vehicle, mode }) => {
             Authorization: `Bearer ${token}`,
         },
     });
-
+console.log('hhahahhahaha',vehicle)
     useEffect(() => {
         setVehicleData(vehicle); // Update vehicle data when it changes
     }, [vehicle]);

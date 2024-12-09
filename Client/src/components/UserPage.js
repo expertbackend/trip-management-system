@@ -215,12 +215,12 @@ const UserPage = () => {
       alert("No data available to download.");
       return;
     }
-    const columns = ["ID", "FULL NAME", "EMAIL", "Permissions"];
+    const columns = ["ID", "FULL NAME", "EMAIL", "Role"];
     const data = filteredUsers.map((user, index) => [
       index + 1,
       user.name,
       user.email,
-      user.bookingStatus,
+      user.role,
     ]);
 
     doc.autoTable({

@@ -469,7 +469,7 @@ const TyreManagement = () => {
               <tr className="bg-sky-800 text-white ">
                 <th className="border border-white p-3">Serial No.</th>
                 <th className="border border-white p-3">Brand</th>
-                <th className="border border-white p-3">Vehicle Plate</th>
+                <th className="border border-white p-3">Vehicle Number</th>
                 <th className="border border-white p-3">Position</th>
                 <th className="border border-white p-3">Mileage</th>
                 <th className="border border-white p-3">Installed at KM</th>
@@ -498,7 +498,7 @@ const TyreManagement = () => {
                       }
                       className="text-blue-500 hover:text-blue-700"
                     >
-                      <span role="img" aria-label="action">
+                      <span role="img" aria-label="action" title="Check Tyre Status">
                         🔧
                       </span>
                     </button>

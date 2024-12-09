@@ -168,13 +168,14 @@ const VehicleTable = () => {
       alert("No data available to download.");
       return;
     }
-    const data = dataToDownload.map(vehicle => [
-      vehicle.slNo,
+    const data = dataToDownload.map((vehicle, index) => [
+      index + 1,  // Use index + 1 for the serial number
       vehicle._id,
       vehicle.plateNumber,
       vehicle.driver?.name || "Vehicle Not Assigned",
       vehicle.status,
     ]);
+    ;
 
     doc.text(title, 14, 10);
     doc.autoTable({
@@ -233,7 +234,7 @@ const VehicleTable = () => {
   const handleEdit = (vehicle) => {
     setModalMode('edit');
     setSelectedVehicle(vehicle);
-    console.log('selectedVehicle,',selectedVehicle,vehicle)
+    console.log('selectedVehicle,',selectedVehicle)
     setIsModalOpen(true);
   };
 

@@ -20,7 +20,7 @@ const UserModal = ({ isOpen, onClose, user, mode }) => {
 
   useEffect(() => {
     setUserData(user); // Update user data when the user prop changes
-    setSelectedPermissions(user?.permissions || []); // Initialize permissions
+    // setSelectedPermissions(user?.permissions || []); // Initialize permissions
     setDefaultPermissions(user?.permissions || []); // Initialize default permissions
     fetchAllPermissions(); // Fetch all permissions once modal opens
   }, [user, isOpen]);
@@ -44,23 +44,30 @@ const UserModal = ({ isOpen, onClose, user, mode }) => {
   };
 
   const handlePermissionChange = (selectedOptions) => {
-    const newPermissions = selectedOptions ? selectedOptions.map(option => option.value) : [];
-    console.log("Selected Permissions:", newPermissions);  // Check the selected permissions
-    setSelectedPermissions(newPermissions);
+    const newPermissions = selectedOptions ? selectedOptions.map((option) => option.value) : [];
+    console.log("Selected Permissions:", newPermissions); // Check the selected permissions
+    setSelectedPermissions(newPermissions); // Update the selected permissions state
   };
+  
   
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+  
     try {
       const { email, ...dataToUpdate } = userData;
-      const payload = { ...dataToUpdate, permissions: selectedPermissions };
-
-      const response = await axiosInstance.put(
-        `/update/${userData._id}`,
-        payload
-      );
-
+  
+      // Construct the payload
+      const payload = {
+        ...dataToUpdate,
+        permissions:
+          selectedPermissions.length > 0
+            ? selectedPermissions
+            : "" // Fallback to default permissions
+      };
+  
+      const response = await axiosInstance.put(`/update/${userData._id}`, payload);
+  
       if (response.status === 200) {
         alert("User updated successfully!");
         window.location.reload();
@@ -71,6 +78,9 @@ const UserModal = ({ isOpen, onClose, user, mode }) => {
       alert("Error updating user. Please try again.");
     }
   };
+  
+  
+  
 
   // Format the permissions for react-select
   const permissionsOptions = allPermissions.map(permission => ({

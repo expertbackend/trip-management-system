@@ -110,7 +110,7 @@ exports.updateUser = async (req, res) => {
         const { name, role, phoneNumber, address, gender, permissions } = req.body;
 
         console.log('userId:', userId);
-        console.log('req.user:', req.user,role);
+        console.log('req.user:', req.user, role);
 
         // Only owners can update other users
         if (req.user.role !== 'owner') {
@@ -131,12 +131,12 @@ exports.updateUser = async (req, res) => {
             if (!user) {
                 return res.status(404).json({ message: 'User not found.' });
             }
-
-            // Combine existing permissions with new permissions, ensuring no duplicates
-            const updatedPermissions = Array.from(new Set([
-                ...(user.permissions || []), // Existing permissions
-                ...permissions, // New permissions
-            ]));
+console.log('permisswions',permissions)
+            // Filter out permissions that are already in the user's current permissions array
+            const updatedPermissions = [
+                ...user.permissions,  // Existing permissions
+                ...permissions.filter(permission => !user.permissions.includes(permission))  // New permissions that aren't already assigned
+            ];
 
             updateData.permissions = updatedPermissions;
         }
@@ -160,6 +160,7 @@ exports.updateUser = async (req, res) => {
         res.status(500).json({ message: 'Error updating user.' });
     }
 };
+
 exports.toggleUserStatus = async (req, res) => {
     const { userId } = req.params;
   console.log('params',userId,req.params)

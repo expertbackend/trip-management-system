@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { FaDownload, FaEye, FaTimes } from "react-icons/fa";
+import { FaDownload, FaEdit, FaEye, FaStop, FaTimes } from "react-icons/fa";
 import jsPDF from "jspdf"; // For PDF generation
 import Modal from "../components/Modal";
 import BookingModal from "./BookingModal";
 import "jspdf-autotable"; // Import the jsPDF autotable plugin
+import { FaPlay } from "react-icons/fa6";
+import EditBookingModal from "../modals/EditBookingModal";
 
 const BookingsPage = () => {
   const [bookings, setBookings] = useState([]);
@@ -19,6 +21,12 @@ const BookingsPage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const token = localStorage.getItem("token");
   const [mode, setMode] = useState("add");
+  const [showModal, setShowModal] = useState(false); // For modal visibility
+  const [bookingToStart, setBookingToStart] = useState(null);
+  const [successMessage, setSuccessMessage] = useState(""); // For success message
+  const [errorMessage, setErrorMessage] = useState("");
+  const [editing, setEditBooking] = useState("");
+  const [isEditModalOpen,setIsEditModalOpen] = useState("")
 
   const axiosInstance = axios.create({
     baseURL: `${process.env.REACT_APP_API_URL}/api/booking`,
@@ -42,7 +50,32 @@ const BookingsPage = () => {
 
     fetchBookings();
   }, []);
+  const openStartBookingModal = (booking) => {
+    setBookingToStart(booking); // Set the booking to be started
+    console.log('booking',booking)
+    setShowModal(true); // Open the modal
+  };
 
+  // Confirm the action and trigger the start booking function
+  const openEditBookingModal = (booking) => {
+    console.log("Open Edit Modal for booking:", booking);
+    // Implement modal logic or state here to open the modal
+    setEditBooking(booking); // Example: Use state to manage the modal
+    setIsEditModalOpen(true); // Example: Open the modal
+  };
+  const fetchBookings = async () => {
+    try {
+      const response = await axios.get('/api/bookings');
+      setBookings(response.data); // Example: Update your state
+    } catch (error) {
+      console.error("Error fetching bookings:", error);
+    }
+  };
+    
+
+  const cancelStartBooking = () => {
+    setShowModal(false); // Close the modal
+  };
   // Pagination Logic
   const indexOfLastBooking = (currentPage + 1) * bookingsPerPage;
   const indexOfFirstBooking = indexOfLastBooking - bookingsPerPage;
@@ -58,6 +91,10 @@ const BookingsPage = () => {
     return new Intl.DateTimeFormat("en-US", { dateStyle: "medium" }).format(
       new Date(dateString)
     );
+  };
+  const closePopup = () => {
+    setSuccessMessage("");
+    setErrorMessage("");
   };
   const generatePDF = (bookingsToDownload) => {
     const doc = new jsPDF();
@@ -201,7 +238,42 @@ const BookingsPage = () => {
     }
   };
 
-
+  const handleStartBooking = async (bookingId) => {
+    try {
+      // Show a loading spinner or feedback to the user (optional)
+      console.log('Starting booking with ID:', bookingId);
+  
+      // Make the API call to start the booking
+      const response = await axiosInstance.put(`/start/${bookingId}`);
+      
+      // Handle successful booking start
+      if (response.status === 200) {
+        console.log('Booking started successfully:', response.data);
+        
+        // Set the success message based on the response from the server
+        setSuccessMessage(response.data.message);  // Assuming your API sends a 'message' field in the response
+        setErrorMessage("");  // Clear any previous error messages
+  
+        // You can add additional logic to update the UI if necessary, 
+        // such as refreshing the bookings table or changing booking status
+      }
+    } catch (error) {
+      console.error('Error starting booking:', error.response || error.message);
+      
+      // Show an error message if the API call fails
+      setErrorMessage("An error occurred while starting the booking. Please try again.");
+      setSuccessMessage("");  // Clear any previous success messages
+    }
+  };
+  
+  const confirmStartBooking = async () => {
+    // Trigger the API call and update the message directly within the handleStartBooking function
+    await handleStartBooking(bookingToStart._id);
+  
+    // Close the confirmation modal after the API call
+    setShowModal(false); // Close the modal once the API response is received
+  };
+  
 
   // Calculate the number of days between two dates
   const calculateDaysCount = (startDate, endDate) => {
@@ -217,6 +289,37 @@ const BookingsPage = () => {
     // Include the end date by adding 1 to the result
     return days >= 0 ? (days + 1) : "Invalid Date Range"; // Ensure valid range
   };
+// Function to handle editing a booking
+const handleEditBooking = (booking) => {
+  console.log("Editing booking:", booking);
+  setSelectedBooking(booking);
+  setIsEditModalOpen(true);
+};
+const closeEditBookingModal = () => {
+  setSelectedBooking(null);
+  setIsEditModalOpen(false);
+};
+// Function to handle ending a booking
+const handleEndBooking = (bookingId) => {
+  console.log("Ending booking with ID:", bookingId);
+  // Example logic for ending the booking
+  const confirmEnd = window.confirm("Are you sure you want to end this booking?");
+  if (confirmEnd) {
+    // API call or state update to mark the booking as ended
+    axios
+      .put(`/api/bookings/end/${bookingId}`)
+      .then((response) => {
+        console.log("Booking ended successfully:", response.data);
+        alert("Booking has been ended.");
+        // Logic to refresh the booking list or update the UI
+        fetchBookings(); // Example function to refresh bookings
+      })
+      .catch((error) => {
+        console.error("Error ending booking:", error);
+        alert("Failed to end the booking. Please try again.");
+      });
+  }
+};
 
 
   // Handle View Booking
@@ -290,56 +393,84 @@ const BookingsPage = () => {
             </tr>
           </thead>
           <tbody className="whitespace-nowrap">
-            {currentBookings.map((booking, index) => (
-              <tr key={booking._id} className="border-t hover:bg-gray-100 transition">
-                <td className="px-4 py-2">{index + 1}</td> {/* Serial Number for each row */}
-                <td className="px-4 py-2">{booking.customerName || "N/A"}</td>
-                <td className="px-4 py-2">{booking.vehicle?.name || "N/A"}</td>
-                <td className="px-4 py-2">{booking.vehicle?.plateNumber || "N/A"}</td>
-                <td className="px-4 py-2">{booking.driver?.name || "N/A"}</td>
-                <td className="px-4 py-2">{booking.pickupLocation?.address || "N/A"}</td>
-                <td className="px-4 py-2">{booking.dropoffLocation?.address || "N/A"}</td>
-                <td className="px-4 py-2">₹{booking.basePay?.toFixed(2) || "N/A"}</td>
-                <td className="px-4 py-2">{booking.totalNetMaterialWeight?.toFixed(2) || "N/A"}</td>
-                <td className="px-4 py-2">₹{booking.perTonPrice?.toFixed(2) || "N/A"}</td>
-                <td className="px-4 py-2">₹{((parseFloat(booking.perTonPrice) * parseFloat(booking.totalNetMaterialWeight)) + parseFloat(booking.basePay)).toFixed(2)
- || "N/A"}</td>
-                <td className="px-4 py-2">{booking.kmDriven || "N/A"}</td>
-                <td className="px-4 py-2">
-                  {`Start: ${formatDate(booking.startDate)}\nEnd: ${formatDate(
-                    booking.endDate
-                  )}\nDays: ${calculateDaysCount(booking.startDate, booking.endDate)}`}
-                </td>
-                <td className="px-4 py-2">{booking.status || "N/A"}</td>
-                <td className="px-4 py-2">
-                  <div className="flex items-center justify-center gap-2">
-                    <button
-                      onClick={() => handleViewBooking(booking)}
-                      className="text-blue-500"
-                      title="view booking"
-                    >
-                      <FaEye />
-                    </button>
-                    <button
-                      onClick={() => handleCancelBooking(booking._id)}
-                      className="text-red-500"
-                      title="cancel booking"
-                    >
-                      <FaTimes />
-                    </button>
-                    <button
-                      onClick={() => handleDownload("individual", booking._id)}
-                      className="text-green-500"
-                      title="download booking"
-                    >
-                      <FaDownload />
-                    </button>
-                  </div>
-                </td>
+  {currentBookings.map((booking, index) => {
+const serialNumber = index + (currentPage * bookingsPerPage) + 1;
 
-              </tr>
-            ))}
-          </tbody>
+    return (
+      <tr key={booking._id} className="border-t hover:bg-gray-100 transition">
+        <td className="px-4 py-2">{serialNumber}</td> {/* Serial Number for each row */}
+        <td className="px-4 py-2">{booking.customerName || "N/A"}</td>
+        <td className="px-4 py-2">{booking.vehicle?.name || "N/A"}</td>
+        <td className="px-4 py-2">{booking.vehicle?.plateNumber || "N/A"}</td>
+        <td className="px-4 py-2">{booking.driver?.name || "N/A"}</td>
+        <td className="px-4 py-2">{booking.pickupLocation?.address || "N/A"}</td>
+        <td className="px-4 py-2">{booking.dropoffLocation?.address || "N/A"}</td>
+        <td className="px-4 py-2">₹{booking.basePay?.toFixed(2) || "N/A"}</td>
+        <td className="px-4 py-2">{booking.totalNetMaterialWeight?.toFixed(2) || "N/A"}</td>
+        <td className="px-4 py-2">₹{booking.perTonPrice?.toFixed(2) || "N/A"}</td>
+        <td className="px-4 py-2">
+  ₹{isNaN(((parseFloat(booking.perTonPrice) * parseFloat(booking.totalNetMaterialWeight)) + parseFloat(booking.basePay)))
+      ? "0.00"
+      : ((parseFloat(booking.perTonPrice) * parseFloat(booking.totalNetMaterialWeight)) + parseFloat(booking.basePay)).toFixed(2)}
+</td>
+        <td className="px-4 py-2">{booking.kmDriven || "N/A"}</td>
+        <td className="px-4 py-2">
+          {`Start: ${formatDate(booking.startDate)}\nEnd: ${formatDate(booking.endDate)}\nDays: ${calculateDaysCount(booking.startDate, booking.endDate)}`}
+        </td>
+        <td className="px-4 py-2">{booking.status || "N/A"}</td>
+        <td className="px-4 py-2">
+          <div className="flex items-center justify-center gap-2">
+            <button
+              onClick={() => handleViewBooking(booking)}
+              className="text-blue-500"
+              title="view booking"
+            >
+              <FaEye />
+            </button>
+            <button
+              onClick={() => handleCancelBooking(booking._id)}
+              className="text-red-500"
+              title="cancel booking"
+            >
+              <FaTimes />
+            </button>
+            <button
+              onClick={() => handleDownload("individual", booking._id)}
+              className="text-green-500"
+              title="download booking"
+            >
+              <FaDownload />
+            </button>
+            <button
+              onClick={() => openStartBookingModal(booking)}
+              className="text-yellow-500"
+              title="Start Booking"
+            >
+              <FaPlay /> {/* Play Icon to signify start */}
+            </button>
+          </div>
+          <button
+      onClick={() => handleEditBooking(booking)}
+      className="text-purple-500"
+      title="Edit Booking"
+    >
+      <FaEdit /> {/* Edit Icon */}
+    </button>
+
+    {/* End Booking */}
+    <button
+      onClick={() => handleEndBooking(booking._id)}
+      className="text-orange-500"
+      title="End Booking"
+    >
+      <FaStop /> {/* Stop Icon to signify end */}
+    </button>
+        </td>
+      </tr>
+    );
+  })}
+</tbody>
+
         </table>
       </div>
 
@@ -362,11 +493,38 @@ const BookingsPage = () => {
           Next
         </button>
       </div>
+      {showModal && (
+        <div className="fixed inset-0 bg-gray-500 bg-opacity-75 flex justify-center items-center z-50">
+          <div className="bg-white rounded-lg p-6 max-w-sm w-full">
+            <h2 className="text-lg font-semibold mb-4">Are you sure you want to start the booking?</h2>
+            <div className="flex justify-between">
+              <button onClick={confirmStartBooking} className="bg-yellow-500 text-white px-4 py-2 rounded-lg">Yes</button>
+              <button onClick={cancelStartBooking} className="bg-gray-500 text-white px-4 py-2 rounded-lg">No</button>
+            </div>
+          </div>
+        </div>
+      )}
       <BookingModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         booking={selectedBooking}
         mode={mode}
+      />
+      {(successMessage || errorMessage) && (
+        <div className="fixed inset-0 bg-gray-500 bg-opacity-75 flex justify-center items-center z-50">
+          <div className={`bg-white rounded-lg p-6 max-w-sm w-full ${successMessage ? 'border-green-500' : 'border-red-500'} border`}>
+            <h2 className="text-lg font-semibold mb-4">{successMessage || errorMessage}</h2>
+            <button onClick={closePopup} className="bg-blue-500 text-white px-4 py-2 rounded-lg">
+              Close
+            </button>
+          </div>
+        </div>
+      )}
+      <EditBookingModal
+        booking={selectedBooking}
+        isOpen={isEditModalOpen}
+        onClose={closeEditBookingModal}
+        onSave={fetchBookings}
       />
     </div>
   );
