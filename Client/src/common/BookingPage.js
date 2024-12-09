@@ -92,6 +92,7 @@ const BookingsPage = () => {
       new Date(dateString)
     );
   };
+
   const closePopup = () => {
     setSuccessMessage("");
     setErrorMessage("");
@@ -163,6 +164,9 @@ const BookingsPage = () => {
     // Save PDF with a custom filename
     doc.save("invoice_bookings.pdf");
   };
+
+
+  
   
   // Handle Search
   const handleSearch = (query) => {

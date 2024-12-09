@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import axios from "axios";
 // import { Link, useNavigate } from "react-router-dom";
 import logo from "../assets/tms.png";
-import signin from "../assets/signin.png";
+import signin from "../assets/Login.svg";
 import signinbg from "../assets/sign2.png";
 function Login() {
   const [email, setEmail] = useState("");
@@ -22,6 +22,7 @@ function Login() {
           deviceToken,
         }
       );
+      localStorage.setItem('developer',response.data.name);
       localStorage.setItem("token", response.data.token);
       localStorage.setItem("role", response.data.role);
       localStorage.setItem('tokenId',response.data.tokenId)
@@ -119,7 +120,7 @@ function Login() {
 
           {/* Right Image Section - Only visible on medium screens and above */}
           <div className="hidden md:block items-center  text-center  justify-center pt-20">
-            <img src={signin} alt="Sign-in" className="w-auto h-auto" />
+            <img src={signin} alt="Sign-in" className="w-[500px] h-auto" />
           </div>
         </div>
       </div>

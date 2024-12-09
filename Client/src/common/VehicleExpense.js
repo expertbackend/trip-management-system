@@ -171,28 +171,32 @@ const ExpenseManagement = () => {
     </div>
   
     {/* Summary Cards */}
-    <div className="summary-cards grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-      {/* Total Expenses Card */}
-      <div className="card bg-green-500 text-white p-6 rounded-lg shadow-lg text-center transition-all transform hover:scale-105 hover:shadow-xl">
-        <h3 className="text-xl font-semibold mb-3">Total Expenses</h3>
-        <p className="text-3xl font-bold">₹ {totalExpense}</p>
-      </div>
-      <div className="card bg-yellow-600 text-white p-6 rounded-lg shadow-lg text-center transition-all transform hover:scale-105 hover:shadow-xl">
-        <h3 className="text-xl font-semibold mb-3">Total Recieved Amount</h3>
-        <p className="text-3xl font-bold">₹ {totalReceivedAmount}</p>
-      </div>
-      {/* Total Profit Card */}
-      <div className="card bg-blue-900 text-white p-6 rounded-lg shadow-lg text-center transition-all transform hover:scale-105 hover:shadow-xl">
-        <h3 className="text-xl font-semibold mb-3">Total Profit By Bookings</h3>
-        <p className="text-3xl font-bold">₹ {totalProfit}</p>
-      </div>
-  
-      {/* Final Profit Card */}
-      <div className="card bg-purple-700 text-white p-6 rounded-lg shadow-lg text-center transition-all transform hover:scale-105 hover:shadow-xl">
-        <h3 className="text-xl font-semibold mb-3">Final Profit After Expense</h3>
-        <p className="text-3xl font-bold">₹ {finalProfit}</p>
-      </div>
-    </div>
+    <div className="summary-cards grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 px-4 sm:px-6 md:px-8 mb-8">
+  {/* Total Expenses Card */}
+  <div className="card bg-green-500 text-white p-4 sm:p-6 rounded-lg shadow-lg text-center transition-all transform hover:scale-105 hover:shadow-xl">
+    <h3 className="text-lg sm:text-xl font-semibold mb-2 sm:mb-3">Total Expenses</h3>
+    <p className="text-2xl sm:text-3xl font-bold">₹ {totalExpense}</p>
+  </div>
+
+  {/* Total Received Amount Card */}
+  <div className="card bg-yellow-600 text-white p-4 sm:p-6 rounded-lg shadow-lg text-center transition-all transform hover:scale-105 hover:shadow-xl">
+    <h3 className="text-lg sm:text-xl font-semibold mb-2 sm:mb-3">Total Received Amount</h3>
+    <p className="text-2xl sm:text-3xl font-bold">₹ {totalReceivedAmount}</p>
+  </div>
+
+  {/* Total Profit Card */}
+  <div className="card bg-blue-900 text-white p-4 sm:p-6 rounded-lg shadow-lg text-center transition-all transform hover:scale-105 hover:shadow-xl">
+    <h3 className="text-lg sm:text-xl font-semibold mb-2 sm:mb-3">Total Profit By Bookings</h3>
+    <p className="text-2xl sm:text-3xl font-bold">₹ {totalProfit}</p>
+  </div>
+
+  {/* Final Profit Card */}
+  <div className="card bg-purple-700 text-white p-4 sm:p-6 rounded-lg shadow-lg text-center transition-all transform hover:scale-105 hover:shadow-xl">
+    <h3 className="text-lg sm:text-xl font-semibold mb-2 sm:mb-3">Final Profit After Expense</h3>
+    <p className="text-2xl sm:text-3xl font-bold">₹ {finalProfit.toFixed(2)}</p>
+  </div>
+</div>
+
   
     {/* Chart Section */}
     <div className="charts grid grid-cols-1 sm:grid-cols-2 gap-6">

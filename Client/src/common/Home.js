@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { Line } from "react-chartjs-2";
 import Chart from "chart.js/auto";
-import { FaCar, FaChartLine, FaMoneyBill, FaRupeeSign } from "react-icons/fa";
+import { FaCar, FaChartLine, FaCoins, FaMoneyBill, FaRupeeSign } from "react-icons/fa";
 import { FiTruck } from "react-icons/fi";
 import { MdAttachMoney } from "react-icons/md"; 
 const Home = () => {
@@ -329,10 +329,10 @@ const Home = () => {
             </div>
             <div className="p-4 bg-red-700 text-white rounded-lg shadow-md hover:shadow-lg hover:shadow-red-500 hover:bg-red-800 transition-all ease-in-out flex justify-between items-center">
               <span>
-                <h3 className="text-3xl font-semibold">Extra Expense</h3>
+                <h3 className="text-3xl font-semibold">Booking Wise Extra Expense</h3>
                 <p className="text-2xl">{totalExtraExpanse.toFixed(2)}</p>
               </span>
-              <MdAttachMoney className="text-4xl"/>
+              <FaCoins className="text-4xl"/>
             </div>
           </>
         )}

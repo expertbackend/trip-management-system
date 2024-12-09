@@ -109,9 +109,9 @@ function Help() {
               <div>
                 <button onClick={() => handleClick(0)}>
                   {openIndexes.includes(0) ? (
-                    <AiOutlineMinus />
+                    <AiOutlineMinus onClick={() => handleClick(0)} />
                   ) : (
-                    <AiOutlinePlus />
+                    <AiOutlinePlus onClick={() => handleClick(0)} />
                   )}
                 </button>
               </div>
@@ -143,9 +143,9 @@ function Help() {
               <div>
                 <button onClick={() => handleClick(1)}>
                   {openIndexes.includes(1) ? (
-                    <AiOutlineMinus />
+                    <AiOutlineMinus onClick={() => handleClick(1)} />
                   ) : (
-                    <AiOutlinePlus />
+                    <AiOutlinePlus onClick={() => handleClick(1)} />
                   )}
                 </button>
               </div>
@@ -173,9 +173,9 @@ function Help() {
               <div>
                 <button onClick={() => handleClick(2)}>
                   {openIndexes.includes(2) ? (
-                    <AiOutlineMinus />
+                    <AiOutlineMinus onClick={() => handleClick(2)} />
                   ) : (
-                    <AiOutlinePlus />
+                    <AiOutlinePlus onClick={() => handleClick(2)} />
                   )}
                 </button>
               </div>
@@ -201,9 +201,9 @@ function Help() {
               <div>
                 <button onClick={() => handleClick(3)}>
                   {openIndexes.includes(3) ? (
-                    <AiOutlineMinus />
+                    <AiOutlineMinus onClick={() => handleClick(3)} />
                   ) : (
-                    <AiOutlinePlus />
+                    <AiOutlinePlus onClick={() => handleClick(3)} />
                   )}
                 </button>
               </div>
@@ -229,9 +229,9 @@ function Help() {
               <div>
                 <button onClick={() => handleClick(4)}>
                   {openIndexes.includes(4) ? (
-                    <AiOutlineMinus />
+                    <AiOutlineMinus onClick={() => handleClick(4)} />
                   ) : (
-                    <AiOutlinePlus />
+                    <AiOutlinePlus onClick={() => handleClick(4)} />
                   )}
                 </button>
               </div>
@@ -258,9 +258,9 @@ function Help() {
               <div>
                 <button onClick={() => handleClick(5)}>
                   {openIndexes.includes(5) ? (
-                    <AiOutlineMinus />
+                    <AiOutlineMinus onClick={() => handleClick(5)} />
                   ) : (
-                    <AiOutlinePlus />
+                    <AiOutlinePlus onClick={() => handleClick(5)} />
                   )}
                 </button>
               </div>
@@ -286,9 +286,9 @@ function Help() {
               <div>
                 <button onClick={() => handleClick(6)}>
                   {openIndexes.includes(6) ? (
-                    <AiOutlineMinus />
+                    <AiOutlineMinus onClick={() => handleClick(6)} />
                   ) : (
-                    <AiOutlinePlus />
+                    <AiOutlinePlus onClick={() => handleClick(6)} />
                   )}
                 </button>
               </div>
@@ -314,9 +314,9 @@ function Help() {
               <div>
                 <button onClick={() => handleClick(7)}>
                   {openIndexes.includes(7) ? (
-                    <AiOutlineMinus />
+                    <AiOutlineMinus onClick={() => handleClick(7)} />
                   ) : (
-                    <AiOutlinePlus />
+                    <AiOutlinePlus onClick={() => handleClick(7)} />
                   )}
                 </button>
               </div>
@@ -343,9 +343,9 @@ function Help() {
               <div>
                 <button onClick={() => handleClick(8)}>
                   {openIndexes.includes(8) ? (
-                    <AiOutlineMinus />
+                    <AiOutlineMinus onClick={() => handleClick(8)} />
                   ) : (
-                    <AiOutlinePlus />
+                    <AiOutlinePlus onClick={() => handleClick(8)} />
                   )}
                 </button>
               </div>
@@ -371,9 +371,9 @@ function Help() {
               <div>
                 <button onClick={() => handleClick(9)}>
                   {openIndexes.includes(9) ? (
-                    <AiOutlineMinus />
+                    <AiOutlineMinus onClick={() => handleClick(9)} />
                   ) : (
-                    <AiOutlinePlus />
+                    <AiOutlinePlus onClick={() => handleClick(9)} />
                   )}
                 </button>
               </div>
@@ -399,9 +399,9 @@ function Help() {
               <div>
                 <button onClick={() => handleClick(10)}>
                   {openIndexes.includes(10) ? (
-                    <AiOutlineMinus />
+                    <AiOutlineMinus onClick={() => handleClick(10)} />
                   ) : (
-                    <AiOutlinePlus />
+                    <AiOutlinePlus onClick={() => handleClick(10)} />
                   )}
                 </button>
               </div>
@@ -427,9 +427,9 @@ function Help() {
               <div>
                 <button onClick={() => handleClick(11)}>
                   {openIndexes.includes(11) ? (
-                    <AiOutlineMinus />
+                    <AiOutlineMinus onClick={() => handleClick(11)}  />
                   ) : (
-                    <AiOutlinePlus />
+                    <AiOutlinePlus onClick={() => handleClick(11)}  />
                   )}
                 </button>
               </div>
@@ -455,9 +455,9 @@ function Help() {
               <div>
                 <button onClick={() => handleClick(12)}>
                   {openIndexes.includes(12) ? (
-                    <AiOutlineMinus />
+                    <AiOutlineMinus onClick={() => handleClick(12)} />
                   ) : (
-                    <AiOutlinePlus />
+                    <AiOutlinePlus onClick={() => handleClick(12)} />
                   )}
                 </button>
               </div>
@@ -483,9 +483,9 @@ function Help() {
               <div>
                 <button onClick={() => handleClick(13)}>
                   {openIndexes.includes(13) ? (
-                    <AiOutlineMinus />
+                    <AiOutlineMinus onClick={() => handleClick(13)}  />
                   ) : (
-                    <AiOutlinePlus />
+                    <AiOutlinePlus onClick={() => handleClick(13)}  />
                   )}
                 </button>
               </div>
@@ -511,9 +511,9 @@ function Help() {
               <div>
                 <button onClick={() => handleClick(14)}>
                   {openIndexes.includes(14) ? (
-                    <AiOutlineMinus />
+                    <AiOutlineMinus onClick={() => handleClick(14)} />
                   ) : (
-                    <AiOutlinePlus />
+                    <AiOutlinePlus onClick={() => handleClick(14)} />
                   )}
                 </button>
               </div>
@@ -539,9 +539,9 @@ function Help() {
               <div>
                 <button onClick={() => handleClick(15)}>
                   {openIndexes.includes(15) ? (
-                    <AiOutlineMinus />
+                    <AiOutlineMinus onClick={() => handleClick(15)} />
                   ) : (
-                    <AiOutlinePlus />
+                    <AiOutlinePlus onClick={() => handleClick(15)} />
                   )}
                 </button>
               </div>
@@ -570,9 +570,9 @@ function Help() {
               <div>
                 <button onClick={() => handleClick(16)}>
                   {openIndexes.includes(16) ? (
-                    <AiOutlineMinus />
+                    <AiOutlineMinus onClick={() => handleClick(16)} />
                   ) : (
-                    <AiOutlinePlus />
+                    <AiOutlinePlus onClick={() => handleClick(16)} />
                   )}
                 </button>
               </div>
@@ -598,9 +598,9 @@ function Help() {
               <div>
                 <button onClick={() => handleClick(17)}>
                   {openIndexes.includes(17) ? (
-                    <AiOutlineMinus />
+                    <AiOutlineMinus onClick={() => handleClick(17)} />
                   ) : (
-                    <AiOutlinePlus />
+                    <AiOutlinePlus onClick={() => handleClick(17)} />
                   )}
                 </button>
               </div>
@@ -627,9 +627,9 @@ function Help() {
               <div>
                 <button onClick={() => handleClick(18)}>
                   {openIndexes.includes(18) ? (
-                    <AiOutlineMinus />
+                    <AiOutlineMinus onClick={() => handleClick(18)}  />
                   ) : (
-                    <AiOutlinePlus />
+                    <AiOutlinePlus onClick={() => handleClick(18)}  />
                   )}
                 </button>
               </div>
@@ -655,9 +655,9 @@ function Help() {
               <div>
                 <button onClick={() => handleClick(19)}>
                   {openIndexes.includes(19) ? (
-                    <AiOutlineMinus />
+                    <AiOutlineMinus onClick={() => handleClick(19)} />
                   ) : (
-                    <AiOutlinePlus />
+                    <AiOutlinePlus onClick={() => handleClick(19)} />
                   )}
                 </button>
               </div>
@@ -711,9 +711,9 @@ function Help() {
               <div>
                 <button onClick={() => handleClick(21)}>
                   {openIndexes.includes(21) ? (
-                    <AiOutlineMinus />
+                    <AiOutlineMinus onClick={() => handleClick(21)} />
                   ) : (
-                    <AiOutlinePlus />
+                    <AiOutlinePlus onClick={() => handleClick(21)} />
                   )}
                 </button>
               </div>

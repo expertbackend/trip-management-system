@@ -96,27 +96,27 @@ const VehicleServices = () => {
 
   const handleDownloadPDF = async () => {
     const token = localStorage.getItem("token");
-  
+
     const axiosInstance = axios.create({
       baseURL: `${process.env.REACT_APP_API_URL}/api/owner`,
       headers: {
         Authorization: `Bearer ${token}`,
       },
     });
-  
+
     const response = await axiosInstance.get("/getProfile");
     const companyData = response.data.profile;
     console.log("getData", response.data);
-  
+
     const companyName = companyData.name || "Your Company Name";
     const companyAddress = companyData.address || "Goutam Nagar";
     const companyPhone = companyData.phoneNumber || "1234567890";
-  
+
     const doc = new jsPDF();
     const primaryColor = "#343A40";
     const accentColor = "#007BFF";
     const lightGray = "#F8F9FA";
-  
+
     // Title Section with Logo
     const logoWidth = 30;
     const logoHeight = 15;
@@ -127,12 +127,12 @@ const VehicleServices = () => {
     doc.setFont("helvetica", "bold");
     doc.setTextColor(primaryColor);
     doc.text("Vehicle Services Report", 50, 25);
-  
+
     // Add a line under the title
     doc.setDrawColor(0, 0, 0);
     doc.setLineWidth(0.5);
     doc.line(14, 35, 196, 35);
-  
+
     // Company Information Section
     doc.setFontSize(10);
     doc.setFont("helvetica", "normal");
@@ -140,14 +140,14 @@ const VehicleServices = () => {
     doc.text(`Company Name: ${companyName}`, 14, 40);
     doc.text(`Address: ${companyAddress}`, 14, 45);
     doc.text(`Contact: ${companyPhone}`, 14, 50);
-  
+
     // Invoice Date and Number
     doc.setFont("helvetica", "bold");
     doc.setTextColor(primaryColor);
     const currentDate = new Date().toLocaleDateString();
     doc.text(`Date: ${currentDate}`, 150, 40);
     doc.text("Invoice #: 00123", 150, 45);
-  
+
     // Table Headers with Background
     doc.setFontSize(11);
     doc.setFont("helvetica", "bold");
@@ -159,33 +159,33 @@ const VehicleServices = () => {
     doc.text("Company", 100, 67);
     doc.text("Amount", 150, 67);
     doc.text("Plate Number", 180, 67);
-  
+
     // Table Rows with Alternating Colors
     let y = 75;
     doc.setFontSize(10);
     doc.setFont("helvetica", "normal");
     doc.setTextColor(primaryColor);
-  
+
     filteredServices.forEach((service, index) => {
       // Alternate row background
       if (index % 2 === 0) {
         doc.setFillColor(lightGray);
         doc.rect(14, y - 7, 182, 8, "F");
       }
-  
+
       doc.text(service.serviceType, 16, y);
       doc.text(formatDate(service.serviceDate), 50, y);
       doc.text(service.companyName, 100, y);
       doc.text(`$${service.amount.toFixed(2)}`, 150, y);
       doc.text(service.vehicleId?.plateNumber || "Not Provided", 180, y);
-  
+
       y += 8;
-  
+
       // Page break if content exceeds page
       if (y > 270) {
         doc.addPage();
         y = 20;
-  
+
         // Repeat headers on new page
         doc.setFillColor(primaryColor);
         doc.rect(14, y, 182, 10, "F");
@@ -198,15 +198,18 @@ const VehicleServices = () => {
         y += 15;
       }
     });
-  
+
     // Summary Section
-    const totalAmount = filteredServices.reduce((sum, service) => sum + service.amount, 0);
+    const totalAmount = filteredServices.reduce(
+      (sum, service) => sum + service.amount,
+      0
+    );
     doc.setFont("helvetica", "bold");
     doc.setFontSize(12);
     doc.setFillColor(lightGray);
     doc.rect(14, y, 182, 10, "F");
     doc.text(`Total Amount: $${totalAmount.toFixed(2)}`, 150, y + 7);
-  
+
     // Footer Section
     doc.setFontSize(9);
     doc.setFont("helvetica", "italic");
@@ -214,23 +217,17 @@ const VehicleServices = () => {
     y += 20;
     doc.text("Thank you for choosing our services!", 14, y);
     doc.text("For inquiries, contact support@company.com", 14, y + 5);
-  
+
     // Save the PDF
     doc.save("VehicleServices.pdf");
   };
-  
- 
-  
-  
+
   // Helper function to format date
   const formatDate = (dateString) => {
     const date = new Date(dateString);
     const options = { year: "numeric", month: "2-digit", day: "2-digit" };
     return new Intl.DateTimeFormat("en-GB", options).format(date);
   };
-  
-  
-  
 
   const filteredServices = services
     ?.filter(
@@ -290,48 +287,44 @@ const VehicleServices = () => {
           onChange={(e) => setSearchQuery(e.target.value)}
           className="border border-gray-300 rounded-md px-4 py-2 w-full  sm:w-auto focus:outline-none focus:ring-1 focus:ring-blue-400 focus:border-blue-400"
         />
-        <button
-          onClick={handleDownloadPDF}
-          className="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600 w-full sm:w-auto"
-        >
-          Download PDF
-        </button>
+        <span className=" flex flex-col sm:flex-row gap-4 justify-center space-x-4">
+          <button
+            onClick={() => setIsModalOpen(true)}
+            className="bg-blue-500 text-white px-4 py-2  rounded-md hover:bg-blue-600 mx-auto   items-center justify-center w-full sm:w-auto"
+          >
+            Create Service
+          </button>
+          <button
+            onClick={handleDownloadPDF}
+            className="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600 w-full sm:w-auto ml-0"
+          >
+            Download PDF
+          </button>
+        </span>
       </div>
       {/* Service Table */}
       <div className="w-full overflow-hidden rounded-md">
         <div className="overflow-scroll">
           <table className="w-full border-collapse border border-gray-300 mb-6">
-            <thead >
+            <thead>
               <tr className="bg-sky-700 text-white">
                 <th className="border border-white px-4 py-2">Sl. No</th>
                 <th className="border border-white px-4 py-2">
                   Vehicle Number
                 </th>
-                <th className="border border-white px-4 py-2">
-                  Vehicle Model
-                </th>
-                <th className="border border-white px-4 py-2">
-                  Service Type
-                </th>
-                <th className="border border-white px-4 py-2">
-                  Service Date
-                </th>
+                <th className="border border-white px-4 py-2">Vehicle Model</th>
+                <th className="border border-white px-4 py-2">Service Type</th>
+                <th className="border border-white px-4 py-2">Service Date</th>
                 <th className="border border-white px-4 py-2">
                   Odometer Reading
                 </th>
                 <th className="border border-white px-4 py-2">
                   Servicing Mileage
                 </th>
-                <th className="border border-white px-4 py-2">
-                  Remaining KM
-                </th>
+                <th className="border border-white px-4 py-2">Remaining KM</th>
                 <th className="border border-white px-4 py-2">Amount</th>
-                <th className="border border-white px-4 py-2">
-                  Company Name
-                </th>
-                <th className="border border-white px-4 py-2">
-                  Description
-                </th>
+                <th className="border border-white px-4 py-2">Company Name</th>
+                <th className="border border-white px-4 py-2">Description</th>
               </tr>
             </thead>
             <tbody>
@@ -394,12 +387,12 @@ const VehicleServices = () => {
       </div>
 
       {/* Create Service Button */}
-      <button
+      {/* <button
         onClick={() => setIsModalOpen(true)}
         className="bg-blue-500 text-white px-4 py-2 mt-6 rounded-md hover:bg-blue-600 mx-auto   items-center justify-center"
       >
         Create Service
-      </button>
+      </button> */}
 
       {/* Modal for Creating Service */}
       {isModalOpen && (
