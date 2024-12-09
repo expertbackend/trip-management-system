@@ -219,7 +219,7 @@ const ProfilePage = () => {
     </>
   ) : (
     <div className="mt-6">
-      <h3 className="text-xl font-bold text-gray-800">Operator/Driver Details</h3>
+      <h3 className="text-xl font-bold text-gray-800 capitalize">{profileData.role}</h3>
       <p>Status: {profileData.status}</p>
       <p>Owner Name: {profileData.ownerId?.name || 'N/A'}</p>
     </div>

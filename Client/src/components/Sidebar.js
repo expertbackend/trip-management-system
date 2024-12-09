@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
-import { FaBullhorn, FaSpeakerDeck, FaTruck, FaUserTie } from "react-icons/fa";
+import { FaBullhorn, FaRupeeSign, FaSpeakerDeck, FaTruck, FaTruckLoading, FaUserTie } from "react-icons/fa";
+import { Tooltip } from "react-tooltip";
 import {
   FaBars,
   FaTimes,
@@ -90,8 +91,8 @@ function Sidebar({ role, notifications, username }) {
   const handleLinkClick = (link) => {
     setActiveLink(link);
     localStorage.setItem("activeLink", link);
-    setSettingOpen(false);  // Close settings
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    setSettingOpen(false); // Close settings
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   const toggleNotifications = () => {
@@ -104,12 +105,11 @@ function Sidebar({ role, notifications, username }) {
   };
   const dropdownRef = useRef(null);
 
-  const handlelinkclick=(e)=>{
-    
-    e.preventDefault(); 
+  const handlelinkclick = (e) => {
+    e.preventDefault();
     setSettingOpen(false);
-    window.scrollTo({top:0,behavior:"smooth"})
-  }
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
 
   // const handleSetting = () => {
   //   setIsSettingOpen((prev) => !prev);
@@ -191,9 +191,10 @@ function Sidebar({ role, notifications, username }) {
                 : "text-black hover:bg-gray-300 hover:text-black"
             }`}
             onClick={handleProfileClick}
+            data-tooltip-id="profile-tooltip" 
           >
             {/* Profile Section */}
-            <div className="flex items-center mt-11  overflow-hidden">
+            <div className="flex items-center mt-11 overflow-hidden">
               {/* Avatar Image */}
               <Avatar
                 name={username}
@@ -207,11 +208,13 @@ function Sidebar({ role, notifications, username }) {
                 <p className="text-sm text-gray-500">{role}</p>
               </div>
             </div>
+            
           </li>
-
+          <Tooltip id="profile-tooltip" place="right" content={`User Profile`} className="z-50 bg-blue-900 text-white" />
+          
           {(role === "owner" || role === "operator") && (
             <>
-              <li className="relative group" title="home">
+              <li className="relative group">
                 <Link
                   to="/details"
                   className={`flex  items-center p-3 rounded-lg transition-colors ${
@@ -220,11 +223,13 @@ function Sidebar({ role, notifications, username }) {
                       : "text-black hover:bg-gray-300 hover:text-black"
                   }`}
                   onClick={() => handleLinkClick("home")}
+                  data-tooltip-id="home-tooltip" 
                 >
                   <FaHome className="text-xl" />
                   {isOpen && <span className="ml-4">Home</span>}
                 </Link>
               </li>
+              <Tooltip id="home-tooltip" place="right" content={`Home`} />
             </>
           )}
           {/* Role-specific Links */}
@@ -239,11 +244,13 @@ function Sidebar({ role, notifications, username }) {
                       : "text-black hover:bg-gray-300 hover:text-black"
                   }`}
                   onClick={() => handleLinkClick("vehicle")}
+                  data-tooltip-id="vehicle-tooltip"
                 >
                   <FaCar className="text-xl" />
                   {isOpen && <span className="ml-4 ">Vehicle</span>}
                 </Link>
               </li>
+              <Tooltip id="vehicle-tooltip" place="right" content={`Vehicle`} />
               <li className="relative">
                 <Link
                   to="/user"
@@ -253,11 +260,13 @@ function Sidebar({ role, notifications, username }) {
                       : "text-black hover:bg-gray-300 hover:text-black"
                   }`}
                   onClick={() => handleLinkClick("user")}
+                  data-tooltip-id="user-tooltip"
                 >
                   <FaUsers className="text-xl" />
                   {isOpen && <span className="ml-4">User</span>}
                 </Link>
               </li>
+              <Tooltip id="user-tooltip" place="right" content={`User`} />
               <li className="relative">
                 <Link
                   to="/fms"
@@ -267,11 +276,13 @@ function Sidebar({ role, notifications, username }) {
                       : "text-black hover:bg-gray-300 hover:text-black"
                   }`}
                   onClick={() => handleLinkClick("fms")}
+                  data-tooltip-id="fms-tooltip"
                 >
                   <FaTruck className="text-xl" />
                   {isOpen && <span className="ml-4">FMS + Expense Tracker</span>}
                 </Link>
               </li>
+              <Tooltip id="fms-tooltip" place="right" content={`Fleet Management System`} />
               {/* Expenses Section - Visible for owner/operator */}
               {(role === "owner" || role === "operator") && (
                 <div className="mt-4 border-b-2">
@@ -283,10 +294,10 @@ function Sidebar({ role, notifications, username }) {
                         : "<p></p>"
                     }`}
                   >
-                    <span className="p-2 ">
+                    <span className="p-2 " data-tooltip-id="expense-tooltip">
                       {isOpen ? (
                         isExpensesOpen ? (
-                          <span className="flex gap-2 text-base font-normal">
+                          <span className="flex gap-2 text-base font-normal" >
                             <FaCoins className="text-2xl" /> Expenses
                           </span>
                         ) : (
@@ -299,13 +310,14 @@ function Sidebar({ role, notifications, username }) {
                       )}
                     </span>
 
+
                     <FaChevronDown
                       className={`text-sm transition-all  duration-300 ease-out ${
                         isExpensesOpen ? "rotate-180" : ""
                       }`}
                     />
                   </div>
-
+                  <Tooltip id="expense-tooltip" place="right" content={`Expense`} />
                   {isExpensesOpen && (
                     <ul className=" overflow-hidden">
                       <li className="relative">
@@ -317,13 +329,15 @@ function Sidebar({ role, notifications, username }) {
                               : "text-black hover:bg-gray-300 hover:text-black"
                           }`}
                           onClick={() => handleLinkClick("create-expense")}
+                          data-tooltip-id="createexpense-tooltip"
                         >
-                          <FaDollarSign className="text-xl" />
+                          <FaRupeeSign className="text-xl" />
                           {isOpen && (
                             <span className="ml-4">Create Expense</span>
                           )}
                         </Link>
                       </li>
+                      <Tooltip id="createexpense-tooltip" place="right" content={`CreateExpense`} />
                       <li className="relative">
                         <Link
                           to="/view-expense"
@@ -333,20 +347,24 @@ function Sidebar({ role, notifications, username }) {
                               : "text-black hover:bg-gray-300 hover:text-black"
                           }`}
                           onClick={() => handleLinkClick("view-expense")}
+                          data-tooltip-id="viewexpense-tooltip"
                         >
                           <FaEye className="text-xl" />
                           {isOpen && <span className="ml-4">View Expense</span>}
                         </Link>
                       </li>
+                      <Tooltip id="viewexpense-tooltip" place="right" content={`ViewExpense`} />
                     </ul>
                   )}
                 </div>
               )}
               {/* Booking Section - Visible for owner/operator */}
               {(role === "owner" || role === "operator") && (
-                <div className="mt-4 border-b-2">
+                <>
+                <div className="mt-4 border-b-2" >
                   <h3
                     onClick={toggleBooking} // Toggle for "Booking" submenu
+                    data-tooltip-id="booking-tooltip"
                     className={`flex items-center justify-between text-lg font-semibold text-black mb-2 cursor-pointer ${
                       isBookingOpen ? "bg-transparent" : ""
                     }`}
@@ -365,6 +383,8 @@ function Sidebar({ role, notifications, username }) {
                       ) : (
                         <FaTicketAlt className="text-2xl " />
                       )}
+                     
+                      
                     </span>
                     <FaChevronDown
                       className={`text-sm transition-all duration-300 ease-out ${
@@ -372,6 +392,7 @@ function Sidebar({ role, notifications, username }) {
                       }`}
                     />
                   </h3>
+                  <Tooltip id="booking-tooltip" place="right" content={`Booking`} />
 
                   {isBookingOpen && (
                     <ul className="space-y-2 overflow-hidden">
@@ -384,6 +405,7 @@ function Sidebar({ role, notifications, username }) {
                               : "text-black hover:bg-gray-300 hover:text-black"
                           }`}
                           onClick={() => handleLinkClick("create-booking")}
+                          data-tooltip-id="createbooking-tooltip"
                         >
                           <FaPlus className="text-xl" />
                           {isOpen && (
@@ -391,6 +413,7 @@ function Sidebar({ role, notifications, username }) {
                           )}
                         </Link>
                       </li>
+                      <Tooltip id="createbooking-tooltip" place="right" content={`CreateBooking`} />
                       <li className="relative">
                         <Link
                           to="/create-loading"
@@ -400,13 +423,16 @@ function Sidebar({ role, notifications, username }) {
                               : "text-black hover:bg-gray-300 hover:text-black"
                           }`}
                           onClick={() => handleLinkClick("create-loading")}
+                           data-tooltip-id="createloading-tooltip"
                         >
-                          <FaPlus className="text-xl" />
+                          <FaTruckLoading className="text-xl" />
                           {isOpen && (
-                            <span className="ml-4">Create Loading</span>
+                            <span className="ml-4">Unloading</span>
                           )}
                         </Link>
                       </li>
+                      <Tooltip id="createloading-tooltip" place="right" content={`Unloading`} />
+
                       <li className="relative">
                         <Link
                           to="/view-booking"
@@ -416,11 +442,13 @@ function Sidebar({ role, notifications, username }) {
                               : "text-black hover:bg-gray-300 hover:text-black"
                           }`}
                           onClick={() => handleLinkClick("view-booking")}
+                          data-tooltip-id="viewbook-tooltip"
                         >
                           <AiOutlineFolderView className="text-xl" />
                           {isOpen && <span className="ml-4">View Booking</span>}
                         </Link>
                       </li>
+                      <Tooltip id="viewbook-tooltip" place="right" content={`ViewBooking`} />
                       <li className="relative">
                         <Link
                           to="/assign-booking"
@@ -430,6 +458,7 @@ function Sidebar({ role, notifications, username }) {
                               : "text-black hover:bg-gray-300 hover:text-black"
                           }`}
                           onClick={() => handleLinkClick("assign-booking")}
+                          data-tooltip-id="assignbooking-tooltip"
                         >
                           <FaClipboardList className="text-xl" />
                           {isOpen && (
@@ -437,9 +466,12 @@ function Sidebar({ role, notifications, username }) {
                           )}
                         </Link>
                       </li>
+                      <Tooltip id="assignbooking-tooltip" place="right" content={`AssignBooking`} />
                     </ul>
                   )}
                 </div>
+                
+                </>
               )}
               {/* owner dashboard menu */}
               <li className="relative">
@@ -451,11 +483,13 @@ function Sidebar({ role, notifications, username }) {
                       : "text-black hover:bg-gray-300 hover:text-black"
                   }`}
                   onClick={() => handleLinkClick("owner")}
+                  data-tooltip-id="ownerdashboard-tooltip"
                 >
                   <FaUser className="text-xl" />
                   {isOpen && <span className="ml-4">Owner Dashboard</span>}
                 </Link>
               </li>
+              <Tooltip id="ownerdashboard-tooltip" place="right" content={`OwnerDashboard`} />
               <li className="relative">
                 <Link
                   to="/trip-report"
@@ -465,12 +499,13 @@ function Sidebar({ role, notifications, username }) {
                       : "text-black hover:bg-gray-300 hover:text-black"
                   }`}
                   onClick={() => handleLinkClick("trip-report")}
+                  data-tooltip-id="tripreport-tooltip"
                 >
                   <FaFileAlt className="text-xl" />
                   {isOpen && <span className="ml-4">Trip Report</span>}
                 </Link>
               </li>
-
+              <Tooltip id="tripreport-tooltip" place="right" content={`TripReport`} />
               <li className="relative">
                 <Link
                   to="/announcement"
@@ -480,15 +515,18 @@ function Sidebar({ role, notifications, username }) {
                       : "text-black hover:bg-gray-300 hover:text-black"
                   }`}
                   onClick={() => handleLinkClick("announcement")}
+                  data-tooltip-id="announcement-tooltip"
                 >
                   <FaBullhorn className="text-xl" />
                   {isOpen && <span className="ml-4">Announcement</span>}
                 </Link>
               </li>
+              <Tooltip id="announcement-tooltip" place="right" content={`announcement`} />
             </>
           )}
 
           {role === "driver" && (
+            <>
             <li>
               <Link
                 to="/driver-dashboard"
@@ -498,13 +536,17 @@ function Sidebar({ role, notifications, username }) {
                     : "text-black hover:bg-gray-300 hover:text-black"
                 }`}
                 onClick={() => handleLinkClick("driver-dashboard")}
+                data-tooltip-id="driver-tooltip" 
               >
                 <FaCar className="text-xl" />
                 {isOpen && <span className="ml-4">Driver Dashboard</span>}
               </Link>
             </li>
+            <Tooltip id="driver-tooltip" place="right" content={`Driver`} />
+            </>
           )}
           {role === "superadmin" && (
+            <>
             <li>
               <Link
                 to="/SuperAdmin"
@@ -514,71 +556,84 @@ function Sidebar({ role, notifications, username }) {
                     : "text-black hover:bg-gray-300 hover:text-black"
                 }`}
                 onClick={() => handleLinkClick("SuperAdmin")}
+                data-tooltip-id="superadmin-tooltip"
               >
                 <FaCar className="text-xl" />
                 {isOpen && <span className="ml-4">Super Admin Dashboard</span>}
               </Link>
             </li>
+            <Tooltip id="superadmin-tooltip" place="right" content={`SuperAdmin`} />
+            </>
           )}
 
           {role === "driver" && (
+            <>
             <li>
               <Link to="/create-booking">
                 <FaTaxi className="text-xl" />
                 {isOpen && <span className="ml-4">Create Booking</span>}
               </Link>
             </li>
+            </>
           )}
         </ul>
         <div className="mt-2" ref={dropdownRef}>
           <button
             onClick={handleSetting}
-            className="flex items-center p-3 rounded-lg transition-colors text-black hover:bg-gray-300 hover:text-black w-full"
+            className="flex items-center p-3 rounded-lg transition-colors text-black hover:bg-gray-300 hover:text-black w-full" data-tooltip-id="setting-tooltip"
           >
             <AiFillSetting className="text-2xl fill-black" />
+            {isOpen && <span className="ml-4">Setting</span>}
           </button>
+          {/* <Tooltip id="setting-tooltip" place="right" content={`Setting`} /> */}
+
           <div
             className={`absolute ${
               isSettingOpen ? "flex" : "hidden"
             } w-64 flex-col bottom-4 md:bottom-20 p-2 rounded-lg left-[calc(100%+8px)] z-50 bg-white shadow-lg shadow-gray-500 text-black text-sm font-medium`}
           >
             {/* Dropdown Content */}
-            <Link to="/edit-profile" onClick={()=>handleLinkClick(null)}>
-            <div className="p-3 border-b-2 hover:bg-gray-300 hover:rounded-lg">
-              Edit Profile
-            </div>
+            <Link to="/edit-profile" onClick={() => handleLinkClick(null)}>
+              <div className="p-3 border-b-2 hover:bg-gray-300 hover:rounded-lg">
+                Edit Profile
+              </div>
             </Link>
-            <Link to="/privacy-policy" onClick={()=>handleLinkClick(null)}>
-            <div className="p-3 border-b-2 hover:bg-gray-300 hover:rounded-lg">
-              Privacy Policy
-            </div>
+            <Link to="/privacy-policy" onClick={() => handleLinkClick(null)}>
+              <div className="p-3 border-b-2 hover:bg-gray-300 hover:rounded-lg">
+                Privacy Policy
+              </div>
             </Link>
-            <Link to="/term" onClick={()=>handleLinkClick(null)}>
-            <div className="p-3 border-b-2 hover:bg-gray-300 hover:rounded-lg">
-             Terms and Conditions
-            </div>
+            <Link to="/term" onClick={() => handleLinkClick(null)}>
+              <div className="p-3 border-b-2 hover:bg-gray-300 hover:rounded-lg">
+                Terms and Conditions
+              </div>
             </Link>
-            <Link to="/help" onClick={()=>handleLinkClick('help')}>
-            <div className="p-3 border-b-2 hover:bg-gray-300 hover:rounded-lg">
-              Help
-            </div>
+            <Link to="/help" onClick={() => handleLinkClick("help")}>
+              <div className="p-3 border-b-2 hover:bg-gray-300 hover:rounded-lg">
+                Help
+              </div>
             </Link>
-            <Link to="/about" onClick={()=>handleLinkClick(null)}>
-            <div className="p-3 hover:bg-gray-300 hover:rounded-lg">About Us</div>
+            <Link to="/about" onClick={() => handleLinkClick(null)}>
+              <div className="p-3 hover:bg-gray-300 hover:rounded-lg">
+                About Us
+              </div>
             </Link>
           </div>
         </div>
+        <Tooltip id="setting-tooltip" place="right" content={`Setting`} />
         <ul className="">
           {/* Other Links */}
           <li className="relative group">
             <button
               onClick={handleLogout}
-              className="flex items-center p-3 rounded-lg transition-colors text-black hover:bg-gray-300 hover:text-black w-full"
+              className="flex items-center p-3 rounded-lg transition-colors text-black hover:bg-gray-300 hover:text-black w-full" data-tooltip-id="logout-tooltip"
             >
               <FaSignOutAlt className="text-xl" />
               {isOpen && <span className="ml-4">Logout</span>}
             </button>
+
           </li>
+        <Tooltip id="logout-tooltip" place="right" content={`Logout`} />
         </ul>
       </div>
     </div>
