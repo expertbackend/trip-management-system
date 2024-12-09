@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { jsPDF } from 'jspdf';
 import 'jspdf-autotable';
 import Modal from './Modal'; // Assume Modal is a reusable component
-import { FaAlignRight, FaCar, FaCheck } from 'react-icons/fa';
+import { FaAlignRight, FaCar, FaCheck, FaMotorcycle, FaTruck } from 'react-icons/fa';
 import axios from 'axios';
 import VehicleModal from '../common/VehicleModal';
 
@@ -359,107 +359,102 @@ const VehicleTable = () => {
       </div>
 
       {/* Table for Vehicles */}
-      <div className="overflow-x-auto">
-        <table className="w-full border-collapse">
-          <thead>
-            <tr className="bg-white border-b">
-              <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">SL No.</th>
-              <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Plate Number</th>
-              <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">MODEL NAME</th>
-              <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">DRIVER NAME</th>
-              <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">DRIVER PHONE NUMBER</th>
-             
-              <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">STATUS</th>
-              <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">DATE</th>
-              <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">ACTION</th>
-            </tr>
-          </thead>
-          <tbody>
-            {currentVehicles.map((vehicle, index) => (
-              <tr key={index} className={index % 2 === 0 ? 'bg-white' : 'bg-[#F0F0FF]'}>
-                {/* Serial Number */}
-                <td className="px-4 py-2 text-sm text-gray-900">
-                  {index + (currentPage - 1) * vehiclesPerPage + 1}
-                </td>
-                <td className="px-4 py-2 text-sm text-gray-900">{vehicle.plateNumber}</td>
-                <td className="px-4 py-2 text-sm text-gray-900">{vehicle.name}</td>
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 p-6">
+  {currentVehicles.map((vehicle, index) => {
+    const vehicleTypeIcon = vehicle.vehicleType ? (
+      vehicle.vehicleType === 'bike' ? (
+        <FaMotorcycle className="text-gray-500" />
+      ) : vehicle.vehicleType === 'car' ? (
+        <FaCar className="text-gray-500" />
+      ) : vehicle.vehicleType === 'truck' ? (
+        <FaTruck className="text-gray-500" />
+      ) : null
+    ) : null;
 
-                <td className="px-4 py-2 text-sm text-gray-900">{vehicle.driver?.name || 'Vehicle Not Assigned'}</td>
-                <td className="px-4 py-2 text-sm text-gray-900">{vehicle.driver?.phoneNumber || 'Vehicle Not Assigned'}</td>
-                <td className="px-4 py-2">
-                  <div className="flex items-center">
-                    <span
-                      className={`w-4 h-4 mr-1 inline-block rounded-full 
-                  ${vehicle.status === 'created' ? 'bg-gray-400 text-gray-800 hover:bg-gray-500' : ''}
-                  ${vehicle.status === 'pending' ? 'bg-yellow-400 text-yellow-800 hover:bg-yellow-500' : ''}
-                  ${vehicle.status === 'in-progress' ? 'bg-blue-400 text-blue-800 hover:bg-blue-500' : ''}
-                  ${vehicle.status === 'assigned' ? 'bg-blue-500 text-white hover:bg-blue-600' : ''}
-                  ${vehicle.status === 'running' ? 'bg-yellow-500 text-white hover:bg-yellow-600' : ''}
-                  ${vehicle.status === 'completed' ? 'bg-green-500 text-white hover:bg-green-600' : ''}`}
-                    />
-                    <span
-                      className={`text-xs font-medium 
-                  ${vehicle.status === 'created' ? 'text-gray-600' : ''}
-                  ${vehicle.status === 'assigned' ? 'text-blue-500' : ''}
-                  ${vehicle.status === 'running' ? 'text-yellow-500' : ''}
-                  ${vehicle.status === 'completed' ? 'text-green-500' : ''}`}
-                    >
-                      {vehicle.status}
-                    </span>
-                  </div>
-                </td>
-                <td className="px-4 py-2 text-sm text-gray-900">
-                  {formatDateTime(vehicle.createdAt1||"Not Given Date ")||"Not Given Date "}
-                </td>
-                <td className="px-4 py-2">
-                  <div className="flex gap-2">
-                    <button
-                      className="px-2 py-1 text-xs text-white bg-blue-500 rounded hover:bg-blue-600"
-                      onClick={() => handleEdit(vehicle)}
-                    >
-                      Edit
-                    </button>
-                    <button
-                      className="px-2 py-1 text-xs text-white bg-gray-500 rounded hover:bg-gray-600"
-                      onClick={() => handleView(vehicle)}
-                    >
-                      View
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+    return (
+      <div
+        key={index}
+        className="max-w-[380px] rounded-lg border border-gray-300 shadow-xl transform hover:scale-105 transition-transform duration-300 ease-in-out"
+      >
+        <div className="bg-gradient-to-r from-sky-600 to-teal-500 text-white p-4 rounded-t-lg">
+          <h2 className="text-xl font-semibold">{vehicle.name || 'N/A'}</h2>
+          <p className="text-sm">{`Plate Number: ${vehicle.plateNumber || 'N/A'}`}</p>
+        </div>
+        <div className="p-4 bg-white rounded-b-lg shadow-sm">
+          <div className="mb-4">
+            <div className="text-gray-800 font-medium">Driver</div>
+            <p>{vehicle.driver?.name || 'Not Assigned'}</p>
+          </div>
+          <div className="mb-4">
+            <div className="text-gray-800 font-medium">Driver Phone</div>
+            <p>{vehicle.driver?.phoneNumber || 'Not Assigned'}</p>
+          </div>
+          <div className="mb-4">
+            <div className="text-gray-800 font-medium">Status</div>
+            <p className={`font-bold ${vehicle.status === 'completed' ? 'text-green-500' : 'text-red-500'}`}>
+              {vehicle.status || 'Not Given'}
+            </p>
+          </div>
+          <div className="mb-4">
+            <div className="text-gray-800 font-medium">Vehicle Type</div>
+            <div className="flex items-center space-x-2">
+              {vehicleTypeIcon}
+              <span className="text-sm">{vehicle.vehicleType ? vehicle.vehicleType.charAt(0).toUpperCase() + vehicle.vehicleType.slice(1) : 'N/A'}</span>
+            </div>
+          </div>
+          <div className="mb-4">
+            <div className="text-gray-800 font-medium">Date</div>
+            <p>{formatDateTime(vehicle.createdAt || 'Not Given Date')}</p>
+          </div>
+
+          {/* Actions */}
+          <div className="flex gap-2 mt-4">
+            <button
+              className="px-4 py-2 text-xs text-white bg-blue-500 rounded hover:bg-blue-600"
+              onClick={() => handleEdit(vehicle)}
+            >
+              Edit
+            </button>
+            <button
+              className="px-4 py-2 text-xs text-white bg-gray-500 rounded hover:bg-gray-600"
+              onClick={() => handleView(vehicle)}
+            >
+              View
+            </button>
+          </div>
+        </div>
       </div>
+    );
+  })}
+</div>
 
+{/* Pagination */}
+<div className="flex justify-center mt-6 space-x-4">
+  <button
+    onClick={() => paginate(currentPage - 1)}
+    disabled={currentPage === 1}
+    className="px-4 py-2 mx-1 bg-gray-300 rounded-lg disabled:opacity-50"
+  >
+    Previous
+  </button>
+  {Array.from({ length: totalPages }, (_, index) => (
+    <button
+      key={index}
+      onClick={() => paginate(index + 1)}
+      className={`px-4 py-2 mx-1 rounded-lg ${currentPage === index + 1 ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
+    >
+      {index + 1}
+    </button>
+  ))}
+  <button
+    onClick={() => paginate(currentPage + 1)}
+    disabled={currentPage === totalPages}
+    className="px-4 py-2 mx-1 bg-gray-300 rounded-lg disabled:opacity-50"
+  >
+    Next
+  </button>
+</div>
 
-      {/* Pagination */}
-      <div className="flex flex-col sm:flex-row justify-center mt-4 gap-3">
-        <button
-          onClick={() => paginate(currentPage - 1)}
-          disabled={currentPage === 1}
-          className="px-4 py-2 mx-1 bg-gray-300 rounded-lg disabled:opacity-50"
-        >
-          Previous
-        </button>
-        {Array.from({ length: totalPages }, (_, index) => (
-          <button
-            key={index}
-            onClick={() => paginate(index + 1)}
-            className={`px-4 py-2 mx-1 rounded-lg ${currentPage === index + 1 ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
-          >
-            {index + 1}
-          </button>
-        ))}
-        <button
-          onClick={() => paginate(currentPage + 1)}
-          disabled={currentPage === totalPages}
-          className="px-4 py-2 mx-1 bg-gray-300 rounded-lg disabled:opacity-50"
-        >
-          Next
-        </button>
-      </div>
       <VehicleModal
       isOpen={isModalOpen}
       onClose={handleCloseModal}

@@ -26,7 +26,8 @@ const userSchema = new mongoose.Schema({
   gender: { type: String, enum: ['Male', 'Female', 'Other'] },
   address: { type: String },
   companyLogoUrl: { type: String },
-    
+  actionsCreated: { type: Number, default: 0 },
+  badges: { type: [String], default: [] },
 });
 
 userSchema.pre('save', async function (next) {

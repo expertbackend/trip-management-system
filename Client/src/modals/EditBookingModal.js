@@ -13,6 +13,7 @@ const EditBookingModal = ({ booking, isOpen, onClose, onSave }) => {
       Authorization: `Bearer ${token}`,
     },
   });
+ 
   useEffect(() => {
     if (booking) {
       setFormData(booking); // Populate the form with booking details
@@ -54,14 +55,18 @@ const EditBookingModal = ({ booking, isOpen, onClose, onSave }) => {
 
   const handleSave = async () => {
     try {
-      // Make API call to save changes
+      // Make API call to save changes to the booking
       await axiosInstance.put(`/bookings/${formData._id}`, formData);
+  
+    
+  
       onSave(); // Refresh the bookings list
       onClose(); // Close the modal
     } catch (error) {
       console.error("Error saving booking:", error);
     }
   };
+  
 
   if (!isOpen) return null; // Don't render if the modal is not open
 

@@ -32,6 +32,41 @@ function convertToIST(date) {
   return new Date(utcDate.getTime() + IST_OFFSET); // Return new Date object adjusted to IST
 }
 
+exports.trackAction=async(req, res)=> {
+  const {  action } = req.body;
+const userId = req.user._id;
+  try {
+      const user = await User.findById(userId);
+
+      if (!user) {
+          return res.status(404).json({ message: 'User not found' });
+      }
+
+      // Track the action of creating a booking
+      if (action === 'createBooking') {
+          // Increment the booking creation count
+          user.actionsCreated = (user.actionsCreated || 0) + 1;
+
+          // Award badges for milestones
+          if (user.actionsCreated === 5) {
+              user.badges.push('5 Bookings Created');
+          }
+
+          await user.save();  // Save the updated user
+
+          return res.status(200).json({
+              message: 'Action tracked successfully!',
+              badges: user.badges,
+          });
+      }
+
+      res.status(400).json({ message: 'Action not recognized' });
+  } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: 'Internal Server Error' });
+  }
+}
+
 
 exports.createBooking = async (req, res) => {
   try {
@@ -210,8 +245,6 @@ exports.createBooking = async (req, res) => {
         ownerName = owner.name;  // Extract the name from the User document
       }
     }
-
-    console.log('ownerName', ownerName);
 
     // Send the booking data along with the estimated invoice back to the frontend
     return res.status(201).json({
@@ -525,7 +558,7 @@ exports.endBooking = async (req, res) => {
   try {
     const { kmDriven, extraExpanse, extraExpanseDescription, startDashboardImage } = req.body;  // Updated kilometers driven at the end of the trip
     const booking = await Booking.findById(req.params.id).populate('vehicle').populate('driver');
-
+console.log('hahahahah',req.body)
     if (!booking) {
       return res.status(404).json({ message: 'Booking not found.' });
     }
@@ -1314,3 +1347,23 @@ console.log('totalNet',totalNetMaterialWeight)
     res.status(500).json({ error: 'Server error' });
   }
 };
+
+exports.getUserProgress= async(req, res)=> {
+  const { userId } = req.params;
+
+  try {
+      const user = await User.findById(userId);
+
+      if (!user) {
+          return res.status(404).json({ message: 'User not found' });
+      }
+
+      res.status(200).json({
+          badges: user.badges,
+          progress: user.actionsCreated
+      });
+  } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: 'Internal Server Error' });
+  }
+}

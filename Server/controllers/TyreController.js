@@ -259,8 +259,8 @@ exports.calculateProfit = async (req, res) => {
     const parsedStartDate = startDate ? new Date(startDate) : null;
     const parsedEndDate = endDate ? new Date(endDate) : null;
 
-    // Loop through each vehicle
-    for (const vehicle of vehicles) {
+    // Use Promise.all to handle vehicle-related queries concurrently
+    const vehiclePromises = vehicles.map(async (vehicle) => {
       let vehicleProfit = 0;
       let tyreExpense = 0;
       let vehicleDocumentExpense = 0;
@@ -268,10 +268,16 @@ exports.calculateProfit = async (req, res) => {
 
       let vehicleReceivedAmount = 0; // Track received amount per vehicle
 
-      // Loop through vehicle bookings
-      for (const bookingRef of vehicle.bookings) {
-        const booking = await Booking.findById(bookingRef.bookingId);
+      // Get bookings for this vehicle
+      const bookings = await Promise.all(
+        vehicle.bookings.map(async (bookingRef) => {
+          const booking = await Booking.findById(bookingRef.bookingId);
+          return booking;
+        })
+      );
 
+      // Loop through vehicle bookings
+      bookings.forEach(booking => {
         if (booking && booking.status === 'completed') {
           // Check if the booking falls within the date range
           const bookingStartDate = new Date(booking.startDate);
@@ -286,12 +292,14 @@ exports.calculateProfit = async (req, res) => {
             vehicleReceivedAmount += booking.invoice.finalAmount || 0; // Add finalAmount to the received amount
           }
         }
-      }
+      });
 
-      // Get expenses data for this vehicle (Tyre, VehicleDocuments, VehicleServices)
-      const tyres = await Tyre.find({ vehicle: vehicle._id });
-      const vehicleDocuments = await vehicleDocument.find({ vehicleId: vehicle._id });
-      const vehicleServices = await vehicleService.find({ vehicleId: vehicle._id });
+      // Get expenses data for this vehicle concurrently
+      const [tyres, vehicleDocuments, vehicleServices] = await Promise.all([
+        Tyre.find({ vehicle: vehicle._id }),
+        vehicleDocument.find({ vehicleId: vehicle._id }),
+        vehicleService.find({ vehicleId: vehicle._id })
+      ]);
 
       // Filter tyres based on date range
       tyres.forEach(tyre => {
@@ -352,7 +360,10 @@ exports.calculateProfit = async (req, res) => {
 
       // Add the vehicle's received amount to the total received amount
       totalReceivedAmount += vehicleReceivedAmount;
-    }
+    });
+
+    // Wait for all vehicles to be processed
+    await Promise.all(vehiclePromises);
 
     // Send the response back
     return res.status(200).json({
@@ -368,6 +379,7 @@ exports.calculateProfit = async (req, res) => {
     res.status(500).json({ error: 'Error calculating profit', details: error.message });
   }
 };
+
 
 exports.getReminders = async (req, res) => {
   try {

@@ -7,6 +7,7 @@ import BookingModal from "./BookingModal";
 import "jspdf-autotable"; // Import the jsPDF autotable plugin
 import { FaPlay } from "react-icons/fa6";
 import EditBookingModal from "../modals/EditBookingModal";
+import EndBookingModal from "../modals/EndBookingModal";
 
 const BookingsPage = () => {
   const [bookings, setBookings] = useState([]);
@@ -16,7 +17,7 @@ const BookingsPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [currentPage, setCurrentPage] = useState(0);
-  const [bookingsPerPage] = useState(5); // Adjust per page items
+  const [bookingsPerPage] = useState(10); // Adjust per page items
   const [selectedBooking, setSelectedBooking] = useState(null); // State for selected booking
   const [isModalOpen, setIsModalOpen] = useState(false);
   const token = localStorage.getItem("token");
@@ -27,6 +28,7 @@ const BookingsPage = () => {
   const [errorMessage, setErrorMessage] = useState("");
   const [editing, setEditBooking] = useState("");
   const [isEditModalOpen,setIsEditModalOpen] = useState("")
+  const [selectedBookingId, setSelectedBookingId] = useState(null);
 
   const axiosInstance = axios.create({
     baseURL: `${process.env.REACT_APP_API_URL}/api/booking`,
@@ -65,7 +67,7 @@ const BookingsPage = () => {
   };
   const fetchBookings = async () => {
     try {
-      const response = await axios.get('/api/bookings');
+      const response = await axiosInstance.get('/');
       setBookings(response.data); // Example: Update your state
     } catch (error) {
       console.error("Error fetching bookings:", error);
@@ -303,26 +305,13 @@ const closeEditBookingModal = () => {
   setSelectedBooking(null);
   setIsEditModalOpen(false);
 };
-// Function to handle ending a booking
 const handleEndBooking = (bookingId) => {
-  console.log("Ending booking with ID:", bookingId);
-  // Example logic for ending the booking
-  const confirmEnd = window.confirm("Are you sure you want to end this booking?");
-  if (confirmEnd) {
-    // API call or state update to mark the booking as ended
-    axios
-      .put(`/api/bookings/end/${bookingId}`)
-      .then((response) => {
-        console.log("Booking ended successfully:", response.data);
-        alert("Booking has been ended.");
-        // Logic to refresh the booking list or update the UI
-        fetchBookings(); // Example function to refresh bookings
-      })
-      .catch((error) => {
-        console.error("Error ending booking:", error);
-        alert("Failed to end the booking. Please try again.");
-      });
-  }
+  setSelectedBookingId(bookingId);  // Store the booking ID to pass to the modal
+  setShowModal(true);  // Show the modal
+};
+
+const handleBookingEnded = () => {
+  fetchBookings();  // Refresh the booking list after booking is ended
 };
 
 
@@ -374,129 +363,112 @@ const handleEndBooking = (bookingId) => {
       </div>
 
 
-      {/* Table */}
-      <div className="overflow-x-auto min-w-full">
-        <table className="table-auto w-full border border-gray-200 shadow-lg rounded-lg text-base">
-          <thead>
-            <tr className="bg-sky-700 text-white font-semibold">
-              <th className="px-4 py-2">SL No.</th> {/* Serial Number Column */}
-              <th className="px-4 py-2">Customer Name</th>
-              <th className="px-4 py-2">Vehicle</th>
-              <th className="px-4 py-2">Vehicle No</th>
-              <th className="px-4 py-2">Driver</th>
-              <th className="px-4 py-2">Pickup Location</th>
-              <th className="px-4 py-2">Dropoff Location</th>
-              <th className="px-4 py-2">Fare</th>
-              <th className="px-4 py-2">Net Material Weight</th>
-              <th className="px-4 py-2">Per Ton Price</th>
-              <th className="px-4 py-2">Total Value(Fare + Total Net Material Price)</th>
-              <th className="px-4 py-2">KM</th>
-              <th className="px-4 py-2">Dates & Days</th> {/* Updated Column Name */}
-              <th className="px-4 py-2">Status</th>
-              <th className="px-4 py-2">Actions</th>
-            </tr>
-          </thead>
-          <tbody className="whitespace-nowrap">
+   {/* Table */}
+<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 p-6">
   {currentBookings.map((booking, index) => {
-const serialNumber = index + (currentPage * bookingsPerPage) + 1;
+    const serialNumber = index + (currentPage * bookingsPerPage) + 1;
 
     return (
-      <tr key={booking._id} className="border-t hover:bg-gray-100 transition">
-        <td className="px-4 py-2">{serialNumber}</td> {/* Serial Number for each row */}
-        <td className="px-4 py-2">{booking.customerName || "N/A"}</td>
-        <td className="px-4 py-2">{booking.vehicle?.name || "N/A"}</td>
-        <td className="px-4 py-2">{booking.vehicle?.plateNumber || "N/A"}</td>
-        <td className="px-4 py-2">{booking.driver?.name || "N/A"}</td>
-        <td className="px-4 py-2">{booking.pickupLocation?.address || "N/A"}</td>
-        <td className="px-4 py-2">{booking.dropoffLocation?.address || "N/A"}</td>
-        <td className="px-4 py-2">₹{booking.basePay?.toFixed(2) || "N/A"}</td>
-        <td className="px-4 py-2">{booking.totalNetMaterialWeight?.toFixed(2) || "N/A"}</td>
-        <td className="px-4 py-2">₹{booking.perTonPrice?.toFixed(2) || "N/A"}</td>
-        <td className="px-4 py-2">
-  ₹{isNaN(((parseFloat(booking.perTonPrice) * parseFloat(booking.totalNetMaterialWeight)) + parseFloat(booking.basePay)))
-      ? "0.00"
-      : ((parseFloat(booking.perTonPrice) * parseFloat(booking.totalNetMaterialWeight)) + parseFloat(booking.basePay)).toFixed(2)}
-</td>
-        <td className="px-4 py-2">{booking.kmDriven || "N/A"}</td>
-        <td className="px-4 py-2">
-          {`Start: ${formatDate(booking.startDate)}\nEnd: ${formatDate(booking.endDate)}\nDays: ${calculateDaysCount(booking.startDate, booking.endDate)}`}
-        </td>
-        <td className="px-4 py-2">{booking.status || "N/A"}</td>
-        <td className="px-4 py-2">
-          <div className="flex items-center justify-center gap-2">
-            <button
-              onClick={() => handleViewBooking(booking)}
-              className="text-blue-500"
-              title="view booking"
-            >
-              <FaEye />
-            </button>
-            <button
-              onClick={() => handleCancelBooking(booking._id)}
-              className="text-red-500"
-              title="cancel booking"
-            >
-              <FaTimes />
-            </button>
-            <button
-              onClick={() => handleDownload("individual", booking._id)}
-              className="text-green-500"
-              title="download booking"
-            >
-              <FaDownload />
-            </button>
-            <button
-              onClick={() => openStartBookingModal(booking)}
-              className="text-yellow-500"
-              title="Start Booking"
-            >
-              <FaPlay /> {/* Play Icon to signify start */}
-            </button>
+      <div
+        key={booking._id}
+        className="max-w-[380px] rounded-lg border border-gray-300 shadow-xl transform hover:scale-105 transition-transform duration-300 ease-in-out"
+      >
+        <div className="bg-gradient-to-r from-sky-600 to-teal-500 text-white p-4 rounded-t-lg">
+          <h2 className="text-xl font-semibold">{booking.customerName || "N/A"}</h2>
+          <p className="text-sm">{`Booking #${serialNumber}`}</p>
+        </div>
+        <div className="p-4 bg-white rounded-b-lg shadow-sm">
+          <div className="mb-4">
+            <div className="text-gray-800 font-medium">Vehicle</div>
+            <p>{booking.vehicle?.name || "N/A"} - {booking.vehicle?.plateNumber || "N/A"}</p>
           </div>
-          <button
-      onClick={() => handleEditBooking(booking)}
-      className="text-purple-500"
-      title="Edit Booking"
-    >
-      <FaEdit /> {/* Edit Icon */}
-    </button>
-
-    {/* End Booking */}
-    <button
-      onClick={() => handleEndBooking(booking._id)}
-      className="text-orange-500"
-      title="End Booking"
-    >
-      <FaStop /> {/* Stop Icon to signify end */}
-    </button>
-        </td>
-      </tr>
+          <div className="mb-4">
+            <div className="text-gray-800 font-medium">Driver</div>
+            <p>{booking.driver?.name || "N/A"}</p>
+          </div>
+          <div className="mb-4">
+            <div className="text-gray-800 font-medium">Fare</div>
+            <p>₹{booking.basePay?.toFixed(2) || "N/A"}</p>
+          </div>
+          <div className="mb-4">
+            <div className="text-gray-800 font-medium">Status</div>
+            <p className={`font-bold ${booking.status === 'Completed' ? 'text-green-500' : 'text-red-500'}`}>{booking.status || "N/A"}</p>
+          </div>
+          {/* Icons on the Left and Right */}
+          <div className="flex justify-between mt-6">
+            <div className="flex flex-col space-y-4">
+              <button
+                onClick={() => handleViewBooking(booking)}
+                className="text-blue-500 hover:text-blue-700 transition duration-200 px-4 py-2 rounded-md border border-blue-500 hover:bg-blue-50"
+                title="View Booking"
+              >
+                <FaEye />
+              </button>
+              <button
+                onClick={() => handleCancelBooking(booking._id)}
+                className="text-red-500 hover:text-red-700 transition duration-200 px-4 py-2 rounded-md border border-red-500 hover:bg-red-50"
+                title="Cancel Booking"
+              >
+                <FaTimes />
+              </button>
+              <button
+                onClick={() => handleDownload("individual", booking._id)}
+                className="text-green-500 hover:text-green-700 transition duration-200 px-4 py-2 rounded-md border border-green-500 hover:bg-green-50"
+                title="Download Booking"
+              >
+                <FaDownload />
+              </button>
+            </div>
+            <div className="flex flex-col space-y-4">
+              <button
+                onClick={() => openStartBookingModal(booking)}
+                className="text-yellow-500 hover:text-yellow-700 transition duration-200 px-4 py-2 rounded-md border border-yellow-500 hover:bg-yellow-50"
+                title="Start Booking"
+              >
+                <FaPlay />
+              </button>
+              <button
+                onClick={() => handleEditBooking(booking)}
+                className="text-purple-500 hover:text-purple-700 transition duration-200 px-4 py-2 rounded-md border border-purple-500 hover:bg-purple-50"
+                title="Edit Booking"
+              >
+                <FaEdit />
+              </button>
+              <button
+                onClick={() => handleEndBooking(booking._id)}
+                className="text-orange-500 hover:text-orange-700 transition duration-200 px-4 py-2 rounded-md border border-orange-500 hover:bg-orange-50"
+                title="End Booking"
+              >
+                <FaStop />
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
     );
   })}
-</tbody>
+</div>
 
-        </table>
-      </div>
+{/* Pagination */}
+<div className="flex justify-center mt-6 space-x-4">
+  <button
+    onClick={() => handlePageChange(currentPage - 1)}
+    disabled={currentPage === 0}
+    className="bg-gradient-to-r from-gray-400 to-gray-500 text-white px-6 py-2 rounded-full transition-all hover:bg-gray-600 disabled:opacity-50"
+  >
+    Prev
+  </button>
+  <button
+    onClick={() => handlePageChange(currentPage + 1)}
+    disabled={indexOfLastBooking >= filteredBookings.length}
+    className="bg-gradient-to-r from-gray-400 to-gray-500 text-white px-6 py-2 rounded-full transition-all hover:bg-gray-600 disabled:opacity-50"
+  >
+    Next
+  </button>
+</div>
 
 
 
-      {/* Pagination */}
-      <div className="flex justify-center mt-6">
-        <button
-          onClick={() => handlePageChange(currentPage - 1)}
-          disabled={currentPage === 0}
-          className="bg-gray-300 text-gray-600 px-4 py-2 rounded-lg mr-2"
-        >
-          Prev
-        </button>
-        <button
-          onClick={() => handlePageChange(currentPage + 1)}
-          disabled={indexOfLastBooking >= filteredBookings.length}
-          className="bg-gray-300 text-gray-600 px-4 py-2 rounded-lg"
-        >
-          Next
-        </button>
-      </div>
       {showModal && (
         <div className="fixed inset-0 bg-gray-500 bg-opacity-75 flex justify-center items-center z-50">
           <div className="bg-white rounded-lg p-6 max-w-sm w-full">
@@ -530,6 +502,13 @@ const serialNumber = index + (currentPage * bookingsPerPage) + 1;
         onClose={closeEditBookingModal}
         onSave={fetchBookings}
       />
+      {showModal && (
+        <EndBookingModal
+          bookingId={selectedBookingId}
+          onClose={() => setShowModal(false)}
+          onBookingEnded={handleBookingEnded}
+        />
+      )}
     </div>
   );
 };

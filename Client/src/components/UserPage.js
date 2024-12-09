@@ -33,6 +33,8 @@ const UserPage = () => {
     role: "user",
     phoneNumber: "",
   });
+const [suggestions, setSuggestions] = useState([]); // For storing filtered suggestions
+
   const [selectedUser1, setSelectedUser1] = useState(null); // State to store selected user details
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState("view");
@@ -181,13 +183,16 @@ const UserPage = () => {
       alert("Error assigning permissions");
     }
   };
-
+console.log('searchQuery',searchQuery)
   // Filter users based on search query
-  const filteredUsers = users.filter(
-    (user) =>
-      user.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      user.email?.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredUsers = users.filter((user) => {
+    const query = searchQuery ? String(searchQuery).toLowerCase() : ''; // Fallback to empty string if searchQuery is undefined or null
+    return (
+      user.name?.toLowerCase().includes(query) ||
+      user.email?.toLowerCase().includes(query)
+    );
+  });
+  
 
   // Calculate pagination for filtered data
   const indexOfLastUser = currentPage * usersPerPage;
@@ -234,7 +239,23 @@ const UserPage = () => {
     doc.save("user_list.pdf");
   };
   const phoneRegex = /^[6-9]\d{9}$/;
-
+  const handleSearchChange = (e) => {
+    const query = e.target.value;
+    setSearchQuery(query);
+  
+    if (query.length > 1) { // Only show suggestions if query is more than 1 character
+      const filteredSuggestions = users.filter((user) =>
+        user.name.toLowerCase().includes(query.toLowerCase())
+      );
+      setSuggestions(filteredSuggestions);
+    } else {
+      setSuggestions([]); // Clear suggestions if query is too short
+    }
+  };
+  const handleSuggestionClick = (suggestion) => {
+    setSearchQuery(suggestion.name); // Set the input value to clicked suggestion
+    setSuggestions([]); // Hide suggestions after selection
+  };
   return (
     <div className="w-full p-4 bg-white">
       <div className="flex  flex-col sm:flex-row justify-normal sm:justify-between items-center mb-4 gap-4">
@@ -421,18 +442,30 @@ const UserPage = () => {
         </button>
       </div>
       <div className=" flex  flex-col sm:flex-row gap-4 mb-6">
-        <div className="relative flex-1">
-          <input
-            type="text"
-            placeholder="Search by username or email"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 bg-gray-100 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-300 focus:border-blue-300"
-          />
-          <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
-            &#128269;
-          </span>
-        </div>
+     <div className="relative">
+      <input
+        type="text"
+        value={searchQuery}
+        onChange={handleSearchChange}
+        className="w-full mt-2 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-300 focus:border-blue-300"
+        placeholder="Search users..."
+      />
+
+      {suggestions.length > 0 && (
+        <ul className="absolute w-full bg-white border mt-1 max-h-48 overflow-auto shadow-lg z-10">
+          {suggestions.map((suggestion, index) => (
+            <li
+              key={index}
+              className="p-2 hover:bg-gray-100 cursor-pointer"
+              onClick={() => handleSuggestionClick(suggestion)} // Set query to clicked suggestion
+            >
+              {suggestion.name}
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+
         <div className="flex flex-col sm:flex-row items-center gap-2">
           <input
             type="date"

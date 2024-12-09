@@ -12,7 +12,8 @@ const vehicleSchema = new mongoose.Schema({
         endDate: { type: Date }
     }],
     createdAt1:Date,
-    updatedAt:Date
+    updatedAt:Date,
+    vehicleType:{type:String}
 });
 
 module.exports = mongoose.model('Vehicle', vehicleSchema);

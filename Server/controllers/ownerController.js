@@ -137,8 +137,8 @@ exports.getPlans = async (req, res) => {
                       }
 
         // Add vehicle logic
-        const { name, plateNumber } = req.body;
-        const vehicle = new Vehicle({ name, plateNumber, owner: owner._id, status: "created" ,createdAt1:new Date()});
+        const { name, plateNumber,type } = req.body;
+        const vehicle = new Vehicle({ name, plateNumber,vehicleType:type, owner: owner._id, status: "created" ,createdAt1:new Date()});
         await vehicle.save();
 
         // Increment vehicle count for the owner
@@ -614,3 +614,4 @@ console.log('updateddata',updatedData,req.params)
         res.status(500).json({ message: 'Server error' });
     }
 };
+

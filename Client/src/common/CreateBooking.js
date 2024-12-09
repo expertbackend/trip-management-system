@@ -211,6 +211,11 @@ India`;
         const invoice = res.data.invoice;
         const ownerName = res.data.ownerName
         // Generate PDF with the invoice data
+          // Call the action tracking endpoint
+      await axiosInstance.post(`/trackAction`, {
+        userId: formData._id, // Replace with the actual user ID
+        action: 'createBooking',  // Action type
+      });
         handleDownloadInvoice(invoice,ownerName);
         // Show success popup
         alert('Booking created successfully!'); // Replace with your preferred popup UI

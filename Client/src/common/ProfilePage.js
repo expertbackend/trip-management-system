@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
 import Avatar from 'react-avatar';
+import BadgeDisplay from './BadgeDisplay';
 
 const ProfilePage = () => {
   const { id } = useParams(); // Retrieve the user ID from the URL
@@ -13,7 +14,7 @@ const ProfilePage = () => {
   const [message, setMessage] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const token = localStorage.getItem('token');
-
+const userId = localStorage.getItem('tokenId')
   const axiosInstance = axios.create({
     baseURL: `${process.env.REACT_APP_API_URL}/api/owner`,
     headers: {
@@ -155,10 +156,11 @@ const ProfilePage = () => {
   if (!profileData) {
     return <p className="text-center text-red-500">Profile not found.</p>;
   }
-
+console.log('hhahahahahprofile',profileData)
   return (
     <div className="p-6 overflow-y-scroll min-h-[100vh]">
       <div className="flex flex-col items-center">
+        <BadgeDisplay userId={userId}/>
         <Avatar name={profileData.name} size="100" round className="shadow-md" />
         <h1 className="text-2xl font-bold mt-4">{profileData.name}</h1>
         <p className="text-gray-600">{profileData.location}</p>
