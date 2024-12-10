@@ -235,7 +235,8 @@ const VehicleTable = () => {
     setModalMode('edit');
     setSelectedVehicle(vehicle);
     console.log('selectedVehicle,',selectedVehicle)
-    setIsModalOpen(true);
+    setIsModalOpen(false);
+    alert('please contact to our admin!!!!')
   };
 
   const handleCloseModal = () => {

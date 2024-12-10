@@ -162,9 +162,7 @@ exports.assignVehicleToDriver = async (req, res) => {
         // console.log('driverId',driverId,vehicleId)
         const owner = await User.findById(req.user._id);
 
-        if (!owner || owner.role !== 'owner') {
-            return res.status(403).json({ message: 'Only owners can assign vehicles.' });
-        }
+       
 
         const driver = await User.findById(driverId);
         if (!driver || driver.role !== 'driver') {
@@ -275,7 +273,13 @@ exports.getAllVehicles = async (req, res) => {
 // Get all drivers
 exports.findDrivers = async (req, res) => {
     try {
-        const userId = req.user._id;
+        let userId;
+        if (req.user.role === 'operator' || req.user.role === 'driver') {
+            userId = req.user.ownerId;
+        } else {
+            userId = req.user._id;
+        }
+        console.log('userId',userId)
         const drivers = await User.find({ role: 'driver',status:'active',ownerId:userId }).select('name email vehicle');
 
         if (!drivers || drivers.length === 0) {

@@ -263,7 +263,12 @@ exports.createBooking = async (req, res) => {
 
 exports.getBookings = async (req, res) => {
   try {
-    const userId = req.user._id; // Authenticated user ID (from middleware)
+    let userId;
+        if (req.user.role === 'operator' || req.user.role === 'driver') {
+            userId = req.user.ownerId;
+        } else {
+            userId = req.user._id;
+        }
     const user = await User.findById(userId);
 
     if (!user) {
@@ -288,12 +293,13 @@ exports.getBookings = async (req, res) => {
       // Operators can see bookings created by them (as operator) or bookings where they are a driver
       bookings = await Booking.find({
         $or: [
-          { operator: userId },  // Bookings created by the operator
-          { driver: userId }  // Bookings assigned to the operator as a driver
+          { owner: userId },  // Bookings where the owner is the creator
+          { operator: userId },  // Bookings created by the operator for the owner
+          { driver: userId }  // Bookings assigned to the driver
         ]
       })
-        .populate('vehicle')
-        .populate('driver');
+        .populate('vehicle')   // Populate vehicle details
+        .populate('driver');   // Populate driver details
     } else if (user.role === 'driver') {
       // Drivers can only see bookings where they are assigned
       bookings = await Booking.find({
@@ -318,7 +324,12 @@ exports.getBookings = async (req, res) => {
 
 exports.getCompletedBookings = async (req, res) => {
   try {
-    const userId = req.user._id; // Authenticated user ID (from middleware)
+    let userId;
+    if (req.user.role === 'operator' || req.user.role === 'driver') {
+        userId = req.user.ownerId;
+    } else {
+        userId = req.user._id;
+    }
     const user = await User.findById(userId);
 
     if (!user) {
@@ -344,12 +355,14 @@ exports.getCompletedBookings = async (req, res) => {
       // Operators can see bookings created by them (as operator) or bookings where they are a driver
       bookings = await Booking.find({
         $or: [
-          { operator: userId },  // Bookings created by the operator
-          { driver: userId }  // Bookings assigned to the operator as a driver
-        ]
+          { owner: userId },  // Bookings where the owner is the creator
+          { operator: userId },  // Bookings created by the operator for the owner
+          { driver: userId }  // Bookings assigned to the driver
+        ],
+        status: 'in-progress'
       })
-        .populate('vehicle')
-        .populate('driver');
+        .populate('vehicle')   // Populate vehicle details
+        .populate('driver');   // Populate driver details
     } else if (user.role === 'driver') {
       // Drivers can only see bookings where they are assigned
       bookings = await Booking.find({
@@ -1041,8 +1054,14 @@ exports.getExpensesByDriver = async (req, res) => {
 
 exports.getAllDrivers = async (req, res) => {
   try {
+    let userId;
+        if (req.user.role === 'operator' || req.user.role === 'driver') {
+            userId = req.user.ownerId;
+        } else {
+            userId = req.user._id;
+        }
     // Fetch the drivers based on the logged-in user's ID
-    const drivers = await User.find({ ownerId: req.user._id, status: 'active', role: 'driver' });
+    const drivers = await User.find({ ownerId: userId, status: 'active', role: 'driver' });
 
     if (!drivers || drivers.length === 0) {
       return res.status(404).json({ message: 'No drivers found' });

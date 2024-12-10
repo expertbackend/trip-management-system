@@ -93,6 +93,8 @@ const VehicleDocuments = () => {
       });
       setIsModalOpen(false);
     } catch (error) {
+      alert('error creating Documents please fill all the required fields!!!!')
+
       console.error("Error adding document:", error);
     }
   };
@@ -113,7 +115,10 @@ const VehicleDocuments = () => {
   // Example Usage in handleDownloadPDF
   const handleDownloadPDF = async () => {
     const token = localStorage.getItem("token");
-
+    if (!filteredDocuments.length) {
+      alert("No data available to download.");
+      return;
+    }
     const axiosInstance = axios.create({
       baseURL: `${process.env.REACT_APP_API_URL}/api/owner`,
       headers: {

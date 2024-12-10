@@ -90,13 +90,17 @@ const VehicleServices = () => {
       });
       setIsModalOpen(false);
     } catch (error) {
+      alert('error creating Services please fill all the required fields!!!!')
       console.error("Error adding service:", error);
     }
   };
 
   const handleDownloadPDF = async () => {
     const token = localStorage.getItem("token");
-
+    if (!filteredServices.length) {
+      alert("No data available to download.");
+      return;
+    }
     const axiosInstance = axios.create({
       baseURL: `${process.env.REACT_APP_API_URL}/api/owner`,
       headers: {

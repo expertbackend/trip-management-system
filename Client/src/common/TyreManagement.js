@@ -85,6 +85,7 @@ const TyreManagement = () => {
       setIsCreateTyreModalOpen(false); // Close modal after successful registration
       fetchTyres(); // Refresh the tyre list
     } catch (error) {
+      alert('error creating Tyres please fill all the required fields!!!!')
       console.error("Error registering tyre:", error);
     }
   };
@@ -137,7 +138,10 @@ const TyreManagement = () => {
   const generatePDF = (data) => {
     console.log("data", data);
     const doc = new jsPDF();
-
+    if (!filteredTyres.length) {
+      alert("No data available to download.");
+      return;
+    }
     // Add Header
     doc.setFont("Helvetica", "bold");
     doc.setFontSize(18);

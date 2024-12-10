@@ -178,67 +178,80 @@ const OwnerDashboardMap = () => {
       <h2 className="text-xl font-bold mb-4">Owner Dashboard</h2>
 
       <div className="flex flex-col md:flex-row">
-        {/* Driver List Section - Left side */}
-        <div className="w-full md:w-1/3 p-2 mb-4 md:mb-0">
-          <div className="mb-4">
-            <label htmlFor="driver-list" className="block mb-2 font-semibold">
-              Select a Driver:
-            </label>
-            <div id="driver-list" className="flex flex-col space-y-2">
-              {drivers.map((driver) => (
-                <div
-                  key={driver.userId}
-                  onClick={() => {
-                    setSelectedDriver(driver._id);
-                    setIsPlaying(true); // Start playback when a driver is selected
-                  }}
-                  className={`flex items-center p-3 border rounded cursor-pointer ${
-                    selectedDriver === driver._id ? 'bg-blue-200 border-blue-400' : 'bg-gray-100 border-gray-300'
-                  }`}
-                >
-                  <span className="font-semibold">{driver.name || `Driver ${driver.userId}`}</span>
-                </div>
-              ))}
+  {/* Driver List Section - Left side */}
+  <div className="w-full md:w-1/3 p-2 mb-4 md:mb-0">
+    <div className="mb-4">
+      <label htmlFor="driver-list" className="block mb-2 font-semibold">
+        Select a Driver:
+      </label>
+
+      {/* Conditionally render the driver list or the "No user" message */}
+      {drivers.length === 0 ? (
+        <div className="text-center p-4 bg-gray-100 border border-gray-300 rounded-md">
+          No users available
+        </div>
+      ) : (
+        <div id="driver-list" className="flex flex-col space-y-2">
+          {drivers.map((driver) => (
+            <div
+              key={driver.userId}
+              onClick={() => {
+                setSelectedDriver(driver._id);
+                setIsPlaying(true); // Start playback when a driver is selected
+              }}
+              className={`flex items-center p-3 border rounded cursor-pointer ${
+                selectedDriver === driver._id
+                  ? 'bg-blue-200 border-blue-400'
+                  : 'bg-gray-100 border-gray-300'
+              }`}
+            >
+              <span className="font-semibold">
+                {driver.name || `Driver ${driver.userId}`}
+              </span>
             </div>
-          </div>
+          ))}
         </div>
+      )}
+    </div>
+  </div>
 
-        {/* Map Section - Right side */}
-        <div className="w-full md:w-2/3 sm:w-1/3">
-          <GoogleMap
-            mapContainerStyle={mapContainerStyle}
-            center={center}
-            zoom={12}
-            onLoad={(map) => (mapRef.current = map)}
-          >
-            {locations.map((loc) => (
-              <Marker
-                key={loc.userId}
-                position={{
-                  lat: loc.location.coordinates[1],
-                  lng: loc.location.coordinates[0],
-                }}
-                label={`Driver ${loc.userId}`}
-              />
-            ))}
+  {/* Map Section - Right side */}
+  <div className="w-full md:w-2/3 sm:w-1/3">
+    <GoogleMap
+      mapContainerStyle={mapContainerStyle}
+      center={center}
+      zoom={12}
+      onLoad={(map) => (mapRef.current = map)}
+    >
+      {locations.map((loc) => (
+        <Marker
+          key={loc.userId}
+          position={{
+            lat: loc.location.coordinates[1],
+            lng: loc.location.coordinates[0],
+          }}
+          label={`Driver ${loc.userId}`}
+        />
+      ))}
 
-            {currentLocation && (
-              <Marker
-                position={currentLocation}
-                icon={{
-                  url: 'https://developers.google.com/maps/documentation/javascript/examples/full/images/beachflag.png',
-                  scaledSize: new window.google.maps.Size(50, 50),
-                }}
-                label={`${currentLocation.drivername} - ${currentLocation.status}`}
-              />
-            )}
+      {currentLocation && (
+        <Marker
+          position={currentLocation}
+          icon={{
+            url: 'https://developers.google.com/maps/documentation/javascript/examples/full/images/beachflag.png',
+            scaledSize: new window.google.maps.Size(50, 50),
+          }}
+          label={`${currentLocation.drivername} - ${currentLocation.status}`}
+        />
+      )}
 
-            {selectedDriver && driverHistory.length > 0 && (
-              <Polyline path={driverHistory} options={polylineOptions} />
-            )}
-          </GoogleMap>
-        </div>
-      </div>
+      {selectedDriver && driverHistory.length > 0 && (
+        <Polyline path={driverHistory} options={polylineOptions} />
+      )}
+    </GoogleMap>
+  </div>
+</div>
+
 
       {/* Button to stop playback */}
       {isPlaying && (

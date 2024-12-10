@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const tyreController = require('../controllers/TyreController');
 const authMiddleware = require('../middlewares/authMiddleware');
+const roleCheck = require('../middlewares/roleMiddleware');
 router.use(authMiddleware);
 // Register a new tyre
 router.post('/register', tyreController.registerTyre);
@@ -16,6 +17,6 @@ router.put("/vehicle-documents/:documentId", tyreController.updateVehicleDocumen
 router.get("/vehicles", tyreController.getVehicleDocuments);
 router.post("/vehicle-document", tyreController.createVehicleService);
 router.get("/vehicle-document", tyreController.getAllVehicleServices);
-router.get('/calculate-profit', tyreController.calculateProfit);
+router.get('/calculate-profit',roleCheck(['owner','operator','driver']), tyreController.calculateProfit);
 
 module.exports = router;

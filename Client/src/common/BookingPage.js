@@ -23,6 +23,8 @@ const BookingsPage = () => {
   const token = localStorage.getItem("token");
   const [mode, setMode] = useState("add");
   const [showModal, setShowModal] = useState(false); // For modal visibility
+  const [showModal1, setShowModal1] = useState(false); // For modal visibility
+
   const [bookingToStart, setBookingToStart] = useState(null);
   const [successMessage, setSuccessMessage] = useState(""); // For success message
   const [errorMessage, setErrorMessage] = useState("");
@@ -55,7 +57,7 @@ const BookingsPage = () => {
   const openStartBookingModal = (booking) => {
     setBookingToStart(booking); // Set the booking to be started
     console.log('booking',booking)
-    setShowModal(true); // Open the modal
+    setShowModal1(true); // Open the modal
   };
 
   // Confirm the action and trigger the start booking function
@@ -76,7 +78,7 @@ const BookingsPage = () => {
     
 
   const cancelStartBooking = () => {
-    setShowModal(false); // Close the modal
+    setShowModal1(false); // Close the modal
   };
   // Pagination Logic
   const indexOfLastBooking = (currentPage + 1) * bookingsPerPage;
@@ -469,7 +471,7 @@ const handleBookingEnded = () => {
 
 
 
-      {showModal && (
+      {showModal1 && (
         <div className="fixed inset-0 bg-gray-500 bg-opacity-75 flex justify-center items-center z-50">
           <div className="bg-white rounded-lg p-6 max-w-sm w-full">
             <h2 className="text-lg font-semibold mb-4">Are you sure you want to start the booking?</h2>

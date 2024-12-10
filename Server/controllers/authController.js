@@ -57,10 +57,12 @@ exports.login = async (req, res) => {
 exports.createUser = async (req, res) => {
     try {
         const { name, email, password, role,phoneNumber } = req.body;
-        console.log("req.body",req.body)
         // Only owners can create new users
-        if (req.user.role !== 'owner') {
-            return res.status(403).json({ message: 'Only owners can create new users.' });
+        let userId;
+        if (req.user.role === 'operator' || req.user.role === 'driver') {
+            userId = req.user.ownerId;
+        } else {
+            userId = req.user._id;
         }
         // Validate the role: prevent owners from creating other owners
         if (role === 'owner') {
@@ -72,7 +74,7 @@ exports.createUser = async (req, res) => {
             email,
             password,
             role,
-            ownerId: req.user._id, // Associate the new user with the authenticated owner
+            ownerId: userId, // Associate the new user with the authenticated owner
             status:"active",
             phoneNumber
         });
@@ -89,8 +91,13 @@ exports.createUser = async (req, res) => {
 exports.getAllUsers = async (req, res) => {
     try {
         // Fetch all users where the ownerId matches the authenticated user's ID
-        const users = await User.find({ ownerId: req.user._id }).populate('permissions')
-
+        let ownerId;
+        if (req.user.role === 'operator' || req.user.role === 'driver') {
+            ownerId = req.user.ownerId;
+        } else {
+            ownerId = req.user._id;
+        }
+        const users = await User.find({ ownerId: ownerId,role:'driver',_id: { $ne: ownerId } }).populate('permissions')
         // If no users are found
         if (!users || users.length === 0) {
             return res.status(404).json({ message: 'No users found under your management.' });

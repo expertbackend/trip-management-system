@@ -4,6 +4,7 @@ import axios from "axios";
 import logo from "../assets/tms.png";
 import signin from "../assets/Login.svg";
 import signinbg from "../assets/sign2.png";
+import { requestFCMToken } from "../utils/firebaseUtils";
 function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -12,7 +13,8 @@ function Login() {
   const handleLogin = async (e) => {
     e.preventDefault();
     setLoading(true)
-    const deviceToken = localStorage.getItem("deviceToken");
+    const deviceToken = await requestFCMToken();
+
     try {
       const response = await axios.post(
         `${process.env.REACT_APP_API_URL}/api/users/login`,

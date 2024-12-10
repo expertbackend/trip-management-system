@@ -75,9 +75,10 @@ const LoadingUnloadingPage = () => {
 
   // Submit unloading details
   const handleUnloadingSubmit = async () => {
+    console.log('clickkkkkk111')
     try {
-      if (!selectedBooking) return setError("Please select a booking.");
-
+      if (!selectedBooking) return alert("Please select a booking.");
+if(!shortageWeight || receivedRemainingAmount || extraExpanse ) return alert('Please fill the fields to create unloading details')
       const response = await axiosInstance.post(`/booking/${selectedBooking}/unloading`, {
         shortageWeight,
         receivedRemainingAmount: parseFloat(receivedRemainingAmount),
