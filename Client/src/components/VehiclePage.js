@@ -210,7 +210,8 @@ const VehicleTable = () => {
     const searchQueryLower = searchQuery.toLowerCase();
     const isVehicleNoMatch =
       vehicle.plateNumber.toLowerCase().includes(searchQueryLower) ||
-      (vehicle.driver?.name.toLowerCase().includes(searchQueryLower));
+      (vehicle.driver?.name.toLowerCase().includes(searchQueryLower)) || 
+      vehicle.name.toLowerCase().includes(searchQueryLower)
 
     // Return true if both conditions are satisfied
     return isVehicleNoMatch && isDateInRange;

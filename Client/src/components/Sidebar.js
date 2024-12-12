@@ -486,7 +486,7 @@ function Sidebar({ role, notifications, username }) {
                   data-tooltip-id="ownerdashboard-tooltip"
                 >
                   <FaUser className="text-xl" />
-                  {isOpen && <span className="ml-4">Owner Dashboard</span>}
+                  {isOpen && <span className="ml-4">User Tracking</span>}
                 </Link>
               </li>
               <Tooltip id="ownerdashboard-tooltip" place="right" content={`OwnerDashboard`} />

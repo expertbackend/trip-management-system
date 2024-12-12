@@ -24,13 +24,15 @@ const BookingsPage = () => {
   const [mode, setMode] = useState("add");
   const [showModal, setShowModal] = useState(false); // For modal visibility
   const [showModal1, setShowModal1] = useState(false); // For modal visibility
-
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
   const [bookingToStart, setBookingToStart] = useState(null);
   const [successMessage, setSuccessMessage] = useState(""); // For success message
   const [errorMessage, setErrorMessage] = useState("");
   const [editing, setEditBooking] = useState("");
   const [isEditModalOpen,setIsEditModalOpen] = useState("")
   const [selectedBookingId, setSelectedBookingId] = useState(null);
+  const [viewType, setViewType] = useState('grid');
 
   const axiosInstance = axios.create({
     baseURL: `${process.env.REACT_APP_API_URL}/api/booking`,
@@ -173,19 +175,26 @@ const BookingsPage = () => {
   
   
   // Handle Search
-  const handleSearch = (query) => {
-    setSearchQuery(query);
-    const lowerCaseQuery = query.toLowerCase();
-    setFilteredBookings(
-      bookings.filter(
-        (booking) =>
-          booking.customerName?.toLowerCase().includes(lowerCaseQuery) ||
-          booking.vehicle?.name?.toLowerCase().includes(lowerCaseQuery) ||
-          booking.driver?.name?.toLowerCase().includes(lowerCaseQuery) ||
-          booking.pickupLocation?.address?.toLowerCase().includes(lowerCaseQuery) ||
-          booking.dropoffLocation?.address?.toLowerCase().includes(lowerCaseQuery)
-      )
-    );
+  const handleSearch = () => {
+    const lowerCaseQuery = searchQuery.toLowerCase();
+    const start = startDate ? new Date(startDate).setHours(0, 0, 0, 0) : null;
+    const end = endDate ? new Date(endDate).setHours(23, 59, 59, 999) : null;
+
+    const filtered = bookings.filter((booking) => {
+      const bookingDate = new Date(booking.startDate).getTime(); // Replace `booking.date` with your booking date field
+      const matchesQuery =
+        booking.customerName?.toLowerCase().includes(lowerCaseQuery) ||
+        booking.vehicle?.name?.toLowerCase().includes(lowerCaseQuery);
+      const matchesStatus =
+        statusFilter === "All" ||
+        booking.status.toLowerCase() === statusFilter.toLowerCase();
+      const matchesDate =
+        (!start || bookingDate >= start) && (!end || bookingDate <= end);
+
+      return matchesQuery && matchesStatus && matchesDate;
+    });
+
+    setFilteredBookings(filtered);
   };
 
   // Handle Filter
@@ -316,7 +325,18 @@ const handleBookingEnded = () => {
   fetchBookings();  // Refresh the booking list after booking is ended
 };
 
+const handleDateFilter = () => {
+  console.log('bookings',bookings)
+  const filtered = bookings.filter((booking) => {
+    const bookingDate = new Date(booking.startDate).getTime(); // Replace `booking.date` with your booking date field
+    return (
+      (!startDate || bookingDate >= startDate) &&
+      (!startDate || bookingDate <= endDate)
+    );
+  });
 
+  setFilteredBookings(filtered);
+};
   // Handle View Booking
   const handleViewBooking = (booking) => {
     setSelectedBooking(booking);
@@ -350,12 +370,33 @@ const handleBookingEnded = () => {
             className="px-4 py-2 border border-gray-300 rounded-lg  w-full sm:w-auto focus:outline-none focus:ring-1 focus:ring-blue-300 focus:border-blue-300"
           >
             <option value="All">All</option>
+            <option value="assigned">Assigned</option>
             <option value="Completed">Completed</option>
             <option value="Pending">Pending</option>
             <option value="Cancelled">Cancelled</option>
             <option value="In-Progress">In-Progress</option>
           </select>
         </div>
+        <div className="flex space-x-4 mb-4">
+        <input
+          type="date"
+          value={startDate}
+          onChange={(e) => setStartDate(e.target.value)}
+          className="border rounded p-2"
+        />
+        <input
+          type="date"
+          value={endDate}
+          onChange={(e) => setEndDate(e.target.value)}
+          className="border rounded p-2"
+        />
+        <button
+          onClick={handleSearch}
+          className="bg-blue-500 text-white px-4 py-2 rounded"
+        >
+          Apply Date Filter
+        </button>
+</div>
         <button
           onClick={() => handleDownload("all")}
           className="bg-green-500 text-white px-4 py-2 rounded-lg w-full sm:w-auto"
@@ -366,39 +407,223 @@ const handleBookingEnded = () => {
 
 
    {/* Table */}
-<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 p-6">
-  {currentBookings.map((booking, index) => {
-    const serialNumber = index + (currentPage * bookingsPerPage) + 1;
+   <div className="flex justify-end space-x-4 mb-6">
+        <button
+          onClick={() => setViewType("grid")}
+          className={`px-4 py-2 rounded-lg ${
+            viewType === "grid"
+              ? "bg-sky-500 text-white"
+              : "bg-gray-200 hover:bg-gray-300"
+          }`}
+        >
+          Grid View
+        </button>
+        <button
+          onClick={() => setViewType("list")}
+          className={`px-4 py-2 rounded-lg ${
+            viewType === "list"
+              ? "bg-sky-500 text-white"
+              : "bg-gray-200 hover:bg-gray-300"
+          }`}
+        >
+          List View
+        </button>
+        <button
+          onClick={() => setViewType("table")}
+          className={`px-4 py-2 rounded-lg ${
+            viewType === "table"
+              ? "bg-sky-500 text-white"
+              : "bg-gray-200 hover:bg-gray-300"
+          }`}
+        >
+          Table View
+        </button>
+      </div>
 
-    return (
-      <div
-        key={booking._id}
-        className="max-w-[380px] rounded-lg border border-gray-300 shadow-xl transform hover:scale-105 transition-transform duration-300 ease-in-out"
-      >
-        <div className="bg-gradient-to-r from-sky-600 to-teal-500 text-white p-4 rounded-t-lg">
-          <h2 className="text-xl font-semibold">{booking.customerName || "N/A"}</h2>
-          <p className="text-sm">{`Booking #${serialNumber}`}</p>
+      {/* Render Based on View Type */}
+      {viewType === "grid" && (
+  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+    {currentBookings.map((booking, index) => {
+      const serialNumber = index + currentPage * bookingsPerPage + 1;
+      const isCompleted = booking.status === "completed";
+
+      return (
+        <div
+          key={booking._id}
+          className="max-w-[380px] rounded-lg border border-gray-300 shadow-xl transform hover:scale-105 transition-transform duration-300 ease-in-out"
+        >
+          <div className="bg-gradient-to-r from-sky-600 to-teal-500 text-white p-4 rounded-t-lg">
+            <h2 className="text-xl font-semibold">{booking.customerName || "N/A"}</h2>
+            <p className="text-sm">{`Booking #${serialNumber}`}</p>
+          </div>
+          <div className="p-4 bg-white rounded-b-lg shadow-sm">
+            <div className="mb-4">
+              <div className="text-gray-800 font-medium">Vehicle</div>
+              <p>{booking.vehicle?.name || "N/A"} - {booking.vehicle?.plateNumber || "N/A"}</p>
+            </div>
+            <div className="mb-4">
+              <div className="text-gray-800 font-medium">Driver</div>
+              <p>{booking.driver?.name || "N/A"}</p>
+            </div>
+            <div className="mb-4">
+              <div className="text-gray-800 font-medium">Fare</div>
+              <p>₹{booking.basePay?.toFixed(2) || "N/A"}</p>
+            </div>
+            <div className="mb-4">
+              <div className="text-gray-800 font-medium">Status</div>
+              <p
+                className={`font-bold ${isCompleted ? 'text-green-500' : 'text-red-500'}`}
+              >
+                {booking.status || "N/A"}
+              </p>
+            </div>
+
+            {/* Show additional information if status is 'Completed' */}
+            {isCompleted && (
+              <>
+                <div className="mb-4">
+                  <div className="text-gray-800 font-medium">Start Date</div>
+                  <p>{booking.startDate || "N/A"}</p>
+                </div>
+                <div className="mb-4">
+                  <div className="text-gray-800 font-medium">End Date</div>
+                  <p>{new Date(booking.endDate).toLocaleDateString()
+                  || "N/A"}</p>
+                </div>
+                <div className="mb-4">
+                  <div className="text-gray-800 font-medium">Pickup Location</div>
+                  <p>{booking?.pickupLocation?.address || "N/A"}</p>
+                </div>
+                <div className="mb-4">
+                  <div className="text-gray-800 font-medium">Dropoff Location</div>
+                  <p>{booking?.dropoffLocation?.address || "N/A"}</p>
+                </div>
+                <div className="mb-4">
+                  <div className="text-gray-800 font-medium">Profit</div>
+                  <p>₹{booking.profit?.toFixed(2) || "N/A"}</p>
+                </div>
+              </>
+            )}
+
+            {/* Action Buttons */}
+            <div className="flex justify-between mt-6">
+              <div className="flex flex-col space-y-4">
+                <button
+                  onClick={() => handleViewBooking(booking)}
+                  className="text-blue-500 hover:text-blue-700 transition duration-200 px-4 py-2 rounded-md border border-blue-500 hover:bg-blue-50"
+                  title="View Booking"
+                >
+                  <FaEye />
+                </button>
+                <button
+                  onClick={() => handleCancelBooking(booking._id)}
+                  className="text-red-500 hover:text-red-700 transition duration-200 px-4 py-2 rounded-md border border-red-500 hover:bg-red-50"
+                  title="Cancel Booking"
+                >
+                  <FaTimes />
+                </button>
+                <button
+                  onClick={() => handleDownload("individual", booking._id)}
+                  className="text-green-500 hover:text-green-700 transition duration-200 px-4 py-2 rounded-md border border-green-500 hover:bg-green-50"
+                  title="Download Booking"
+                >
+                  <FaDownload />
+                </button>
+              </div>
+              <div className="flex flex-col space-y-4">
+                <button
+                  onClick={() => openStartBookingModal(booking)}
+                  disabled={isCompleted}
+                  className={`text-yellow-500 hover:text-yellow-700 transition duration-200 px-4 py-2 rounded-md border border-yellow-500 hover:bg-yellow-50 ${isCompleted ? 'cursor-not-allowed opacity-50' : ''}`}
+                  title="Start Booking"
+                >
+                  <FaPlay />
+                </button>
+                <button
+                  onClick={() => handleEditBooking(booking)}
+                  className="text-purple-500 hover:text-purple-700 transition duration-200 px-4 py-2 rounded-md border border-purple-500 hover:bg-purple-50"
+                  title="Edit Booking"
+                >
+                  <FaEdit />
+                </button>
+                <button
+                  onClick={() => handleEndBooking(booking._id)}
+                  disabled={isCompleted}
+                  className={`text-orange-500 hover:text-orange-700 transition duration-200 px-4 py-2 rounded-md border border-orange-500 hover:bg-orange-50 ${isCompleted ? 'cursor-not-allowed opacity-50' : ''}`}
+                  title="End Booking"
+                >
+                  <FaStop />
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
-        <div className="p-4 bg-white rounded-b-lg shadow-sm">
-          <div className="mb-4">
-            <div className="text-gray-800 font-medium">Vehicle</div>
-            <p>{booking.vehicle?.name || "N/A"} - {booking.vehicle?.plateNumber || "N/A"}</p>
+      );
+    })}
+  </div>
+)}
+
+{viewType === "list" && (
+  <div className="flex flex-col space-y-4">
+    {currentBookings.map((booking, index) => {
+      const serialNumber = index + (currentPage * bookingsPerPage) + 1;
+      const isCompleted = booking.status === "completed"; // Check if booking is completed
+
+      return (
+        <div
+          key={booking._id}
+          className="flex flex-col p-4 border border-gray-300 shadow-xl rounded-lg"
+        >
+          <div className="bg-gradient-to-r from-sky-600 to-teal-500 text-white p-4 rounded-t-lg">
+            <h2 className="text-xl font-semibold">{booking.customerName || "N/A"}</h2>
+            <p className="text-sm">{`Booking #${serialNumber}`}</p>
           </div>
-          <div className="mb-4">
-            <div className="text-gray-800 font-medium">Driver</div>
-            <p>{booking.driver?.name || "N/A"}</p>
-          </div>
-          <div className="mb-4">
-            <div className="text-gray-800 font-medium">Fare</div>
-            <p>₹{booking.basePay?.toFixed(2) || "N/A"}</p>
-          </div>
-          <div className="mb-4">
-            <div className="text-gray-800 font-medium">Status</div>
-            <p className={`font-bold ${booking.status === 'Completed' ? 'text-green-500' : 'text-red-500'}`}>{booking.status || "N/A"}</p>
-          </div>
-          {/* Icons on the Left and Right */}
-          <div className="flex justify-between mt-6">
-            <div className="flex flex-col space-y-4">
+          <div className="p-4 bg-white rounded-b-lg shadow-sm">
+            <div className="mb-4">
+              <div className="text-gray-800 font-medium">Vehicle</div>
+              <p>{booking.vehicle?.name || "N/A"} - {booking.vehicle?.plateNumber || "N/A"}</p>
+            </div>
+            <div className="mb-4">
+              <div className="text-gray-800 font-medium">Driver</div>
+              <p>{booking.driver?.name || "N/A"}</p>
+            </div>
+            <div className="mb-4">
+              <div className="text-gray-800 font-medium">Fare</div>
+              <p>₹{booking.basePay?.toFixed(2) || "N/A"}</p>
+            </div>
+            <div className="mb-4">
+              <div className="text-gray-800 font-medium">Profit</div>
+              <p>₹{booking.profit?.toFixed(2) || "N/A"}</p>
+            </div>
+            <div className="mb-4">
+              <div className="text-gray-800 font-medium">Status</div>
+              <p className={`font-bold ${isCompleted ? 'text-green-500' : 'text-red-500'}`}>{booking.status || "N/A"}</p>
+            </div>
+
+            {/* Display additional information if status is 'Completed' */}
+            {isCompleted && (
+              <>
+                <div className="mb-4">
+                  <div className="text-gray-800 font-medium">Start Date</div>
+                  <p>{new Date(booking.startDate).toLocaleDateString() || "N/A"}</p>
+                </div>
+                <div className="mb-4">
+                  <div className="text-gray-800 font-medium">End Date</div>
+                  <p>{new Date(booking.endDate).toLocaleDateString() || "N/A"}</p>
+                </div>
+                <div className="mb-4">
+                  <div className="text-gray-800 font-medium">Pickup Location</div>
+                  <p>{booking.pickupLocation.address || "N/A"}</p>
+                </div>
+                <div className="mb-4">
+                  <div className="text-gray-800 font-medium">Dropoff Location</div>
+                  <p>{booking.dropoffLocation.address || "N/A"}</p>
+                </div>
+              </>
+            )}
+
+            {/* Action Buttons */}
+            <div className="flex space-x-4 mt-4">
               <button
                 onClick={() => handleViewBooking(booking)}
                 className="text-blue-500 hover:text-blue-700 transition duration-200 px-4 py-2 rounded-md border border-blue-500 hover:bg-blue-50"
@@ -421,10 +646,12 @@ const handleBookingEnded = () => {
                 <FaDownload />
               </button>
             </div>
-            <div className="flex flex-col space-y-4">
+
+            <div className="flex space-x-4 mt-4">
               <button
                 onClick={() => openStartBookingModal(booking)}
-                className="text-yellow-500 hover:text-yellow-700 transition duration-200 px-4 py-2 rounded-md border border-yellow-500 hover:bg-yellow-50"
+                disabled={isCompleted} // Disable button if completed
+                className={`text-yellow-500 hover:text-yellow-700 transition duration-200 px-4 py-2 rounded-md border border-yellow-500 hover:bg-yellow-50 ${isCompleted ? 'cursor-not-allowed opacity-50' : ''}`}
                 title="Start Booking"
               >
                 <FaPlay />
@@ -438,7 +665,8 @@ const handleBookingEnded = () => {
               </button>
               <button
                 onClick={() => handleEndBooking(booking._id)}
-                className="text-orange-500 hover:text-orange-700 transition duration-200 px-4 py-2 rounded-md border border-orange-500 hover:bg-orange-50"
+                disabled={isCompleted} // Disable button if completed
+                className={`text-orange-500 hover:text-orange-700 transition duration-200 px-4 py-2 rounded-md border border-orange-500 hover:bg-orange-50 ${isCompleted ? 'cursor-not-allowed opacity-50' : ''}`}
                 title="End Booking"
               >
                 <FaStop />
@@ -446,28 +674,141 @@ const handleBookingEnded = () => {
             </div>
           </div>
         </div>
-      </div>
-    );
-  })}
-</div>
+      );
+    })}
+  </div>
+)}
 
-{/* Pagination */}
-<div className="flex justify-center mt-6 space-x-4">
-  <button
-    onClick={() => handlePageChange(currentPage - 1)}
-    disabled={currentPage === 0}
-    className="bg-gradient-to-r from-gray-400 to-gray-500 text-white px-6 py-2 rounded-full transition-all hover:bg-gray-600 disabled:opacity-50"
-  >
-    Prev
-  </button>
-  <button
-    onClick={() => handlePageChange(currentPage + 1)}
-    disabled={indexOfLastBooking >= filteredBookings.length}
-    className="bg-gradient-to-r from-gray-400 to-gray-500 text-white px-6 py-2 rounded-full transition-all hover:bg-gray-600 disabled:opacity-50"
-  >
-    Next
-  </button>
-</div>
+{viewType === "table" && (
+  <div className="overflow-x-auto">
+    <table className="min-w-full table-auto border-collapse">
+      <thead className="bg-gradient-to-r from-sky-600 to-teal-500 text-white">
+        <tr>
+          <th className="px-6 py-4 text-left">Booking #</th>
+          <th className="px-6 py-4 text-left">Customer Name</th>
+          <th className="px-6 py-4 text-left">Vehicle</th>
+          <th className="px-6 py-4 text-left">Driver</th>
+          <th className="px-6 py-4 text-left">Fare</th>
+          <th className="px-6 py-4 text-left">Status</th>
+          <th className="px-6 py-4 text-left">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {currentBookings.map((booking, index) => {
+          const serialNumber = index + (currentPage * bookingsPerPage) + 1;
+
+          return (
+            <tr key={booking._id} className="border-b hover:bg-gray-50">
+              <td className="px-6 py-4">{serialNumber}</td>
+              <td className="px-6 py-4">{booking.customerName || "N/A"}</td>
+              <td className="px-6 py-4">{booking.vehicle?.name || "N/A"} - {booking.vehicle?.plateNumber || "N/A"}</td>
+              <td className="px-6 py-4">{booking.driver?.name || "N/A"}</td>
+              <td className="px-6 py-4">₹{booking.basePay?.toFixed(2) || "N/A"}</td>
+              <td className="px-6 py-4">
+                <p className={`font-bold ${booking.status === 'completed' ? 'text-green-500' : 'text-red-500'}`}>
+                  {booking.status || "N/A"}
+                </p>
+              </td>
+              <td className="px-6 py-4">
+                <div className="flex space-x-4">
+                  <button
+                    onClick={() => handleViewBooking(booking)}
+                    className="text-blue-500 hover:text-blue-700 transition duration-200 px-4 py-2 rounded-md border border-blue-500 hover:bg-blue-50"
+                    title="View Booking"
+                  >
+                    <FaEye />
+                  </button>
+                  <button
+                    onClick={() => handleCancelBooking(booking._id)}
+                    className="text-red-500 hover:text-red-700 transition duration-200 px-4 py-2 rounded-md border border-red-500 hover:bg-red-50"
+                    title="Cancel Booking"
+                  >
+                    <FaTimes />
+                  </button>
+                  <button
+                    onClick={() => handleDownload("individual", booking._id)}
+                    className="text-green-500 hover:text-green-700 transition duration-200 px-4 py-2 rounded-md border border-green-500 hover:bg-green-50"
+                    title="Download Booking"
+                  >
+                    <FaDownload />
+                  </button>
+                  {/* Disable Play and End buttons if status is 'Completed' */}
+                  <button
+                    onClick={() => openStartBookingModal(booking)}
+                    className={`text-yellow-500 hover:text-yellow-700 transition duration-200 px-4 py-2 rounded-md border border-yellow-500 hover:bg-yellow-50 ${booking.status === 'completed' ? 'opacity-50 cursor-not-allowed' : ''}`}
+                    title="Start Booking"
+                    disabled={booking.status === 'completed'}
+                  >
+                    <FaPlay />
+                  </button>
+                  <button
+                    onClick={() => handleEditBooking(booking)}
+                    className="text-purple-500 hover:text-purple-700 transition duration-200 px-4 py-2 rounded-md border border-purple-500 hover:bg-purple-50"
+                    title="Edit Booking"
+                  >
+                    <FaEdit />
+                  </button>
+                  <button
+                    onClick={() => handleEndBooking(booking._id)}
+                    className={`text-orange-500 hover:text-orange-700 transition duration-200 px-4 py-2 rounded-md border border-orange-500 hover:bg-orange-50 ${booking.status === 'Completed' ? 'opacity-50 cursor-not-allowed' : ''}`}
+                    title="End Booking"
+                    disabled={booking.status === 'completed'}
+                  >
+                    <FaStop />
+                  </button>
+                </div>
+                {/* Show individual fields if status is 'Completed' */}
+                {booking.status === 'completed' && (
+                  <div className="mt-4 space-y-4">
+                    <div>
+                      <div className="text-gray-800 font-medium">Start Date</div>
+                      <p>{booking.startDate || "N/A"}</p>
+                    </div>
+                    <div>
+                      <div className="text-gray-800 font-medium">End Date</div>
+                      <p>{booking.endDate || "N/A"}</p>
+                    </div>
+                    <div>
+                      <div className="text-gray-800 font-medium">Pickup Location</div>
+                      <p>{booking.pickupLocation.address || "N/A"}</p>
+                    </div>
+                    <div>
+                      <div className="text-gray-800 font-medium">Dropoff Location</div>
+                      <p>{booking.dropoffLocation.address || "N/A"}</p>
+                    </div>
+                    <div>
+                      <div className="text-gray-800 font-medium">Profit</div>
+                      <p>₹{booking.profit?.toFixed(2) || "N/A"}</p>
+                    </div>
+                  </div>
+                )}
+              </td>
+            </tr>
+          );
+        })}
+      </tbody>
+    </table>
+  </div>
+)}
+
+
+      {/* Pagination */}
+      <div className="flex justify-center mt-6 space-x-4">
+        <button
+          onClick={() => handlePageChange(currentPage - 1)}
+          disabled={currentPage === 0}
+          className="bg-gradient-to-r from-gray-400 to-gray-500 text-white px-6 py-2 rounded-full transition-all hover:bg-gray-600 disabled:opacity-50"
+        >
+          Prev
+        </button>
+        <button
+          onClick={() => handlePageChange(currentPage + 1)}
+          disabled={indexOfLastBooking >= filteredBookings.length}
+          className="bg-gradient-to-r from-gray-400 to-gray-500 text-white px-6 py-2 rounded-full transition-all hover:bg-gray-600 disabled:opacity-50"
+        >
+          Next
+        </button>
+      </div>
 
 
 

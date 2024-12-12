@@ -175,7 +175,45 @@ function App() {
       document.removeEventListener("contextmenu", handleRightClick);
     };
   }, []);
+  useEffect(() => {
+    const checkDevTools = () => {
+      const width = window.innerWidth;
+      const height = window.innerHeight;
+      const devToolsOpen =
+        window.outerWidth - window.innerWidth > 100 || window.outerHeight - window.innerHeight > 100;
   
+      if (devToolsOpen) {
+        alert("Developer tools detected. You cannot proceed.");
+        // Optionally redirect or disable functionality here.
+        // Example: window.location.href = "about:blank"; to stop further actions.
+      }
+    };
+  
+    // Periodically check if dev tools are open
+    const interval = setInterval(checkDevTools, 1000);
+  
+    return () => {
+      clearInterval(interval);
+    };
+  }, []);
+  useEffect(() => {
+    const blockDevToolsShortcuts = (event) => {
+      const blockedKeys = ["F12", "Shift+I", "Ctrl+Shift+I", "Ctrl+Shift+J"];
+      const key = event.key || event.code;
+  
+      if (blockedKeys.includes(key)) {
+        event.preventDefault();
+        alert("Developer tools are disabled.");
+      }
+    };
+  
+    document.addEventListener("keydown", blockDevToolsShortcuts);
+  
+    return () => {
+      document.removeEventListener("keydown", blockDevToolsShortcuts);
+    };
+  }, []);
+    
   // Start location tracking
   const startTracking = async () => {
     if (!navigator.geolocation) {

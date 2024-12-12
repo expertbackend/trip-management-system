@@ -18,8 +18,8 @@ const Home = () => {
   // Pagination states
   const [vehiclePage, setVehiclePage] = useState(1);
   const [driverPage, setDriverPage] = useState(1);
-  const [vehiclesPerPage] = useState(2); // Items per page for vehicles
-  const [driversPerPage] = useState(2); // Items per page for drivers
+  const [vehiclesPerPage,setVehiclesPerPage] = useState(10); // Items per page for vehicles
+  const [driversPerPage,setDriversPerPage] = useState(10); // Items per page for drivers
 
   const axiosInstance = axios.create({
     baseURL: `${process.env.REACT_APP_API_URL}/api`, // Replace with the correct base URL for your API
@@ -155,7 +155,7 @@ const Home = () => {
           statusColor = "bg-gray-200 text-gray-600"; // Default color for unknown status
           statusText = "Unknown";
       }
-
+     
       return (
         <tr
           key={vehicle._id}
@@ -163,11 +163,16 @@ const Home = () => {
             index % 2 === 0 ? "bg-gray-50" : "bg-white"
           } hover:bg-gray-200 transition-all duration-300 ease-in-out transform `}
         >
+         
+          <td className="p-4 text-sm font-medium text-gray-900">
+            {vehicle.plateNumber}
+          </td>
           <td className="p-4 text-sm font-medium text-gray-900">
             {vehicle.name}
           </td>
+          
           <td className="p-4 text-sm font-medium text-gray-900">
-            {vehicle.plateNumber}
+            {vehicle.driver ? vehicle.driver.name : "No Driver"}
           </td>
           <td className="p-4 text-sm font-medium">
             <span
@@ -176,14 +181,17 @@ const Home = () => {
               {statusText}
             </span>
           </td>
-          <td className="p-4 text-sm font-medium text-gray-900">
-            {vehicle.driver ? vehicle.driver.name : "No Driver"}
-          </td>
         </tr>
       );
     });
   };
+  const handleVehiclesPerPageChange = (e) => {
+    setVehiclesPerPage(parseInt(e.target.value));
+  };
 
+  const handleDriversPerPageChange = (e) => {
+    setDriversPerPage(parseInt(e.target.value));
+  };
   // Render driver rows in table with pagination
   const renderDriverRows = () => {
     const indexOfLastDriver = driverPage * driversPerPage;
@@ -373,17 +381,18 @@ const Home = () => {
                   <thead className="bg-blue-800 text-white">
                     <tr>
                       <th className="p-4 text-left font-semibold text-lg">
-                        Name
+                        Vehicle Number
                       </th>
                       <th className="p-4 text-left font-semibold text-lg">
-                        Plate Number
-                      </th>
-                      <th className="p-4 text-left font-semibold text-lg">
-                        Status
+                        Model Name
                       </th>
                       <th className="p-4 text-left font-semibold text-lg">
                         Driver
                       </th>
+                      <th className="p-4 text-left font-semibold text-lg">
+                        Status
+                      </th>
+                     
                     </tr>
                   </thead>
                   <tbody className="text-gray-800">{renderVehicleRows()}</tbody>
@@ -391,6 +400,18 @@ const Home = () => {
 
                 {/* Vehicle Pagination */}
                 <div className="flex justify-center space-x-2 mt-4 ">
+                  <select
+                value={vehiclesPerPage}
+                onChange={handleVehiclesPerPageChange}
+                className="p-2 border rounded"
+              >
+                <option value="10">10 per page</option>
+                <option value="15">15 per page</option>
+                <option value="20">20 per page</option>
+                <option value="25">25 per page</option>
+
+              </select>
+
                   {vehiclePageNumbers.map((number) => (
                     <button
                       key={number}
@@ -431,6 +452,17 @@ const Home = () => {
 
                 {/* Driver Pagination */}
                 <div className="flex justify-center space-x-2 mt-4">
+                <select
+                value={driversPerPage}
+                onChange={handleDriversPerPageChange}
+                className="p-2 border rounded"
+              >
+                <option value="10">10 per page</option>
+                <option value="15">15 per page</option>
+                <option value="20">20 per page</option>
+                <option value="25">25 per page</option>
+
+              </select>
                   {driverPageNumbers.map((number) => (
                     <button
                       key={number}

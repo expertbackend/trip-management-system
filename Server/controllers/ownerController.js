@@ -10,6 +10,7 @@ const activeSockets = require('../socketStorage');
 const { getIo } = require('../socket');
 const PlanHistory = require('../models/PlanHistory');
 const PaymentRequest = require('../models/PaymentRequest');
+const Booking = require('../models/Booking');
 exports.buyPlan = async (req, res) => {
     try {
         const { planId } = req.body;
@@ -360,7 +361,8 @@ exports.driversloc = async(req,res)=>{
     
         // Determine if the driver is moving or parked
         const status = distance > MOVEMENT_THRESHOLD ? 'moving' : 'parked';
-    
+        const booking = await Booking.findOne({ driver:driverId, status: 'in-progress' }).exec();
+        
         // Return the location and status
         res.json({
           location: {
@@ -369,7 +371,10 @@ exports.driversloc = async(req,res)=>{
             status: status,
           drivername:driverData.name
           },
-          
+          booking: {
+            pickupLocation: booking.pickupLocation, // Assuming booking schema has these fields
+            dropoffLocation: booking.dropoffLocation,
+          },
         });
       } catch (error) {
         console.error(error);
