@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { GoogleMap, Marker, Polyline, useLoadScript, InfoWindow } from '@react-google-maps/api';
+import { GoogleMap, Marker, Polyline, useLoadScript, InfoWindow,DirectionsService, DirectionsRenderer } from '@react-google-maps/api';
 import io from 'socket.io-client';
 import Modal from 'react-modal';
 
@@ -45,7 +45,8 @@ const OwnerDashboardMap = () => {
   const socket = io(process.env.REACT_APP_API_URL);
   const [locations, setLocations] = useState([]);
   const [driverHistory, setDriverHistory] = useState([]);
-
+  const [directionsResponse, setDirectionsResponse] = useState(null);
+  const [error, setError] = useState(null);
 
 
   // Fetch drivers
@@ -117,23 +118,32 @@ const OwnerDashboardMap = () => {
     }
   };
   useEffect(() => {
+    let geocodeTimeout;
+  
     if (currentLocation) {
-      // Geocode the current location to get the place name
-      const geocoder = new window.google.maps.Geocoder();
-      geocoder.geocode({ location: currentLocation }, (results, status) => {
-        if (status === 'OK' && results[0]) {
-          console.log('results',results)
-          setTooltipContent({
-            ...tooltipContent,
-            place: results[0].formatted_address, // Get the place name
-          });
-        } else {
-          setTooltipContent(null);
-          setPopupContent(null);
-        }
-      });
+      // Set a timeout to debounce geocoding calls
+      geocodeTimeout = setTimeout(() => {
+        const geocoder = new window.google.maps.Geocoder();
+        geocoder.geocode({ location: currentLocation }, (results, status) => {
+          if (status === 'OK' && results[0]) {
+            setTooltipContent({
+              ...tooltipContent,
+              place: results[0].formatted_address, // Get the place name
+            });
+          } else {
+            setTooltipContent(null);
+            setPopupContent(null);
+          }
+        });
+      }, 20000); // 1-second delay
     }
+  
+    // Cleanup timeout when effect is re-run
+    return () => {
+      clearTimeout(geocodeTimeout);
+    };
   }, [currentLocation, tooltipContent]);
+  
   // Socket.io events
   useEffect(() => {
     socket.on('changeLocation', (data) => {
@@ -182,6 +192,41 @@ const OwnerDashboardMap = () => {
       fetchDriverHistory(selectedDriver);
     }
   }, [selectedDriver]);
+  const center = pickupLocation || { lat: 0, lng: 0 };
+
+  const fetchDirections = () => {
+    if (pickupLocation && dropoffLocation) {
+      // Create a DirectionsService instance
+      const directionsService = new window.google.maps.DirectionsService();
+
+      directionsService.route(
+        {
+          origin: pickupLocation,
+          destination: dropoffLocation,
+          travelMode: "DRIVING",
+        },
+        (response, status) => {
+          if (status === "OK") {
+            setDirectionsResponse(response);
+          } else {
+            setError("Failed to fetch directions. Please try again.");
+            console.error("Directions request failed due to", status);
+          }
+        }
+      );
+    }
+  };
+
+  useEffect(() => {
+    // Fetch directions immediately and set an interval
+    fetchDirections();
+
+    const intervalId = setInterval(() => {
+      fetchDirections();
+    }, 20000); // 20 seconds
+
+    return () => clearInterval(intervalId); // Cleanup interval on unmount
+  }, [pickupLocation, dropoffLocation]);
 
   const handleMarkerClick = (marker) => {
     setSelectedMarker(marker);
@@ -193,7 +238,6 @@ const OwnerDashboardMap = () => {
     setInfoWindowVisible(false);
     setSelectedMarker(null);
   };
-console.log('drivers',selectedDriver)
   if (loadError) return <div>Error loading maps</div>;
   if (!isLoaded) return <div>Loading maps...</div>;
 
@@ -284,9 +328,20 @@ console.log('drivers',selectedDriver)
               />
             )}
          
-            {pickupLocation && dropoffLocation && (
-              <Polyline path={[pickupLocation, dropoffLocation]} options={polylineOptions} />
-            )}
+         {pickupLocation && dropoffLocation && (
+        <>
+          {/* Render Directions */}
+          {directionsResponse && (
+            <DirectionsRenderer
+              options={{
+                directions: directionsResponse,
+              }}
+            />
+          )}
+        </>
+      )}
+
+
 
             {selectedMarker && infoWindowVisible && (
               <InfoWindow
