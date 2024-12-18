@@ -569,7 +569,14 @@ function Sidebar({ role, notifications, username }) {
           {role === "driver" && (
             <>
             <li>
-              <Link to="/create-booking">
+              <Link to="/create-booking" 
+              className={`flex items-center p-3 rounded-lg transition-colors ${
+                activeLink === "create-booking"
+                  ? "bg-blue-900 text-white"
+                  : "text-black hover:bg-gray-300 hover:text-black"
+              }`}
+              onClick={() => handleLinkClick("create-booking")}
+              >
                 <FaTaxi className="text-xl" />
                 {isOpen && <span className="ml-4">Create Booking</span>}
               </Link>

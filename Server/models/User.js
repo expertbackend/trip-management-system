@@ -28,6 +28,7 @@ const userSchema = new mongoose.Schema({
   companyLogoUrl: { type: String },
   actionsCreated: { type: Number, default: 0 },
   badges: { type: [String], default: [] },
+  lastLogin: { type: Date },
 });
 
 userSchema.pre('save', async function (next) {

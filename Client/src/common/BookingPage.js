@@ -8,6 +8,7 @@ import "jspdf-autotable"; // Import the jsPDF autotable plugin
 import { FaPlay } from "react-icons/fa6";
 import EditBookingModal from "../modals/EditBookingModal";
 import EndBookingModal from "../modals/EndBookingModal";
+import Rating from "./Rating";
 
 const BookingsPage = () => {
   const [bookings, setBookings] = useState([]);
@@ -337,6 +338,39 @@ const handleDateFilter = () => {
 
   setFilteredBookings(filtered);
 };
+const [bookings1, setBookings1] = useState([
+  {
+    _id: 1,
+    customerName: "John Doe",
+    initialRating: 5, // Default rating for this booking
+    vehicle: { name: "Car", plateNumber: "ABC123" },
+    status: "completed",
+  },
+  {
+    _id: 2,
+    customerName: "Jane Smith",
+    initialRating: 4, // Default rating for this booking
+    vehicle: { name: "Truck", plateNumber: "XYZ456" },
+    status: "in-progress",
+  },
+  {
+    _id: 3,
+    customerName: "Alex Brown",
+    initialRating: 5, // Default rating for this booking
+    vehicle: { name: "Bike", plateNumber: "LMN789" },
+    status: "completed",
+  },
+]);
+
+const handleRatingChange = (bookingId, rating) => {
+  // Find the booking by ID and update its rating
+  setBookings1((prevBookings) =>
+    prevBookings.map((booking) =>
+      booking._id === bookingId ? { ...booking, initialRating: rating } : booking
+    )
+  );
+};
+
   // Handle View Booking
   const handleViewBooking = (booking) => {
     setSelectedBooking(booking);
@@ -565,118 +599,127 @@ const handleDateFilter = () => {
 
 {viewType === "list" && (
   <div className="flex flex-col space-y-4">
-    {currentBookings.map((booking, index) => {
-      const serialNumber = index + (currentPage * bookingsPerPage) + 1;
-      const isCompleted = booking.status === "completed"; // Check if booking is completed
+  {currentBookings.map((booking, index) => {
+    const serialNumber = index + (currentPage * bookingsPerPage) + 1;
+    const isCompleted = booking.status === "completed"; // Check if booking is completed
 
-      return (
-        <div
-          key={booking._id}
-          className="flex flex-col p-4 border border-gray-300 shadow-xl rounded-lg"
-        >
-          <div className="bg-gradient-to-r from-sky-600 to-teal-500 text-white p-4 rounded-t-lg">
-            <h2 className="text-xl font-semibold">{booking.customerName || "N/A"}</h2>
-            <p className="text-sm">{`Booking #${serialNumber}`}</p>
+    return (
+      <div
+        key={booking._id}
+        className="flex flex-col p-4 border border-gray-300 shadow-xl rounded-lg"
+      >
+        <div className="bg-gradient-to-r from-sky-600 to-teal-500 text-white p-4 rounded-t-lg">
+          <h2 className="text-xl font-semibold">{booking.customerName || "N/A"}</h2>
+          <p className="text-sm">{`Booking #${serialNumber}`}</p>
+        </div>
+        <div className="p-4 bg-white rounded-b-lg shadow-sm">
+          <div className="mb-4">
+            <div className="text-gray-800 font-medium">Vehicle</div>
+            <p>{booking.vehicle?.name || "N/A"} - {booking.vehicle?.plateNumber || "N/A"}</p>
           </div>
-          <div className="p-4 bg-white rounded-b-lg shadow-sm">
-            <div className="mb-4">
-              <div className="text-gray-800 font-medium">Vehicle</div>
-              <p>{booking.vehicle?.name || "N/A"} - {booking.vehicle?.plateNumber || "N/A"}</p>
-            </div>
-            <div className="mb-4">
-              <div className="text-gray-800 font-medium">Driver</div>
-              <p>{booking.driver?.name || "N/A"}</p>
-            </div>
-            <div className="mb-4">
-              <div className="text-gray-800 font-medium">Fare</div>
-              <p>₹{booking.basePay?.toFixed(2) || "N/A"}</p>
-            </div>
-            <div className="mb-4">
-              <div className="text-gray-800 font-medium">Profit</div>
-              <p>₹{booking.profit?.toFixed(2) || "N/A"}</p>
-            </div>
-            <div className="mb-4">
-              <div className="text-gray-800 font-medium">Status</div>
-              <p className={`font-bold ${isCompleted ? 'text-green-500' : 'text-red-500'}`}>{booking.status || "N/A"}</p>
-            </div>
+          <div className="mb-4">
+            <div className="text-gray-800 font-medium">Driver</div>
+            <p>{booking.driver?.name || "N/A"}</p>
+          </div>
+          <div className="mb-4">
+            <div className="text-gray-800 font-medium">Fare</div>
+            <p>₹{booking.basePay?.toFixed(2) || "N/A"}</p>
+          </div>
+          <div className="mb-4">
+            <div className="text-gray-800 font-medium">Profit</div>
+            <p>₹{booking.profit?.toFixed(2) || "N/A"}</p>
+          </div>
+          <div className="mb-4">
+            <div className="text-gray-800 font-medium">Status</div>
+            <p className={`font-bold ${isCompleted ? 'text-green-500' : 'text-red-500'}`}>{booking.status || "N/A"}</p>
+          </div>
 
-            {/* Display additional information if status is 'Completed' */}
-            {isCompleted && (
-              <>
-                <div className="mb-4">
-                  <div className="text-gray-800 font-medium">Start Date</div>
-                  <p>{new Date(booking.startDate).toLocaleDateString() || "N/A"}</p>
-                </div>
-                <div className="mb-4">
-                  <div className="text-gray-800 font-medium">End Date</div>
-                  <p>{new Date(booking.endDate).toLocaleDateString() || "N/A"}</p>
-                </div>
-                <div className="mb-4">
-                  <div className="text-gray-800 font-medium">Pickup Location</div>
-                  <p>{booking.pickupLocation.address || "N/A"}</p>
-                </div>
-                <div className="mb-4">
-                  <div className="text-gray-800 font-medium">Dropoff Location</div>
-                  <p>{booking.dropoffLocation.address || "N/A"}</p>
-                </div>
-              </>
-            )}
+          {/* Display additional information if status is 'Completed' */}
+          {isCompleted && (
+            <>
+              <div className="mb-4">
+                <div className="text-gray-800 font-medium">Start Date</div>
+                <p>{new Date(booking.startDate).toLocaleDateString() || "N/A"}</p>
+              </div>
+              <div className="mb-4">
+                <div className="text-gray-800 font-medium">End Date</div>
+                <p>{new Date(booking.endDate).toLocaleDateString() || "N/A"}</p>
+              </div>
+              <div className="mb-4">
+                <div className="text-gray-800 font-medium">Pickup Location</div>
+                <p>{booking.pickupLocation.address || "N/A"}</p>
+              </div>
+              <div className="mb-4">
+                <div className="text-gray-800 font-medium">Dropoff Location</div>
+                <p>{booking.dropoffLocation.address || "N/A"}</p>
+              </div>
+            </>
+          )}
 
-            {/* Action Buttons */}
-            <div className="flex space-x-4 mt-4">
-              <button
-                onClick={() => handleViewBooking(booking)}
-                className="text-blue-500 hover:text-blue-700 transition duration-200 px-4 py-2 rounded-md border border-blue-500 hover:bg-blue-50"
-                title="View Booking"
-              >
-                <FaEye />
-              </button>
-              <button
-                onClick={() => handleCancelBooking(booking._id)}
-                className="text-red-500 hover:text-red-700 transition duration-200 px-4 py-2 rounded-md border border-red-500 hover:bg-red-50"
-                title="Cancel Booking"
-              >
-                <FaTimes />
-              </button>
-              <button
-                onClick={() => handleDownload("individual", booking._id)}
-                className="text-green-500 hover:text-green-700 transition duration-200 px-4 py-2 rounded-md border border-green-500 hover:bg-green-50"
-                title="Download Booking"
-              >
-                <FaDownload />
-              </button>
-            </div>
+          {/* Add Rating Component for Each Booking */}
+          <div className="mb-4">
+            <div className="text-gray-800 font-medium">Rating</div>
+            <Rating
+              initialRating={booking.initialRating || 5} // Set default rating to 5 if not present
+              onRate={(rating) => handleRatingChange(booking._id, rating)} // Handle rating change
+            />
+          </div>
 
-            <div className="flex space-x-4 mt-4">
-              <button
-                onClick={() => openStartBookingModal(booking)}
-                disabled={isCompleted} // Disable button if completed
-                className={`text-yellow-500 hover:text-yellow-700 transition duration-200 px-4 py-2 rounded-md border border-yellow-500 hover:bg-yellow-50 ${isCompleted ? 'cursor-not-allowed opacity-50' : ''}`}
-                title="Start Booking"
-              >
-                <FaPlay />
-              </button>
-              <button
-                onClick={() => handleEditBooking(booking)}
-                className="text-purple-500 hover:text-purple-700 transition duration-200 px-4 py-2 rounded-md border border-purple-500 hover:bg-purple-50"
-                title="Edit Booking"
-              >
-                <FaEdit />
-              </button>
-              <button
-                onClick={() => handleEndBooking(booking._id)}
-                disabled={isCompleted} // Disable button if completed
-                className={`text-orange-500 hover:text-orange-700 transition duration-200 px-4 py-2 rounded-md border border-orange-500 hover:bg-orange-50 ${isCompleted ? 'cursor-not-allowed opacity-50' : ''}`}
-                title="End Booking"
-              >
-                <FaStop />
-              </button>
-            </div>
+          {/* Action Buttons */}
+          <div className="flex space-x-4 mt-4">
+            <button
+              onClick={() => handleViewBooking(booking)}
+              className="text-blue-500 hover:text-blue-700 transition duration-200 px-4 py-2 rounded-md border border-blue-500 hover:bg-blue-50"
+              title="View Booking"
+            >
+              <FaEye />
+            </button>
+            <button
+              onClick={() => handleCancelBooking(booking._id)}
+              className="text-red-500 hover:text-red-700 transition duration-200 px-4 py-2 rounded-md border border-red-500 hover:bg-red-50"
+              title="Cancel Booking"
+            >
+              <FaTimes />
+            </button>
+            <button
+              onClick={() => handleDownload("individual", booking._id)}
+              className="text-green-500 hover:text-green-700 transition duration-200 px-4 py-2 rounded-md border border-green-500 hover:bg-green-50"
+              title="Download Booking"
+            >
+              <FaDownload />
+            </button>
+          </div>
+
+          <div className="flex space-x-4 mt-4">
+            <button
+              onClick={() => openStartBookingModal(booking)}
+              disabled={isCompleted} // Disable button if completed
+              className={`text-yellow-500 hover:text-yellow-700 transition duration-200 px-4 py-2 rounded-md border border-yellow-500 hover:bg-yellow-50 ${isCompleted ? 'cursor-not-allowed opacity-50' : ''}`}
+              title="Start Booking"
+            >
+              <FaPlay />
+            </button>
+            <button
+              onClick={() => handleEditBooking(booking)}
+              className="text-purple-500 hover:text-purple-700 transition duration-200 px-4 py-2 rounded-md border border-purple-500 hover:bg-purple-50"
+              title="Edit Booking"
+            >
+              <FaEdit />
+            </button>
+            <button
+              onClick={() => handleEndBooking(booking._id)}
+              disabled={isCompleted} // Disable button if completed
+              className={`text-orange-500 hover:text-orange-700 transition duration-200 px-4 py-2 rounded-md border border-orange-500 hover:bg-orange-50 ${isCompleted ? 'cursor-not-allowed opacity-50' : ''}`}
+              title="End Booking"
+            >
+              <FaStop />
+            </button>
           </div>
         </div>
-      );
-    })}
-  </div>
+      </div>
+    );
+  })}
+</div>
 )}
 
 {viewType === "table" && (

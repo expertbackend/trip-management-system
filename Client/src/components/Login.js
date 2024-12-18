@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import axios from "axios";
 // import { Link, useNavigate } from "react-router-dom";
 import logo from "../assets/tms.png";
@@ -10,7 +9,6 @@ function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const navigate = useNavigate();
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -30,13 +28,16 @@ function Login() {
       localStorage.setItem("token", response.data.token);
       localStorage.setItem("role", response.data.role);
       localStorage.setItem('tokenId',response.data.tokenId)
-      if(response.data.role === 'owner' || response.data.role === 'operator' ){
-        navigate('/details');
+      if(response.data.role === 'owner' || response.data.role === "operator"){
+        window.location.href = "/details";
+      }
+      else if(response.data.role === 'driver'){
+        window.location.href = "/driver-dashboard";
       }
       else{
-        navigate('/driver-dashboard');
+        window.location.href = "/SuperAdmin"
       }
-      //window.location.href = "/details"; // Redirect to the main app
+       // Redirect to the main app
     } catch (error) {
       console.error("Login failed:", error);
     }

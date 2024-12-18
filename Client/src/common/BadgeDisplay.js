@@ -5,6 +5,7 @@ const BadgeDisplay = ({ userId }) => {
   const [badges, setBadges] = useState([]);
   const [progress, setProgress] = useState(0); // Tracking progress as a percentage
   const [totalActions] = useState(5); // Assuming total actions (bookings) to achieve a badge
+  const [leaderboard, setLeaderboard] = useState([]);
 
   const token = localStorage.getItem('token');
   const progressBarRef = useRef(null); // Reference for the progress bar
@@ -16,6 +17,7 @@ const BadgeDisplay = ({ userId }) => {
     },
   });
 
+  // Fetch User Progress (Badges and Actions)
   useEffect(() => {
     const fetchUserProgress = async () => {
       try {
@@ -37,6 +39,21 @@ const BadgeDisplay = ({ userId }) => {
     fetchUserProgress();
   }, [userId]);
 
+  // Fetch Leaderboard Data
+  useEffect(() => {
+    const fetchLeaderboard = async () => {
+      try {
+        // Fetch leaderboard data (users within the same owner group)
+        const response = await axiosInstance.get(`/leaderboard`); // Replace with correct endpoint for leaderboard
+        setLeaderboard(response.data.leaderboard); // Assuming leaderboard response is an array
+      } catch (error) {
+        console.error('Error fetching leaderboard:', error);
+      }
+    };
+
+    fetchLeaderboard();
+  }, []);
+
   // Smoothly animate the progress bar width when progress changes
   useEffect(() => {
     if (progressBarRef.current) {
@@ -47,6 +64,7 @@ const BadgeDisplay = ({ userId }) => {
 
   return (
     <div className="p-6 bg-gradient-to-r from-teal-400 to-teal-600 rounded-lg shadow-lg transition-transform transform hover:scale-105">
+      {/* Badge Section */}
       <h3 className="text-2xl font-semibold text-white mb-4">Your Badges:</h3>
       <ul className="list-disc pl-5 space-y-2">
         {badges.length > 0 ? (
@@ -85,6 +103,23 @@ const BadgeDisplay = ({ userId }) => {
           </div>
         </div>
       </div>
+
+      {/* Leaderboard Section */}
+      <h3 className="text-2xl font-semibold text-white mb-4 mt-8">Leaderboard:</h3>
+      {leaderboard.length > 0 ? (
+        <ul className="space-y-2">
+          {leaderboard.map((user, index) => (
+            <li key={index} className="text-white flex justify-between items-center space-x-2 hover:bg-teal-700 py-1 px-2 rounded-md transition-all duration-300">
+              <span className="text-lg">{user.name}</span>
+              <span className="text-sm text-teal-200">
+                {user.badgesCount} Badges | {user.actionsCreated} Actions
+              </span>
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <p className="text-gray-200">No leaderboard data available.</p>
+      )}
     </div>
   );
 };

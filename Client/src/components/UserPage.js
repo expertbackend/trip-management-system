@@ -492,6 +492,7 @@ console.log('searchQuery',searchQuery)
               <th className="px-4 py-2 text-left">Name</th>
               <th className="px-4 py-2 text-left">Email</th>
               <th className="px-4 py-2 text-left">Role</th>
+              <th className="px-4 py-2 text-left">Last Login</th>
               <th className="px-4 py-2 text-left">Actions</th>
             </tr>
           </thead>
@@ -507,6 +508,10 @@ console.log('searchQuery',searchQuery)
                   <td className="px-4 py-2">{user.name}</td>
                   <td className="px-4 py-2">{user.email}</td>
                   <td className="px-4 py-2">{user.role}</td>
+                  <td className="px-4 py-2">
+  {user.lastLogin ? new Date(user.lastLogin).toLocaleString() : "N/A"}
+</td>
+
                   <td className="px-4 py-2">
                     <div className="flex justify-between">
                       {/* Active/Inactive Icon */}

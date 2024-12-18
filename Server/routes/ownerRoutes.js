@@ -36,6 +36,7 @@ router.get('/getDrivers',roleCheck(['owner','operator']),hasPermission('read', '
 router.get('/drivers/:driverId/location',roleCheck(['owner','operator']),hasPermission('read', 'plan'), ownerController.driversloc);
 router.get('/getProfile',roleCheck(['owner','operator','driver','superadmin']),ownerController.getProfile);
 router.get('/vehicle/:id',roleCheck(['owner','operator','driver']),ownerController.viewVehicle );
+router.get('/getOwners',roleCheck(['superadmin']),ownerController.getOwners );
 
 // Route for editing vehicle details by vehicle ID
 router.put('/vehicle/:id',roleCheck(['owner','operator','driver']), ownerController.editVehicle);

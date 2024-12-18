@@ -1386,3 +1386,38 @@ exports.getUserProgress= async(req, res)=> {
       res.status(500).json({ message: 'Internal Server Error' });
   }
 }
+
+exports.getUserLeaderboard = async (req, res) => {
+  try {
+    let ownerId;
+    if (req.user.role === 'owner') {
+      ownerId = req.user._id;
+    } else {
+      ownerId = req.user.ownerId;
+    }
+
+    // Find all users with the same ownerId (users within this owner's group)
+    const leaderboard = await User.aggregate([
+      { $match: { ownerId: ownerId } },  // Match users with the same ownerId
+      {
+        $project: {
+          name: 1,  // Include the name
+          badgesCount: { $size: { $ifNull: ['$badges', []] } },  // Ensure badges is an array (replace null or missing with empty array)
+          actionsCreated: 1,  // Include actions created
+        }
+      },
+      { $sort: { badgesCount: -1, actionsCreated: -1 } },  // Sort by badges and actions created in descending order
+      { $limit: 10 },  // Limit to top 10 users
+    ]);
+
+    // Return the leaderboard
+    return res.status(200).json({
+      success: true,
+      leaderboard,
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ success: false, message: 'Internal Server Error' });
+  }
+};
+

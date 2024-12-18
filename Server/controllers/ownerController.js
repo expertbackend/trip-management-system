@@ -624,3 +624,24 @@ console.log('updateddata',updatedData,req.params)
     }
 };
 
+exports.getOwners = async(req,res)=>{
+    try {
+        
+        const getOwners = await User.find({role:'owner'});
+        if(!getOwners){
+            return res.status(404).json({
+                message:"No Owner Found"
+            })
+        }
+        return res.status(200).json({
+            message:"Owners Found",
+            Owners: getOwners
+        })
+    } catch (error) {
+        console.log(error.message)
+        return res.status(500).json({
+            message:"Internal Server Error"
+        })
+    }
+}
+
