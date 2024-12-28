@@ -2,7 +2,9 @@ import React, { useEffect, useState, useRef } from 'react';
 import { GoogleMap, Marker, Polyline, useLoadScript, InfoWindow,DirectionsService, DirectionsRenderer } from '@react-google-maps/api';
 import io from 'socket.io-client';
 import Modal from 'react-modal';
-
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import axios from 'axios'
 const mapContainerStyle = {
   width: '100%',
   height: '600px',
@@ -22,7 +24,10 @@ const polylineOptions = {
 const OwnerDashboardMap = () => {
   const { isLoaded, loadError } = useLoadScript({
     googleMapsApiKey: process.env.REACT_APP_GOOGLE_MAPS_API_KEY || '',
+    libraries: ["geometry", "places"],
   });
+  const [eta, setEta] = useState("Calculating...");
+  const [insideGeofence, setInsideGeofence] = useState(false);
 
   const mapRef = useRef(null);
   const tooltipRef = useRef(null);
@@ -47,7 +52,9 @@ const OwnerDashboardMap = () => {
   const [driverHistory, setDriverHistory] = useState([]);
   const [directionsResponse, setDirectionsResponse] = useState(null);
   const [error, setError] = useState(null);
-
+  const [geofenceCoordinates, setGeofenceCoordinates] = useState([]);
+  const [distance, setDistance] = useState('');
+  const [duration, setDuration] = useState('');
 
   // Fetch drivers
   const fetchDrivers = async () => {
@@ -117,6 +124,8 @@ const OwnerDashboardMap = () => {
       console.error('Error fetching driver location:', error);
     }
   };
+  
+
   useEffect(() => {
     let geocodeTimeout;
   
@@ -192,7 +201,7 @@ const OwnerDashboardMap = () => {
       fetchDriverHistory(selectedDriver);
     }
   }, [selectedDriver]);
-  const center = pickupLocation || { lat: 0, lng: 0 };
+  const center = pickupLocation || { lat: 28.679079, lng: 77.069710 };
 
   const fetchDirections = () => {
     if (pickupLocation && dropoffLocation) {
@@ -217,6 +226,41 @@ const OwnerDashboardMap = () => {
     }
   };
 
+  const axiosInstance = axios.create({
+    baseURL: `${process.env.REACT_APP_API_URL}/api/owner`,
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  useEffect(() => {
+  
+    if (currentLocation && pickupLocation) {
+      const origin = `${pickupLocation?.lat},${pickupLocation?.lng}`;
+      const destination = `${dropoffLocation?.lat},${dropoffLocation?.lng}`;
+      
+      // Make request to your backend instead of Google Maps API
+      axiosInstance
+        .get('/getETA', {
+          params: {
+            origin: origin,
+            destination: destination,
+          },
+        })
+        .then((response) => {
+          console.log('ETA Response:', response.data.rows[0].elements[0].distance.text);
+          // Handle ETA response here
+          setDistance(response.data.rows[0].elements[0].distance.text)
+          setDuration(response.data.rows[0].elements[0].duration.text)
+
+        })
+        .catch((error) => {
+          console.error('Error fetching ETA:', error);
+        });
+      checkGeofence();
+    }
+  }, [currentLocation, pickupLocation]);
+  
+  
   useEffect(() => {
     // Fetch directions immediately and set an interval
     fetchDirections();
@@ -240,11 +284,45 @@ const OwnerDashboardMap = () => {
   };
   if (loadError) return <div>Error loading maps</div>;
   if (!isLoaded) return <div>Loading maps...</div>;
+ 
+  const getETA = async (origin, destination) => {
+    console.log('getEta',origin,destination)
+    const API_KEY = process.env.REACT_APP_GOOGLE_MAPS_API_KEY;
+    const url = `https://maps.googleapis.com/maps/api/distancematrix/json?origins=${origin}&destinations=${destination}&key=${API_KEY}`;
 
+    try {
+      const response = await axios.get(url);
+      const { rows } = response.data;
+      const eta = rows[0].elements[0].duration.text; // Get ETA in human-readable format
+      setEta(eta);
+    } catch (error) {
+      console.error("Error fetching ETA:", error);
+      setEta("N/A");
+    }
+  };
+
+  // Function to check if the driver is inside the geofence
+  const checkGeofence = () => {
+    if (window.google && window.google.maps.geometry) {
+      const polygon = new window.google.maps.Polygon({ paths: geofenceCoordinates });
+      const point = new window.google.maps.LatLng(currentLocation, currentLocation);
+      const isInside = window.google.maps.geometry.poly.containsLocation(point, polygon);
+      setInsideGeofence(isInside);
+
+      // Notify the user if the driver enters/exits the geofence
+      if (isInside) {
+        toast.success("Driver has entered the geofence.");
+      } else {
+        toast.error("Driver has exited the geofence.");
+      }
+    }
+  };
+  
   return (
     <div className="p-4">
       <h2 className="text-xl font-bold mb-4">Owner Dashboard</h2>
-
+<h1>Estimated Distance:{distance}</h1>
+<h1>Estimated Duration:{duration}</h1>
       <Modal isOpen={isModalOpen} onRequestClose={() => setIsModalOpen(false)}>
         <h3>Driver Disconnected</h3>
         <p>Last known location: {lastKnownLocation}</p>
@@ -320,6 +398,8 @@ const OwnerDashboardMap = () => {
                 icon="http://maps.google.com/mapfiles/ms/icons/green-dot.png"
               />
             )}
+            <h1>Estimated Distance:{distance}</h1>
+            <h1>Estimated Duration:{duration}</h1>
             {dropoffLocation && (
               <Marker
                 position={dropoffLocation}
@@ -327,7 +407,9 @@ const OwnerDashboardMap = () => {
                 icon="http://maps.google.com/mapfiles/ms/icons/red-dot.png"
               />
             )}
-         
+          <div>
+              <h1>Estimated Distance:{distance}</h1>
+            </div>
          {pickupLocation && dropoffLocation && (
         <>
           {/* Render Directions */}
@@ -337,6 +419,7 @@ const OwnerDashboardMap = () => {
                 directions: directionsResponse,
               }}
             />
+            
           )}
         </>
       )}
@@ -355,9 +438,11 @@ const OwnerDashboardMap = () => {
                 </div>
               </InfoWindow>
             )}
+           
           </GoogleMap>
         </div>
       </div>
+      
     </div>
   );
 };

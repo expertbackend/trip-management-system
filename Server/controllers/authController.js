@@ -65,6 +65,12 @@ exports.createUser = async (req, res) => {
         } else {
             userId = req.user._id;
         }
+        const emailCheck = await User.findOne({ email });
+        if(emailCheck.length >= 0){
+            return res.status(403).json({
+                message:"User Already Exists"
+            })
+        }
         // Validate the role: prevent owners from creating other owners
         if (role === 'owner') {
             return res.status(400).json({ message: 'You cannot create another owner.' });

@@ -3,7 +3,7 @@ const bcrypt = require('bcrypt');
 
 const userSchema = new mongoose.Schema({
     name: { type: String, required: true },
-    email: { type: String, },
+    email: { type: String },
     password: { type: String, required: true },
     role: { type: String, enum: ['owner', 'driver', 'operator', 'superadmin'], required: true },
     isVerified: { type: Boolean, default: false },

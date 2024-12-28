@@ -11,6 +11,9 @@ const { getIo } = require('../socket');
 const PlanHistory = require('../models/PlanHistory');
 const PaymentRequest = require('../models/PaymentRequest');
 const Booking = require('../models/Booking');
+const axios = require('axios');
+const Branch = require('../models/branch');
+
 exports.buyPlan = async (req, res) => {
     try {
         const { planId } = req.body;
@@ -138,8 +141,8 @@ exports.getPlans = async (req, res) => {
                       }
 
         // Add vehicle logic
-        const { name, plateNumber,type } = req.body;
-        const vehicle = new Vehicle({ name, plateNumber,vehicleType:type, owner: owner._id, status: "created" ,createdAt1:new Date()});
+        const { name, plateNumber,type,branchId } = req.body;
+        const vehicle = new Vehicle({ name, plateNumber,vehicleType:type, owner: owner._id, status: "created" ,createdAt1:new Date(),branchId:branchId});
         await vehicle.save();
 
         // Increment vehicle count for the owner
@@ -645,3 +648,124 @@ exports.getOwners = async(req,res)=>{
     }
 }
 
+exports.getETAController = async (req, res) => {
+    const { origin, destination } = req.query;
+    const apiKey = process.env.REACT_APP_GOOGLE_MAPS_API_KEY;  // Replace with your Google API Key
+  
+    try {
+      const response = await axios.get('https://maps.googleapis.com/maps/api/distancematrix/json', {
+        params: {
+          origins: origin,
+          destinations: destination,
+          key: apiKey,
+        },
+      });
+      res.json(response.data);
+    } catch (error) {
+        console.log('error',error.message)
+      res.status(500).send({ message: error.message });
+    }
+  };
+  
+  exports.addBranch = async (req, res) => {
+    try {
+      const { name, ownerId } = req.body;
+  
+      // Step 1: Check if the ownerId exists
+      const owner = await User.findById(ownerId);
+      if (!owner) {
+        return res.status(400).json({ message: "Owner not found" });
+      }
+  
+      // Step 2: Create the new branch
+      const newBranch = new Branch({
+        name,
+        ownerId,
+      });
+  
+      // Step 3: Save the branch to the database
+      await newBranch.save();
+  
+      // Step 4: Populate the owner details and return the branch with owner info
+      const populatedBranch = await Branch.findById(newBranch._id)
+        .populate('ownerId', 'name email contactNumber'); // Populate only the necessary owner details
+  
+      // Return the created branch along with owner information
+      res.status(201).json({
+        message: "Branch added successfully",
+        branch: populatedBranch,
+      });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: "Error adding branch", error: error.message });
+    }
+  };
+
+  exports.getBranches = async (req, res) => {
+    try {
+        let userId;
+
+        // Check the user's role
+        if (req.user.role === 'operator' || req.user.role === 'driver') {
+            // If the user is an operator or driver, find branches by their ownerId
+            userId = req.user.ownerId;
+        } else {
+            // If the user is an admin or superadmin, fetch all branches
+            userId = req.user._id; // Admins can access all branches (or handle differently if needed)
+        }
+
+        let branches;
+        
+        // If the user is an operator/driver, filter branches by their ownerId
+        if (req.user.role === 'operator' || req.user.role === 'driver') {
+            branches = await Branch.find({ ownerId: userId });  // Fetch branches by ownerId
+        } else {
+            // If the user is an admin or superadmin, return all branches
+            branches = await Branch.find({ownerId: userId});  // Fetch all branches
+        }
+
+        res.status(200).json({ branches });
+    } catch (error) {
+        console.error('Error fetching branches:', error);
+        res.status(500).json({ message: 'Error fetching branches', error: error.message });
+    }
+};
+
+exports.getVehiclesGroupedByBranch = async (req, res) => {
+    try {
+        // Fetch all vehicles and populate both branch and owner information
+        const vehicles = await Vehicle.find({owner:req.user._id})
+            .populate('branchId', 'name location')  // Populate branch details
+            .populate('owner', 'name email');  // Optionally, populate owner details
+console.log('bbb',vehicles)
+        // Group vehicles by branchId
+        const groupedVehicles = vehicles.reduce((acc, vehicle) => {
+            const branchId = vehicle.branchId._id.toString(); // Ensure branchId is a string for grouping
+
+            // Initialize the branch key if it doesn't exist in the accumulator
+            if (!acc[branchId]) {
+                acc[branchId] = {
+                    branch: vehicle.branchId,  // This will store the branch details (e.g., name, location)
+                    vehicles: []  // This will store the list of vehicles under this branch
+                };
+            }
+
+            // Add the vehicle to the corresponding branch's vehicles array
+            acc[branchId].vehicles.push(vehicle);
+
+            return acc;
+        }, {});
+
+        // Convert groupedVehicles into an array to return a response
+        const response = Object.values(groupedVehicles);
+
+        // Send the response back
+        return res.status(200).json({
+            message: 'Vehicles grouped by branch fetched successfully.',
+            data: response
+        });
+    } catch (error) {
+        console.error('Error fetching vehicles grouped by branch:', error);
+        return res.status(500).json({ message: 'Error fetching vehicles grouped by branch.' });
+    }
+};

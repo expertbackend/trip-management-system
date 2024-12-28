@@ -16,7 +16,7 @@ const VehicleTable = () => {
   const [isVehicleModalOpen1, setIsVehicleModalOpen1] = useState(false);
   const [vehicles, setVehicles] = useState([]); // State to hold vehicles list
   const [drivers, setDrivers] = useState([]); // State to hold drivers list
-  const [newVehicleData, setNewVehicleData] = useState({ name: '', plateNumber: '', type: 'car' }); // State for new vehicle data
+  const [newVehicleData, setNewVehicleData] = useState({ name: '', plateNumber: '', type: 'car',branchId: '' }); // State for new vehicle data
   const [selectedDriver, setSelectedDriver] = useState(null); // State for selected driver
   const [selectedVehicleId, setSelectedVehicleId] = useState(null); // State for selected vehicle ID
   const [error, setError] = useState(""); // State for selected vehicle ID
@@ -27,6 +27,7 @@ const VehicleTable = () => {
 
   // Fetch vehicles and drivers when the component mounts
   useEffect(() => {
+    console.log('Fetching vehicles...');
     fetchVehicles();
     fetchDrivers();
   }, []);
@@ -44,16 +45,37 @@ const VehicleTable = () => {
       Authorization: `Bearer ${token}`, // Include the token in the Authorization header
     },
   });
+  const [vehiclesByBranch, setVehiclesByBranch] = useState([]);
+
   const fetchVehicles = async () => {
     try {
-      const response = await axiosInstance.get('/vehicles'); // Replace with actual endpoint
-      setVehicles(response.data.vehicles); // Assuming response has a vehicles array
+      const response = await axiosInstance.get('/getVehicleByBranch');  // API endpoint to get vehicles grouped by branch
+      setVehiclesByBranch(response.data.data); 
     } catch (error) {
       console.error('Error fetching vehicles:', error);
       alert('An error occurred while fetching vehicles.');
     }
   };
+  
+  const [branches, setBranches] = useState([]);  // State to store fetched branches
 
+  // Call getBranches API when the modal opens
+  useEffect(() => {
+    if (isVehicleModalOpen) {
+      // Fetch branches only when the modal is open
+      const fetchBranches = async () => {
+        try {
+          const response = await axiosInstance.get('/getbranches');  // Adjust the endpoint as necessary
+          const data = response.data;
+          setBranches(data.branches);  // Assuming 'branches' is the key in response
+        } catch (error) {
+          console.error('Error fetching branches:', error);
+        }
+      };
+
+      fetchBranches();
+    }
+  }, [isVehicleModalOpen]); 
   const fetchDrivers = async () => {
     try {
       const response = await axiosInstance.get('/drivers'); // Replace with actual endpoint
@@ -155,74 +177,120 @@ const VehicleTable = () => {
     return date.toLocaleString('en-US', options);
   }
 
-
+  
   const downloadPDF = () => {
     const doc = new jsPDF();
-    doc.setFontSize(12);
-    const title = 'Vehicle Data';
-    const headers = ['Sl No.', 'ID', 'Vehicle No.', 'Driver Name', 'Status'];
-
-    // Check if there is a search query or date range and filter accordingly
-    const dataToDownload = searchQuery || startDate || endDate ? filteredVehicles : vehicles;
-    if (!dataToDownload.length) {
-      alert("No data available to download.");
-      return;
-    }
-    const data = dataToDownload.map((vehicle, index) => [
-      index + 1,  // Use index + 1 for the serial number
-      vehicle._id,
-      vehicle.plateNumber,
-      vehicle.driver?.name || "Vehicle Not Assigned",
-      vehicle.status,
-    ]);
-    ;
-
-    doc.text(title, 14, 10);
-    doc.autoTable({
-      head: [headers],
-      body: data,
-      startY: 20,
+    const title = "Vehicles by Branch Report";
+    
+    // Set font for title
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(18);
+    doc.text(title, 105, 15, { align: "center" });
+    
+    // Adjust for spacing between branches
+    let currentY = 30;
+    
+    vehiclesByBranch.forEach((item, index) => {
+      const branch = item.branch.name;
+      
+      // Branch Header - Bold and Larger font
+      doc.setFontSize(14);
+      doc.setFont("helvetica", "bold");
+      doc.text(`Branch: ${branch}`, 10, currentY);
+      
+      // Add some spacing before the vehicle table
+      currentY += 10;
+  
+      // Vehicle Table - Styling for header
+      const vehicleData = item.vehicles.map((vehicle) => [
+        vehicle.name,
+        vehicle.plateNumber,
+        vehicle.vehicleType,
+        vehicle.owner.name,
+        vehicle.owner.email,
+        vehicle.status,
+        new Date(vehicle.createdAt1).toLocaleDateString(),
+      ]);
+      
+      // Table headers
+      const tableHeaders = [
+        "Name", "Plate Number", "Vehicle Type", "Owner Name", "Owner Email", "Status", "Created Date"
+      ];
+  
+      // Add Vehicle Table with dynamic spacing
+      doc.autoTable({
+        startY: currentY,
+        head: [tableHeaders],
+        body: vehicleData,
+        styles: { 
+          font: 'helvetica', 
+          fontSize: 10, 
+          cellPadding: 5, 
+          valign: 'middle', 
+          halign: 'center',
+          lineWidth: 0.1, 
+          lineColor: [0, 122, 255],  // Blue border
+          fillColor: [230, 230, 250], // Light purple for header row
+        },
+        alternateRowStyles: { fillColor: [255, 255, 255] }, // White for alternate rows
+        margin: { left: 10, right: 10 },
+      });
+      
+      // Adjust currentY for next table
+      currentY = doc.lastAutoTable.finalY + 10;  // Keep dynamic space between tables
+  
+      // Ensure page break if content exceeds the page height
+      if (currentY > 250) {
+        doc.addPage();
+        currentY = 30; // Reset for new page
+      }
     });
-
-    doc.save('vehicle_data.pdf');
+  
+    // Save the PDF
+    doc.save("Vehicles_By_Branch.pdf");
   };
+  
+  
+  
 
 
-  const filteredVehicles = vehicles.filter(vehicle => {
-    const vehicleDate = new Date(vehicle.createdAt);
+  const filteredVehiclesByBranch = vehiclesByBranch
+    .map((branchGroup) => ({
+      ...branchGroup,
+      vehicles: branchGroup.vehicles.filter((vehicle) => {
+        const vehicleDate = new Date(vehicle.createdAt);
+console.log('vehicleDate',vehicleDate)
+        // Normalize start and end dates
+        const startDateObj = startDate
+          ? new Date(new Date(startDate).setHours(0, 0, 0, 0))
+          : null;
+        const endDateObj = endDate
+          ? new Date(new Date(endDate).setHours(23, 59, 59, 999))
+          : null;
 
-    // Normalize startDate to the beginning of the day (00:00:00)
-    const startDateObj = startDate
-      ? new Date(new Date(startDate).setHours(0, 0, 0, 0))
-      : null;
+        // Check if vehicle's createdAt falls within date range
+        const isDateInRange =
+          (!startDateObj || vehicleDate >= startDateObj) &&
+          (!endDateObj || vehicleDate <= endDateObj);
 
-    // Normalize endDate to the end of the day (23:59:59)
-    const endDateObj = endDate
-      ? new Date(new Date(endDate).setHours(23, 59, 59, 999))
-      : null;
+        // Search query matching (branch, vehicle name, plate number)
+        const searchQueryLower = searchQuery.toLowerCase();
+        const isMatch =
+          branchGroup.branch.name.toLowerCase().includes(searchQueryLower) ||
+          vehicle.name.toLowerCase().includes(searchQueryLower) ||
+          vehicle.plateNumber.toLowerCase().includes(searchQueryLower);
 
-    // Check if the vehicle's date falls within the date range
-    const isDateInRange =
-      (!startDateObj || vehicleDate >= startDateObj) &&
-      (!endDateObj || vehicleDate <= endDateObj);
-
-    // Check if the search query matches plate number or driver name
-    const searchQueryLower = searchQuery.toLowerCase();
-    const isVehicleNoMatch =
-      vehicle.plateNumber.toLowerCase().includes(searchQueryLower) ||
-      (vehicle.driver?.name.toLowerCase().includes(searchQueryLower)) || 
-      vehicle.name.toLowerCase().includes(searchQueryLower)
-
-    // Return true if both conditions are satisfied
-    return isVehicleNoMatch && isDateInRange;
-  });
+        return isDateInRange && isMatch;
+      }),
+    }))
+    .filter((branchGroup) => branchGroup.vehicles.length > 0);
 
 
   const indexOfLastVehicle = currentPage * vehiclesPerPage;
   const indexOfFirstVehicle = indexOfLastVehicle - vehiclesPerPage;
-  const currentVehicles = filteredVehicles.slice(indexOfFirstVehicle, indexOfLastVehicle);
+  const currentVehicles = filteredVehiclesByBranch.slice(indexOfFirstVehicle, indexOfLastVehicle);
 
-  const totalPages = Math.ceil(filteredVehicles.length / vehiclesPerPage);
+  const totalPages = Math.ceil(filteredVehiclesByBranch.length / vehiclesPerPage);
  
 
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
@@ -243,8 +311,7 @@ const VehicleTable = () => {
   const handleCloseModal = () => {
     setIsModalOpen(false);
   };
-
-
+console.log('vehiclesByBranch',vehiclesByBranch)
   return (
     <div className="w-full p-4 bg-white overflow-y-auto ">
       {/* Filter Inputs */}
@@ -296,6 +363,21 @@ const VehicleTable = () => {
               <option value="bike">Bike</option>
             </select>
           </div>
+          <div className="mb-6">
+          <label className="block text-gray-700">Select Branch</label>
+          <select
+            value={newVehicleData.branchId}
+            onChange={(e) => setNewVehicleData({ ...newVehicleData, branchId: e.target.value })}
+            className="w-full mt-2 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-300 focus:border-blue-300"
+          >
+            <option value="">Select Branch</option>
+            {branches.map((branch) => (
+              <option key={branch._id} value={branch._id}>
+                {branch.name}
+              </option>
+            ))}
+          </select>
+        </div>
           <button type="submit" className="w-full bg-green-600 text-white py-2 rounded-full">Create Vehicle</button>
         </form>
       </Modal>
@@ -360,74 +442,93 @@ const VehicleTable = () => {
         </div>
       </div>
 
-      {/* Table for Vehicles */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 p-6">
-  {currentVehicles.map((vehicle, index) => {
-    const vehicleTypeIcon = vehicle.vehicleType ? (
-      vehicle.vehicleType === 'bike' ? (
-        <FaMotorcycle className="text-gray-500" />
-      ) : vehicle.vehicleType === 'car' ? (
-        <FaCar className="text-gray-500" />
-      ) : vehicle.vehicleType === 'truck' ? (
-        <FaTruck className="text-gray-500" />
-      ) : null
-    ) : null;
+  {currentVehicles.map((branchGroup, branchIndex) => (
+    <div key={branchIndex} className="space-x-6">
+      <div className="border-b border-gray-300 pb-4">
+        {/* Branch Name */}
+        <h2 className="text-2xl font-semibold text-gray-800 mb-4">
+          {branchGroup.branch.name}
+        </h2>
+        
+        {/* Vehicles */}
+        <div className=" grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          {branchGroup.vehicles.map((vehicle, vehicleIndex) => {
+            const vehicleTypeIcon = vehicle.vehicleType ? (
+              vehicle.vehicleType === 'bike' ? (
+                <FaMotorcycle className="text-gray-500" />
+              ) : vehicle.vehicleType === 'car' ? (
+                <FaCar className="text-gray-500" />
+              ) : vehicle.vehicleType === 'truck' ? (
+                <FaTruck className="text-gray-500" />
+              ) : null
+            ) : null;
 
-    return (
-      <div
-        key={index}
-        className="max-w-[380px] rounded-lg border border-gray-300 shadow-xl transform hover:scale-105 transition-transform duration-300 ease-in-out"
-      >
-        <div className="bg-gradient-to-r from-sky-600 to-teal-500 text-white p-4 rounded-t-lg">
-          <h2 className="text-xl font-semibold">{vehicle.name || 'N/A'}</h2>
-          <p className="text-sm">{`Plate Number: ${vehicle.plateNumber || 'N/A'}`}</p>
-        </div>
-        <div className="p-4 bg-white rounded-b-lg shadow-sm">
-          <div className="mb-4">
-            <div className="text-gray-800 font-medium">Driver</div>
-            <p>{vehicle.driver?.name || 'Not Assigned'}</p>
-          </div>
-          <div className="mb-4">
-            <div className="text-gray-800 font-medium">Driver Phone</div>
-            <p>{vehicle.driver?.phoneNumber || 'Not Assigned'}</p>
-          </div>
-          <div className="mb-4">
-            <div className="text-gray-800 font-medium">Status</div>
-            <p className={`font-bold ${vehicle.status === 'completed' ? 'text-green-500' : 'text-red-500'}`}>
-              {vehicle.status || 'Not Given'}
-            </p>
-          </div>
-          <div className="mb-4">
-            <div className="text-gray-800 font-medium">Vehicle Type</div>
-            <div className="flex items-center space-x-2">
-              {vehicleTypeIcon}
-              <span className="text-sm">{vehicle.vehicleType ? vehicle.vehicleType.charAt(0).toUpperCase() + vehicle.vehicleType.slice(1) : 'N/A'}</span>
-            </div>
-          </div>
-          <div className="mb-4">
-            <div className="text-gray-800 font-medium">Date</div>
-            <p>{formatDateTime(vehicle.createdAt || 'Not Given Date')}</p>
-          </div>
-
-          {/* Actions */}
-          <div className="flex gap-2 mt-4">
-            <button
-              className="px-4 py-2 text-xs text-white bg-blue-500 rounded hover:bg-blue-600"
-              onClick={() => handleEdit(vehicle)}
-            >
-              Edit
-            </button>
-            <button
-              className="px-4 py-2 text-xs text-white bg-gray-500 rounded hover:bg-gray-600"
-              onClick={() => handleView(vehicle)}
-            >
-              View
-            </button>
-          </div>
+            return (
+              <div
+                key={vehicleIndex}
+                className="max-w-[380px] rounded-lg border border-gray-300 shadow-xl transform hover:scale-105 transition-transform duration-300 ease-in-out"
+              >
+                <div className="bg-gradient-to-r from-sky-600 to-teal-500 text-white p-4 rounded-t-lg">
+                  <h2 className="text-xl font-semibold">{vehicle.name || "N/A"}</h2>
+                  <p className="text-sm">
+                    {`Plate Number: ${vehicle.plateNumber || "N/A"}`}
+                  </p>
+                </div>
+                <div className="p-4 bg-white rounded-b-lg shadow-sm">
+                  <div className="mb-4">
+                    <div className="text-gray-800 font-medium">Driver</div>
+                    <p>{vehicle.driver?.name || "Not Assigned"}</p>
+                  </div>
+                  <div className="mb-4">
+                    <div className="text-gray-800 font-medium">Driver Phone</div>
+                    <p>{vehicle.driver?.phoneNumber || "Not Assigned"}</p>
+                  </div>
+                  <div className="mb-4">
+                    <div className="text-gray-800 font-medium">Status</div>
+                    <p
+                      className={`font-bold ${
+                        vehicle.status === "completed"
+                          ? "text-green-500"
+                          : "text-red-500"
+                      }`}
+                    >
+                      {vehicle.status || "Not Given"}
+                    </p>
+                  </div>
+                  <div className="mb-4">
+                    <div className="text-gray-800 font-medium">Vehicle Type</div>
+                    <div className="flex items-center space-x-2">
+                      <span>{vehicle.vehicleType?.toUpperCase() || "N/A"}</span>
+                    </div>
+                  </div>
+                  <div className="mb-4">
+                    <div className="text-gray-800 font-medium">Date</div>
+                    <p>{new Date(vehicle.createdAt1).toLocaleDateString()}</p>
+                  </div>
+                  {/* Actions */}
+                  <div className="flex gap-2 mt-4">
+                    <button
+                      className="px-4 py-2 text-xs text-white bg-blue-500 rounded hover:bg-blue-600"
+                      onClick={() => handleEdit(vehicle)}
+                    >
+                      Edit
+                    </button>
+                    <button
+                      className="px-4 py-2 text-xs text-white bg-gray-500 rounded hover:bg-gray-600"
+                      onClick={() => handleView(vehicle)}
+                    >
+                      View
+                    </button>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
         </div>
       </div>
-    );
-  })}
+    </div>
+  ))}
 </div>
 
 {/* Pagination */}
@@ -443,7 +544,9 @@ const VehicleTable = () => {
     <button
       key={index}
       onClick={() => paginate(index + 1)}
-      className={`px-4 py-2 mx-1 rounded-lg ${currentPage === index + 1 ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
+      className={`px-4 py-2 mx-1 rounded-lg ${
+        currentPage === index + 1 ? 'bg-blue-500 text-white' : 'bg-gray-200'
+      }`}
     >
       {index + 1}
     </button>
@@ -456,6 +559,8 @@ const VehicleTable = () => {
     Next
   </button>
 </div>
+
+    
 
       <VehicleModal
       isOpen={isModalOpen}

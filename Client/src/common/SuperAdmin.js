@@ -5,6 +5,7 @@ import "jspdf-autotable";
 import SearchBar from './SearchBar';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import AddBranchForm from './AddBranch';
 const OwnerForm = ({ onCreateOwner }) => {
   const [ownerData, setOwnerData] = useState({
     firstName: '',
@@ -291,6 +292,8 @@ const PaymentRequests = ({ paymentRequests, onApprove, onReject, processingReque
 };
 
 
+
+
 const OwnersTable = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [filteredOwners, setFilteredOwners] = useState([]);
@@ -551,6 +554,10 @@ const SuperAdminPage = () => {
   return (
     <div className="container mx-auto p-6">
       <OwnerForm onCreateOwner={handleCreateOwner} />
+      <ToastContainer />
+      
+      {/* Add the AddBranchForm component */}
+      <AddBranchForm/>
       <PaymentRequests
         paymentRequests={paymentRequests}
         onApprove={handleApproveRequest}

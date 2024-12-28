@@ -13,7 +13,8 @@ const vehicleSchema = new mongoose.Schema({
     }],
     createdAt1:Date,
     updatedAt:Date,
-    vehicleType:{type:String}
+    vehicleType:{type:String},
+    branchId:{type:mongoose.Schema.Types.ObjectId,ref:'Branch'},
 });
 
 module.exports = mongoose.model('Vehicle', vehicleSchema);

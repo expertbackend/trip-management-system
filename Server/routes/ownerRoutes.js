@@ -41,5 +41,8 @@ router.get('/getOwners',roleCheck(['superadmin']),ownerController.getOwners );
 // Route for editing vehicle details by vehicle ID
 router.put('/vehicle/:id',roleCheck(['owner','operator','driver']), ownerController.editVehicle);
 router.put("/updateStatus/:userId", toggleUserStatus);
-
+router.get('/getETA', ownerController.getETAController);
+router.post('/createbranch',roleCheck(['superadmin']),ownerController.addBranch);
+router.get('/getBranches',roleCheck(['owner','operator']),ownerController.getBranches);
+router.get('/getVehicleByBranch',roleCheck(['owner','operator']),ownerController.getVehiclesGroupedByBranch);
 module.exports = router;

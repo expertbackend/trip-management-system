@@ -5,6 +5,7 @@ import logo from "../assets/tms.png";
 import signin from "../assets/Login.svg";
 import signinbg from "../assets/sign2.png";
 import { requestFCMToken } from "../utils/firebaseUtils";
+import AutoLogin from "./Login1";
 function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
