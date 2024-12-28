@@ -32,7 +32,7 @@ app.use(express.json()); // Middleware to parse JSON bodies
 // MongoDB connection
 const connectDB = async () => {
   try {
-    await mongoose.connect("mongodb+srv://kuleswariexpertsolutions:w5F2FkJHr8TKnOyU@cluster0.unm3o.mongodb.net/taxi-service", {
+    await mongoose.connect("mongodb+srv://kuleswariexpertsolutions:w5F2FkJHr8TKnOyU@cluster0.unm3o.mongodb.net/t", {
       useNewUrlParser: true,
       useUnifiedTopology: true,
     });
