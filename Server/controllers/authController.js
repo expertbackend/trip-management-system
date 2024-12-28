@@ -65,34 +65,38 @@ exports.createUser = async (req, res) => {
         } else {
             userId = req.user._id;
         }
-        const emailCheck = await User.findOne({ email });
-        if(emailCheck.length >= 0){
+        const emailCheck = await User.find({ email });
+        console.log('emailCheck',emailCheck);
+        if(emailCheck.length > 0){
             return res.status(403).json({
                 message:"User Already Exists"
             })
         }
-        // Validate the role: prevent owners from creating other owners
-        if (role === 'owner') {
-            return res.status(400).json({ message: 'You cannot create another owner.' });
+        else{
+ // Validate the role: prevent owners from creating other owners
+ if (role === 'owner') {
+    return res.status(400).json({ message: 'You cannot create another owner.' });
+}
+// Create new user under the owner's management (assigning the ownerId)
+const user = new User({
+    name,
+    email,
+    password,
+    role,
+    ownerId: userId, // Associate the new user with the authenticated owner
+    status:"active",
+    phoneNumber
+});
+
+// Save the user to the database
+await user.save();
+
+res.status(201).json({ message: 'User created successfully', user });
         }
-        // Create new user under the owner's management (assigning the ownerId)
-        const user = new User({
-            name,
-            email,
-            password,
-            role,
-            ownerId: userId, // Associate the new user with the authenticated owner
-            status:"active",
-            phoneNumber
-        });
-
-        // Save the user to the database
-        await user.save();
-
-        res.status(201).json({ message: 'User created successfully', user });
+       
     } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: 'Error creating user' });
+        console.error('sdfsdfwe',error.message);
+        res.status(500).json({ message: 'Error creating user',error:error });
     }
 };
 exports.getAllUsers = async (req, res) => {
