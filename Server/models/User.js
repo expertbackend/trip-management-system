@@ -20,7 +20,7 @@ const userSchema = new mongoose.Schema({
     driverExpanse: [{ date: Date, amount: String }],
     vehicleExpanse: [{ date: Date, amount: String }],
     vehicleExpanseDescription:{type:String},
-    expenseDate: { type: Date, unique: true },
+    expenseDate: { type: Date, },
     planExpiryDate: { type: Date },
     phoneNumber: { type: String },
   gender: { type: String, enum: ['Male', 'Female', 'Other'] },

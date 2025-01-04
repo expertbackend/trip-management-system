@@ -267,7 +267,7 @@ const OwnerDashboardMap = () => {
 
     const intervalId = setInterval(() => {
       fetchDirections();
-    }, 20000); // 20 seconds
+    }, 60000); // 20 seconds
 
     return () => clearInterval(intervalId); // Cleanup interval on unmount
   }, [pickupLocation, dropoffLocation]);

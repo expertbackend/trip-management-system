@@ -69,25 +69,25 @@ async function createPermissions() {
             useNewUrlParser: true,
             useUnifiedTopology: true,
         });
-
+console.log('MongoDB connected.',process.env.DB_CONNECTION_STRING);
         // Permissions array
         const permissions = [
-            // { name: 'create', resource: 'vehicle', description: 'Create new vehicles' },
-            // { name: 'read', resource: 'vehicle', description: 'Read vehicle data' },
-            // { name: 'edit', resource: 'vehicle', description: 'Edit vehicle data' },
-            // { name: 'delete', resource: 'vehicle', description: 'Delete a vehicle' },
-            // { name: 'create', resource: 'user', description: 'Create new users' },
-            // { name: 'read', resource: 'user', description: 'Read user data' },
-            // { name: 'edit', resource: 'user', description: 'Edit user data' },
-            // { name: 'delete', resource: 'user', description: 'Delete a user' },
-            // { name: 'create', resource: 'plan', description: 'Create new plans' },
-            // { name: 'read', resource: 'plan', description: 'Read plan data' },
-            // { name: 'edit', resource: 'plan', description: 'Edit plan data' },
-            // { name: 'delete', resource: 'plan', description: 'Delete a plan' },
-            // { name: 'create', resource: 'booking', description: 'Create new bookings' },
-            // { name: 'read', resource: 'booking', description: 'Read booking data' },
-            // { name: 'edit', resource: 'booking', description: 'Edit booking data' },
-            // { name: 'delete', resource: 'booking', description: 'Delete a booking' },
+            { name: 'create', resource: 'vehicle', description: 'Create new vehicles' },
+            { name: 'read', resource: 'vehicle', description: 'Read vehicle data' },
+            { name: 'edit', resource: 'vehicle', description: 'Edit vehicle data' },
+            { name: 'delete', resource: 'vehicle', description: 'Delete a vehicle' },
+            { name: 'create', resource: 'user', description: 'Create new users' },
+            { name: 'read', resource: 'user', description: 'Read user data' },
+            { name: 'edit', resource: 'user', description: 'Edit user data' },
+            { name: 'delete', resource: 'user', description: 'Delete a user' },
+            { name: 'create', resource: 'plan', description: 'Create new plans' },
+            { name: 'read', resource: 'plan', description: 'Read plan data' },
+            { name: 'edit', resource: 'plan', description: 'Edit plan data' },
+            { name: 'delete', resource: 'plan', description: 'Delete a plan' },
+            { name: 'create', resource: 'booking', description: 'Create new bookings' },
+            { name: 'read', resource: 'booking', description: 'Read booking data' },
+            { name: 'edit', resource: 'booking', description: 'Edit booking data' },
+            { name: 'delete', resource: 'booking', description: 'Delete a booking' },
             { name: 'create', resource: 'expense', description: 'Create new expenses' },
             { name: 'read', resource: 'expense', description: 'Read expense data' },
             { name: 'edit', resource: 'expense', description: 'Edit expense data' },
@@ -122,7 +122,7 @@ async function createPermissions() {
 
 
 // Run the seeder function
-// createPermissions();
+createPermissions();
 const addPhoneNumberToUsers = async () => {
     const MONGO_URI = process.env.DB_CONNECTION_STRING;
 
@@ -150,7 +150,7 @@ mongoose
   };
   
   // Execute the function
-//   addPhoneNumberToUsers();
+  // addPhoneNumberToUsers();
 const updateTimestamps = async () => {
     const MONGO_URI = process.env.DB_CONNECTION_STRING;
   
@@ -186,3 +186,4 @@ const updateTimestamps = async () => {
   
   // Run the update function
   updateTimestamps();
+  seedPlans();
