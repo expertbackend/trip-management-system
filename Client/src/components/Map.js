@@ -144,7 +144,7 @@ const OwnerDashboardMap = () => {
             setPopupContent(null);
           }
         });
-      }, 20000); // 1-second delay
+      }, 60000); // 1-second delay
     }
   
     // Cleanup timeout when effect is re-run
