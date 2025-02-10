@@ -32,6 +32,8 @@ import Terms from './components/termandcondition';
 import EditProfile from './components/editprofile';
 import Faq from './components/faq';
 import About from './components/aboutus';
+import InvoiceForm from './common/InvoiceForm';
+import InvoicePreview from './common/InvoicePreview';
 
 function App() {
   const [role, setRole] = useState(null);
@@ -280,6 +282,8 @@ return <Navigate to ="/login"/>
               <Route path="/edit-profile" element={<PrivateRoute component={EditProfile} />} />
               <Route path="/faq" element={<PrivateRoute component={Faq} />} />
               <Route path="/about" element={<PrivateRoute component={About} />} />
+              <Route path="/Invoice" element={<PrivateRoute component={InvoiceForm} />} />
+              <Route path="/invoice-preview" element={<PrivateRoute component={InvoicePreview} />} />
             </Routes>
           </div>
         </>

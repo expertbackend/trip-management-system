@@ -749,10 +749,24 @@ console.log('bbb',vehicles)
                     vehicles: []  // This will store the list of vehicles under this branch
                 };
             }
+            let totalHours = 0;
+            let lastStartedHours = null;  // To track the hours of the last "started" log
 
+            // Loop through the dailyLogs to calculate total working hours
+            vehicle.dailyLogs.forEach(log => {
+                if (log.status === 'started') {
+                    lastStartedHours = log.hours;  // Store the hours for the "started" log
+                } else if (log.status === 'ended' && lastStartedHours !== null) {
+                    // If the status is "ended" and there's a "started" log before it
+                    totalHours += log.hours - lastStartedHours;  // Calculate the hours worked for this day
+                    lastStartedHours = null;  // Reset lastStartedHours after the "ended" log
+                }
+            });
             // Add the vehicle to the corresponding branch's vehicles array
-            acc[branchId].vehicles.push(vehicle);
-
+            acc[branchId].vehicles.push({
+                ...vehicle.toObject(),  // Convert the Mongoose document to a plain JavaScript object
+                totalHours  // Add total hours for this vehicle
+            });
             return acc;
         }, {});
 
@@ -762,10 +776,129 @@ console.log('bbb',vehicles)
         // Send the response back
         return res.status(200).json({
             message: 'Vehicles grouped by branch fetched successfully.',
-            data: response
+            data: response,
+            
         });
     } catch (error) {
         console.error('Error fetching vehicles grouped by branch:', error);
         return res.status(500).json({ message: 'Error fetching vehicles grouped by branch.' });
     }
 };
+
+exports.startAndEndVehicle = async (req, res) => {
+    let { vehicleId, currentMeterReading, vehicleType, actionType } = req.body;
+    console.log(req.body);
+
+    try {
+        // Convert currentMeterReading to a number
+        currentMeterReading = parseFloat(currentMeterReading);
+
+        // Check if the currentMeterReading is a valid number and greater than zero
+        if (isNaN(currentMeterReading) || currentMeterReading <= 0) {
+            return res.status(400).json({
+                success: false,
+                message: 'Current meter reading must be a positive number.'
+            });
+        }
+
+        // Find the vehicle by ID
+        const vehicle = await Vehicle.findById(vehicleId);
+
+        // Check if the vehicle exists
+        if (!vehicle) {
+            return res.status(404).json({ success: false, message: 'Vehicle not found' });
+        }
+
+        // Ensure the vehicle is of type 'others' before starting or ending the trip
+        if (vehicleType !== 'others') {
+            return res.status(400).json({ success: false, message: 'Vehicle type must be "others" to start and end the trip' });
+        }
+
+        // Get the current date (for the daily log)
+        const currentDate = new Date().setHours(0, 0, 0, 0); // Normalize to midnight to only track the day
+
+        // Check if a log already exists for today
+        const existingLog = vehicle.dailyLogs.find(log => new Date(log.date).setHours(0, 0, 0, 0) === currentDate);
+
+        // If the log exists, check the current status of the vehicle
+        if (existingLog) {
+            if (existingLog.status === 'started' && actionType === 'start') {
+                // If the vehicle is already started today and we're trying to start again
+                return res.status(400).json({
+                    success: false,
+                    message: 'Vehicle has already been started today.'
+                });
+            } else if (existingLog.status === 'ended' && actionType === 'end') {
+                // If the vehicle is already ended today and we're trying to end again
+                return res.status(400).json({
+                    success: false,
+                    message: 'Vehicle has already been ended today.'
+                });
+            }
+        }
+
+        // If it's the start of the day (initial reading), set the initial meter
+        if (actionType === 'start' && vehicle.vehicleStatus === 'not_started' && !existingLog) {
+            vehicle.vehicleStatus = 'started'; // Set status to started
+
+            // Add the start log for today
+            vehicle.dailyLogs.push({
+                date: currentDate,
+                status: 'started',
+                hours: 0 // Initially, no hours worked
+            });
+
+            vehicle.createdAt1 = new Date(); // Set the date vehicle was started
+            await vehicle.save();
+
+            return res.status(200).json({ success: true, message: 'Vehicle started successfully' });
+        }
+
+        // If it's the end of the day (final reading), calculate the total hours for today
+        if (actionType === 'end' && existingLog && existingLog.status === 'started') {
+            const lastLog = existingLog; // Get the most recent log
+
+            // Ensure that the current meter reading is greater than the previous one
+            if (currentMeterReading < lastLog.hours) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'End meter reading cannot be less than start meter reading'
+                });
+            }
+
+            // Calculate the total hours for the day
+            const totalHoursForTheDay = currentMeterReading - lastLog.hours;
+
+            // Add the end log for today
+            vehicle.dailyLogs.push({
+                date: currentDate,
+                status: 'ended',
+                hours: totalHoursForTheDay
+            });
+
+            // Update the vehicle status and total hours
+            vehicle.vehicleStatus = 'ended';
+            vehicle.updatedAt = new Date(); // Set the date vehicle was updated
+
+            await vehicle.save();
+
+            return res.status(200).json({
+                success: true,
+                message: `Vehicle completed. Total hours added: ${totalHoursForTheDay}`,
+                totalHrs: totalHoursForTheDay
+            });
+        } else {
+            // If no "start" log exists, or if it's not the right day, return an error
+            return res.status(400).json({
+                success: false,
+                message: 'Vehicle must be started before ending the trip.'
+            });
+        }
+    } catch (error) {
+        console.error(error.message);
+        return res.status(500).json({ success: false, message: 'Server error' });
+    }
+};
+
+
+

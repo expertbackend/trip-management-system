@@ -1421,3 +1421,50 @@ exports.getUserLeaderboard = async (req, res) => {
   }
 };
 
+exports.generateInvoice = async (req, res) => {
+  try {
+    const {
+      vehicleId,
+      basePay,
+      perKmCharge,
+      kmDriven,
+      halt,
+      tax,
+      toll,
+      discount,
+      advance,
+      extraExpanse,
+      totalNetMaterialWeight,
+      perTonPrice,
+    } = req.body;
+
+    // Fetch vehicle details
+    const vehicle = await Vehicle.findById(vehicleId);
+    if (!vehicle) return res.status(404).json({ error: 'Vehicle not found' });
+
+    // Calculate total estimated amount
+    const totalFare = basePay + perKmCharge * kmDriven + halt + toll;
+    const taxAmount = (totalFare * tax) / 100;
+    const discountAmount = (totalFare * discount) / 100;
+    const finalAmount = totalFare + taxAmount - discountAmount + extraExpanse;
+
+    // Calculate material cost
+    const materialCost = totalNetMaterialWeight * perTonPrice;
+
+    // Calculate remaining amount
+    const remainingAmount = finalAmount - advance;
+
+    // Send response
+    res.status(200).json({
+      totalFare,
+      taxAmount,
+      discountAmount,
+      finalAmount,
+      materialCost,
+      remainingAmount,
+    });
+  } catch (error) {
+    console.error('Error generating invoice:', error);
+    res.status(500).json({ error: 'Failed to generate invoice' });
+  }
+};

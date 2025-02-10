@@ -45,4 +45,7 @@ router.get('/getETA', ownerController.getETAController);
 router.post('/createbranch',roleCheck(['superadmin']),ownerController.addBranch);
 router.get('/getBranches',roleCheck(['owner','operator']),ownerController.getBranches);
 router.get('/getVehicleByBranch',roleCheck(['owner','operator']),ownerController.getVehiclesGroupedByBranch);
+
+router.post('/startAndEnd',roleCheck(['owner','operator','driver']), ownerController.startAndEndVehicle);
+
 module.exports = router;

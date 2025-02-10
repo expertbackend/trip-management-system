@@ -24,8 +24,12 @@ const VehicleTable = () => {
   const [selectedVehicle, setSelectedVehicle] = useState(null);
   const [modalMode, setModalMode] = useState('view');
   const token = localStorage.getItem('token'); // Assuming the token is stored in localStorage
-
+  const [isVehicleStarted, setIsVehicleStarted] = useState(false);
+  const [actionType, setActionType] = useState(""); 
+  const [isModalOpen1, setIsModalOpen1] = useState(false); // modal visibility state
+  const [enteredMeterReading, setEnteredMeterReading] = useState("");
   // Fetch vehicles and drivers when the component mounts
+
   useEffect(() => {
     console.log('Fetching vehicles...');
     fetchVehicles();
@@ -252,7 +256,60 @@ const VehicleTable = () => {
   
   
   
+  const handleStartVehicle = () => {
+    if (vehiclesByBranch[0].vehicles[0].vehicleType !== "others") {
+      setError("Vehicle type is not 'others'. Cannot start the vehicle.");
+      return;
+    }
+    setActionType("start");
+    setIsModalOpen1(true);
+    console.log('hahahahaha11111',isModalOpen1)
+  };
 
+  const handleEndVehicle = () => {
+    if (vehiclesByBranch[0].vehicles[0].vehicleType !== "others") {
+      setError("Vehicle type is not 'others'. Cannot end the vehicle.");
+      return;
+    }
+    setActionType("end");
+    setIsModalOpen1(true);
+  };
+
+  const handleMeterReadingSubmit = async () => {
+    if (!enteredMeterReading) {
+      setError("Please enter the meter reading.");
+      return;
+    }
+
+    try {
+      // Calculate the total hours based on the action type (start or end)
+      const response = await axiosInstance.post(`/startAndEnd`, {
+        vehicleId: vehiclesByBranch[0].vehicles[0]._id,
+        currentMeterReading: enteredMeterReading,
+        vehicleType: vehiclesByBranch[0].vehicles[0].vehicleType,
+        actionType:actionType
+      });
+
+      if (response.data.success) {
+        setIsVehicleStarted(actionType === "start");
+        alert(`${actionType === "start" ? "Vehicle started" : "Vehicle ended"}!`);
+        setIsModalOpen1(false);
+      }
+    } catch (err) {
+      setError("Error processing the vehicle action. Please try again.");
+      console.error(err);
+    }
+  };
+
+  const closeModal = () => {
+    setIsModalOpen1(false);
+    setEnteredMeterReading("");
+    setError(null);
+  };
+
+  if (!vehiclesByBranch) {
+    return <div>Loading...</div>;
+  }
 
   const filteredVehiclesByBranch = vehiclesByBranch
     .map((branchGroup) => ({
@@ -361,6 +418,7 @@ console.log('vehiclesByBranch',vehiclesByBranch)
               <option value="car">Car</option>
               <option value="truck">Truck</option>
               <option value="bike">Bike</option>
+              <option value="others">Machinary Vehicles</option>
             </select>
           </div>
           <div className="mb-6">
@@ -502,6 +560,17 @@ console.log('vehiclesByBranch',vehiclesByBranch)
                       <span>{vehicle.vehicleType?.toUpperCase() || "N/A"}</span>
                     </div>
                   </div>
+                  {
+  vehicle.vehicleType === 'others' && (
+    <div className="mb-4">
+      <div className="text-gray-800 font-medium">Total Hours For The Day</div>
+      <div className="flex items-center space-x-2">
+        <span>{vehicle?.totalHours}Hr</span>
+      </div>
+    </div>
+  )
+}
+
                   <div className="mb-4">
                     <div className="text-gray-800 font-medium">Date</div>
                     <p>{new Date(vehicle.createdAt1).toLocaleDateString()}</p>
@@ -521,6 +590,60 @@ console.log('vehiclesByBranch',vehiclesByBranch)
                       View
                     </button>
                   </div>
+                  <div className="flex gap-2 mt-4">
+            <button
+              className="px-4 py-2 text-xs text-white bg-blue-500 rounded hover:bg-blue-600"
+              onClick={handleStartVehicle}
+              disabled={isVehicleStarted}
+            >
+              {isVehicleStarted ? "Vehicle Started" : "Start Vehicle"}
+            </button>
+            {isVehicleStarted && (
+              <button
+                className="px-4 py-2 text-xs text-white bg-gray-500 rounded hover:bg-gray-600"
+                onClick={handleEndVehicle}
+              >
+                End Vehicle
+              </button>
+            )}
+          </div>
+          {isModalOpen1 && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
+          <div className="bg-white p-6 rounded-md shadow-lg w-96">
+            <h3 className="text-xl font-semibold mb-4">
+              {actionType === "start" ? "Start Vehicle" : "End Vehicle"}
+            </h3>
+            <div className="mb-4">
+              <label htmlFor="meterReading" className="block text-sm font-medium">
+                Enter Meter Reading:
+              </label>
+              <input
+                type="number"
+                id="meterReading"
+                value={enteredMeterReading}
+                onChange={(e) => setEnteredMeterReading(e.target.value)}
+                placeholder="Enter Meter Reading"
+                className="mt-1 px-3 py-2 border border-gray-300 rounded-md w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+            {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={handleMeterReadingSubmit}
+                className="px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600"
+              >
+                Submit
+              </button>
+              <button
+                onClick={closeModal}
+                className="px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
                 </div>
               </div>
             );

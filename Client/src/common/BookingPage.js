@@ -21,7 +21,6 @@ const BookingsPage = () => {
   const [bookingsPerPage] = useState(10); // Adjust per page items
   const [selectedBooking, setSelectedBooking] = useState(null); // State for selected booking
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const token = localStorage.getItem("token");
   const [mode, setMode] = useState("add");
   const [showModal, setShowModal] = useState(false); // For modal visibility
   const [showModal1, setShowModal1] = useState(false); // For modal visibility
@@ -34,7 +33,7 @@ const BookingsPage = () => {
   const [isEditModalOpen,setIsEditModalOpen] = useState("")
   const [selectedBookingId, setSelectedBookingId] = useState(null);
   const [viewType, setViewType] = useState('grid');
-
+  const token = localStorage.getItem("token");
   const axiosInstance = axios.create({
     baseURL: `${process.env.REACT_APP_API_URL}/api/booking`,
     headers: {

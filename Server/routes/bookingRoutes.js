@@ -1,5 +1,5 @@
 const express = require('express');
-const { createBooking, getBookings, getBookingById, assignDriver, startBooking, endBooking, getPendingBookings, getAvailableDrivers, myBookings, getFinancialSummary, getVehicleAndDriverList, addDailyExpenses, getExpensesByDriver, getAllDrivers, getTripReports, cancelBooking, createLoadingDetails, updateLoadingDetails, updateUnloadingDetails, getRemainingAmount, getCompletedBookings, updateBooking, trackAction, getUserProgress, getUserLeaderboard } = require('../controllers/bookingController');
+const { createBooking, getBookings, getBookingById, assignDriver, startBooking, endBooking, getPendingBookings, getAvailableDrivers, myBookings, getFinancialSummary, getVehicleAndDriverList, addDailyExpenses, getExpensesByDriver, getAllDrivers, getTripReports, cancelBooking, createLoadingDetails, updateLoadingDetails, updateUnloadingDetails, getRemainingAmount, getCompletedBookings, updateBooking, trackAction, getUserProgress, getUserLeaderboard, generateInvoice } = require('../controllers/bookingController');
 const authMiddleware = require('../middlewares/authMiddleware');
 const  roleCheck = require('../middlewares/roleMiddleware'); // Import the roleCheck middleware
 const {hasPermission} = require('../middlewares/permissions'); // Import the hasPermission middleware
@@ -50,5 +50,6 @@ router.get('/booking/:bookingId',roleCheck(['owner', 'operator','driver']), getR
 router.post('/trackAction',roleCheck(['owner', 'operator','driver']), trackAction);
 router.get('/progress/:userId', getUserProgress);
 router.get('/leaderboard', getUserLeaderboard);
+router.post('/generate-invoice', generateInvoice);
 
 module.exports = router;
