@@ -92,7 +92,6 @@ const tokenId = localStorage.getItem('tokenId')
       if (!response.ok) {
         throw new Error('Failed to fetch notifications');
       }
-
       const data = await response.json();
       const notificationsWithReadStatus = data.map((notification) => ({
         ...notification,

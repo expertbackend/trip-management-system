@@ -459,15 +459,15 @@ exports.assignDriver = async (req, res) => {
       await driver.save();
 
       // Send notification to the driver
-      const notificationTitle = "🚗✨ New Booking Assigned!";
-      const notificationBody = `🚗 You've got a new booking scheduled for: ${new Date(booking.startDate).toLocaleString()}. Get ready for an exciting ride! 🚙💨`;
+        const notificationTitle = "🚗✨ New Booking Assigned!";
+        const notificationBody = `🚗 You've got a new booking scheduled for: ${new Date(booking.startDate).toLocaleString()}. Get ready for an exciting ride! 🚙💨`;
 
-      const notification = new Noti({
-        userId: driverId,
-        title: notificationTitle,
-        body: notificationBody,
-      });
-      await notification.save();
+        const notification = new Noti({
+          userId: driverId,
+          title: notificationTitle,
+          body: notificationBody,
+        });
+        await notification.save();
 
       const io = getIo();
       const socketId = activeSockets.get(driver._id.toString());

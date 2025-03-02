@@ -736,7 +736,7 @@ exports.getVehiclesGroupedByBranch = async (req, res) => {
         // Fetch all vehicles and populate both branch and owner information
         const vehicles = await Vehicle.find({owner:req.user._id})
             .populate('branchId', 'name location')  // Populate branch details
-            .populate('owner', 'name email');  // Optionally, populate owner details
+            .populate('owner', 'name email').populate('driver','name phoneNumber');  // Optionally, populate owner details
 console.log('bbb',vehicles)
         // Group vehicles by branchId
         const groupedVehicles = vehicles.reduce((acc, vehicle) => {
@@ -758,7 +758,7 @@ console.log('bbb',vehicles)
                     lastStartedHours = log.hours;  // Store the hours for the "started" log
                 } else if (log.status === 'ended' && lastStartedHours !== null) {
                     // If the status is "ended" and there's a "started" log before it
-                    totalHours += log.hours - lastStartedHours;  // Calculate the hours worked for this day
+                    totalHours += log.hours ;  // Calculate the hours worked for this day
                     lastStartedHours = null;  // Reset lastStartedHours after the "ended" log
                 }
             });
@@ -810,7 +810,7 @@ exports.startAndEndVehicle = async (req, res) => {
         }
 
         // Ensure the vehicle is of type 'others' before starting or ending the trip
-        if (vehicleType !== 'others') {
+        if (vehicle.vehicleType !== 'others') {
             return res.status(400).json({ success: false, message: 'Vehicle type must be "others" to start and end the trip' });
         }
 
@@ -845,7 +845,7 @@ exports.startAndEndVehicle = async (req, res) => {
             vehicle.dailyLogs.push({
                 date: currentDate,
                 status: 'started',
-                hours: 0 // Initially, no hours worked
+                hours: currentMeterReading // Initially, no hours worked
             });
 
             vehicle.createdAt1 = new Date(); // Set the date vehicle was started
@@ -865,10 +865,10 @@ exports.startAndEndVehicle = async (req, res) => {
                     message: 'End meter reading cannot be less than start meter reading'
                 });
             }
-
+console.log('calculate last liog',currentMeterReading - lastLog.hours)
             // Calculate the total hours for the day
             const totalHoursForTheDay = currentMeterReading - lastLog.hours;
-
+console.log('just test',totalHoursForTheDay)
             // Add the end log for today
             vehicle.dailyLogs.push({
                 date: currentDate,

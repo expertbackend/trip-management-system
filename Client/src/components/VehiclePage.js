@@ -27,6 +27,8 @@ const VehicleTable = () => {
   const [isVehicleStarted, setIsVehicleStarted] = useState(false);
   const [actionType, setActionType] = useState(""); 
   const [isModalOpen1, setIsModalOpen1] = useState(false); // modal visibility state
+  const [isModalOpen2, setIsModalOpen2] = useState(false); // modal visibility state
+
   const [enteredMeterReading, setEnteredMeterReading] = useState("");
   // Fetch vehicles and drivers when the component mounts
 
@@ -62,7 +64,8 @@ const VehicleTable = () => {
   };
   
   const [branches, setBranches] = useState([]);  // State to store fetched branches
-
+ 
+  
   // Call getBranches API when the modal opens
   useEffect(() => {
     if (isVehicleModalOpen) {
@@ -83,6 +86,7 @@ const VehicleTable = () => {
   const fetchDrivers = async () => {
     try {
       const response = await axiosInstance.get('/drivers'); // Replace with actual endpoint
+      console.log('hahahahahdrivers',response.data)
       setDrivers(response.data.drivers); // Assuming response has a drivers array
     } catch (error) {
       console.error('Error fetching drivers:', error);
@@ -256,22 +260,26 @@ const VehicleTable = () => {
   
   
   
-  const handleStartVehicle = () => {
-    if (vehiclesByBranch[0].vehicles[0].vehicleType !== "others") {
+  const handleStartVehicle = (vehicle) => {
+    console.log("Start Vehicle button clicked",vehicle); // Debugging
+    if (vehicle.vehicleType !== "others") {
       setError("Vehicle type is not 'others'. Cannot start the vehicle.");
       return;
     }
+     setSelectedVehicle(vehicle)
     setActionType("start");
-    setIsModalOpen1(true);
-    console.log('hahahahaha11111',isModalOpen1)
+    setIsModalOpen1(true); // Ensure this is being called
+    console.log("isModalOpen2:", isModalOpen2); // Debugging
   };
 
-  const handleEndVehicle = () => {
-    if (vehiclesByBranch[0].vehicles[0].vehicleType !== "others") {
+  const handleEndVehicle = (vehicle) => {
+    console.log("End Vehicle button clicked",vehicle); // Debugging
+    if (vehicle.vehicleType !== "others") {
       setError("Vehicle type is not 'others'. Cannot end the vehicle.");
       return;
     }
     setActionType("end");
+    setSelectedVehicle(vehicle)
     setIsModalOpen1(true);
   };
 
@@ -284,7 +292,7 @@ const VehicleTable = () => {
     try {
       // Calculate the total hours based on the action type (start or end)
       const response = await axiosInstance.post(`/startAndEnd`, {
-        vehicleId: vehiclesByBranch[0].vehicles[0]._id,
+        vehicleId: selectedVehicle._id,
         currentMeterReading: enteredMeterReading,
         vehicleType: vehiclesByBranch[0].vehicles[0].vehicleType,
         actionType:actionType
@@ -315,7 +323,7 @@ const VehicleTable = () => {
     .map((branchGroup) => ({
       ...branchGroup,
       vehicles: branchGroup.vehicles.filter((vehicle) => {
-        const vehicleDate = new Date(vehicle.createdAt);
+        const vehicleDate = new Date(vehicle.createdAt1);
 console.log('vehicleDate',vehicleDate)
         // Normalize start and end dates
         const startDateObj = startDate
@@ -346,7 +354,7 @@ console.log('vehicleDate',vehicleDate)
   const indexOfLastVehicle = currentPage * vehiclesPerPage;
   const indexOfFirstVehicle = indexOfLastVehicle - vehiclesPerPage;
   const currentVehicles = filteredVehiclesByBranch.slice(indexOfFirstVehicle, indexOfLastVehicle);
-
+console.log('currentVehicles',currentVehicles)
   const totalPages = Math.ceil(filteredVehiclesByBranch.length / vehiclesPerPage);
  
 
@@ -369,6 +377,8 @@ console.log('vehicleDate',vehicleDate)
     setIsModalOpen(false);
   };
 console.log('vehiclesByBranch',vehiclesByBranch)
+const allVehicles = vehiclesByBranch.flatMap((branch) => branch.vehicles);
+
   return (
     <div className="w-full p-4 bg-white overflow-y-auto ">
       {/* Filter Inputs */}
@@ -451,8 +461,9 @@ console.log('vehiclesByBranch',vehiclesByBranch)
               className="w-full mt-2 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-300 focus:border-blue-300"
             >
               <option value="">Select Vehicle</option>
-              {vehicles.map((vehicle) => (
-                <option key={vehicle._id} value={vehicle._id}>{vehicle.plateNumber}</option>
+              {allVehicles.map((vehicle) => (
+                console.log('dataaaaaaaaaaa',vehicle),
+                <option key={vehicle._id} value={vehicle._id}>{vehicle.plateNumber} - {vehicle.name} ({vehicle.branchId.name})</option>
               ))}
             </select>
           </div>
@@ -593,15 +604,15 @@ console.log('vehiclesByBranch',vehiclesByBranch)
                   <div className="flex gap-2 mt-4">
             <button
               className="px-4 py-2 text-xs text-white bg-blue-500 rounded hover:bg-blue-600"
-              onClick={handleStartVehicle}
+              onClick={() =>handleStartVehicle(vehicle)}
               disabled={isVehicleStarted}
             >
-              {isVehicleStarted ? "Vehicle Started" : "Start Vehicle"}
+              {vehicle.vehicleStatus === 'started' ? "Vehicle Started" : "Start Vehicle"}
             </button>
-            {isVehicleStarted && (
+            {vehicle.vehicleStatus === 'started' && (
               <button
                 className="px-4 py-2 text-xs text-white bg-gray-500 rounded hover:bg-gray-600"
-                onClick={handleEndVehicle}
+                onClick={() =>handleEndVehicle(vehicle)}
               >
                 End Vehicle
               </button>
